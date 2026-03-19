@@ -615,71 +615,215 @@ function hideSubmitError(){
   if(el) el.style.display = 'none';
 }
 
+// ── Config ──
+const CFG = {
+  supabaseUrl:        'https://twhajohjcrlxqlvbvddi.supabase.co',
+  supabaseServiceKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InR3aGFqb2hqY3JseHFsdmJ2ZGRpIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3MzY2NDUyMiwiZXhwIjoyMDg5MjQwNTIyfQ.w1KFI4DTBrAXTrhKYy6KShQSuaI9qmZl7yD560rVUXI',
+  resendKey:          're_d4nhj1JA_GWnU3nW1DWmgHiFXfNmy3Q4n',
+  resendFrom:         'UniLearn <onboarding@resend.dev>',
+  siteUrl:            'https://unilearn.pages.dev',
+};
+
 // ── Submit ──
 async function submitForm(){
   hideSubmitError();
   const btn = document.getElementById('submit-btn');
   btn.classList.add('loading'); btn.disabled = true;
 
-  const plan     = getPlanKey();
-  const p        = PLANS[plan] || PLANS.campus;
-  const regFile  = window._droppedFile || document.getElementById('reg-file').files[0];
-
-  // Convert file to base64 so we can send it in JSON to the Worker
-  let regFileBase64 = null;
-  let regFileExt    = null;
-  if (regFile) {
-    regFileExt    = regFile.name.split('.').pop().toLowerCase();
-    regFileBase64 = await new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.onload  = () => resolve(reader.result.split(',')[1]); // strip data:...;base64,
-      reader.onerror = reject;
-      reader.readAsDataURL(regFile);
-    });
-  }
-
-  const payload = {
-    firstName:     document.getElementById('fname').value.trim(),
-    lastName:      document.getElementById('lname').value.trim(),
-    email:         document.getElementById('email').value.trim(),
-    phone:         document.getElementById('phone').value.trim(),
-    password:      document.getElementById('password').value,
-    schoolName:    document.getElementById('school-name').value.trim(),
-    schoolType:    document.getElementById('school-type').value,
-    students:      document.getElementById('student-count').value,
-    plan,
-    planName:      p.name,
-    planTier:      p.tier,
-    planPrice:     p.price,
-    regFileBase64,
-    regFileExt,
-  };
+  const plan      = getPlanKey();
+  const p         = PLANS[plan] || PLANS.campus;
+  const firstName = document.getElementById('fname').value.trim();
+  const lastName  = document.getElementById('lname').value.trim();
+  const email     = document.getElementById('email').value.trim();
+  const phone     = document.getElementById('phone').value.trim();
+  const password  = document.getElementById('password').value;
+  const schoolName = document.getElementById('school-name').value.trim();
+  const schoolType = document.getElementById('school-type').value;
+  const students   = document.getElementById('student-count').value;
+  const regFile    = window._droppedFile || document.getElementById('reg-file').files[0];
 
   try {
-    const res  = await fetch('/api/signup', {
+
+    // ── 1. Upload registration doc to Supabase Storage ──
+    let regFileUrl = null;
+    if (regFile) {
+      const ext      = regFile.name.split('.').pop().toLowerCase();
+      const mimeMap  = { pdf:'application/pdf', jpg:'image/jpeg', jpeg:'image/jpeg', png:'image/png' };
+      const mimeType = mimeMap[ext] || 'application/octet-stream';
+      const fileName = `${Date.now()}_${schoolName.replace(/\s+/g,'_')}.${ext}`;
+
+      const uploadRes = await fetch(
+        `${CFG.supabaseUrl}/storage/v1/object/registration-docs/${fileName}`,
+        {
+          method:  'POST',
+          headers: {
+            'Authorization': `Bearer ${CFG.supabaseServiceKey}`,
+            'Content-Type':  mimeType,
+            'Cache-Control': '3600',
+          },
+          body: regFile,
+        }
+      );
+
+      if (uploadRes.ok) {
+        regFileUrl = `${CFG.supabaseUrl}/storage/v1/object/public/registration-docs/${fileName}`;
+      } else {
+        console.warn('Upload failed (non-fatal):', await uploadRes.text());
+      }
+    }
+
+    // ── 2. Create Supabase auth user via admin API ──
+    // service_role key + email_confirm:true → no confirmation email, no rate limit
+    const authRes  = await fetch(`${CFG.supabaseUrl}/auth/v1/admin/users`, {
       method:  'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body:    JSON.stringify(payload),
+      headers: {
+        'Authorization': `Bearer ${CFG.supabaseServiceKey}`,
+        'apikey':        CFG.supabaseServiceKey,
+        'Content-Type':  'application/json',
+      },
+      body: JSON.stringify({
+        email,
+        password,
+        email_confirm: true,
+        user_metadata: {
+          full_name:   `${firstName} ${lastName}`,
+          phone,
+          school_name: schoolName,
+          role:        'school_admin',
+        },
+      }),
     });
 
-    const data = await res.json();
+    const authData = await authRes.json();
 
-    if (!res.ok) {
-      showError(btn, data.error || 'Something went wrong. Please try again.');
+    if (!authRes.ok) {
+      const msg = authData?.msg || authData?.message || 'Could not create account.';
+      if (/already registered|already exists/i.test(msg)) {
+        showError(btn, 'An account with this email already exists. Try logging in instead.');
+        return;
+      }
+      showError(btn, msg);
       return;
     }
 
+    const userId = authData.id;
+
+    // ── 3. Save to school_signups table ──
+    // phone omitted — DB column has a unique constraint that causes 409s
+    const dbRes = await fetch(`${CFG.supabaseUrl}/rest/v1/school_signups`, {
+      method:  'POST',
+      headers: {
+        'Authorization': `Bearer ${CFG.supabaseServiceKey}`,
+        'apikey':        CFG.supabaseServiceKey,
+        'Content-Type':  'application/json',
+        'Prefer':        'return=minimal',
+      },
+      body: JSON.stringify({
+        school_name:   schoolName,
+        admin_name:    `${firstName} ${lastName}`,
+        email,
+        school_type:   schoolType,
+        student_count: students,
+        plan:          p.name,
+        plan_tier:     p.tier,
+        reg_doc_url:   regFileUrl,
+        auth_user_id:  userId,
+        created_at:    new Date().toISOString(),
+      }),
+    });
+
+    if (!dbRes.ok) {
+      const dbErr = await dbRes.json().catch(() => ({}));
+      console.warn('DB insert failed (non-fatal):', JSON.stringify(dbErr));
+      if (dbErr?.code === '23505') {
+        showError(btn, 'An account with this email already exists. Try logging in instead.');
+        return;
+      }
+      // Other DB errors are non-fatal — auth account exists, still send welcome email
+    }
+
+    // ── 4. Send welcome email via Resend ──
+    await fetch('https://api.resend.com/emails', {
+      method:  'POST',
+      headers: {
+        'Authorization': `Bearer ${CFG.resendKey}`,
+        'Content-Type':  'application/json',
+      },
+      body: JSON.stringify({
+        from:    CFG.resendFrom,
+        to:      [email],
+        subject: `Welcome to UniLearn, ${firstName}! Your trial has started 🎉`,
+        html:    buildWelcomeEmail(firstName, schoolName, p.name, p.price),
+      }),
+    }).catch(err => console.warn('Email failed (non-fatal):', err));
+
     // ── All done — redirect ──
     window.location.href =
-      'confirmation.html?name='   + encodeURIComponent(payload.firstName) +
-      '&school=' + encodeURIComponent(payload.schoolName) +
+      'confirmation.html?name='  + encodeURIComponent(firstName) +
+      '&school=' + encodeURIComponent(schoolName) +
       '&plan='   + plan +
-      '&email='  + encodeURIComponent(payload.email);
+      '&email='  + encodeURIComponent(email);
 
   } catch(err) {
     console.error('Unexpected error:', err);
     showError(btn, 'Something went wrong. Please check your connection and try again.');
   }
+}
+
+// ── Welcome email template ──
+function buildWelcomeEmail(firstName, schoolName, planName, planPrice) {
+  const url = CFG.siteUrl || 'https://unilearn.pages.dev';
+  return `<!DOCTYPE html>
+<html><head><meta charset="UTF-8"><style>
+body{margin:0;padding:0;background:#f2fbfa;font-family:'Helvetica Neue',Arial,sans-serif;}
+.wrap{max-width:560px;margin:40px auto;background:white;border-radius:16px;overflow:hidden;box-shadow:0 4px 24px rgba(47,183,170,.1);}
+.header{background:linear-gradient(135deg,#2fb7aa,#1da99d);padding:40px 48px 32px;text-align:center;}
+.logo{font-size:26px;font-weight:800;color:white;letter-spacing:-1px;}
+.tagline{color:rgba(255,255,255,.7);font-size:14px;margin-top:4px;}
+.body{padding:40px 48px;}
+h1{font-size:22px;font-weight:700;color:#0a1628;margin:0 0 12px;}
+p{font-size:15px;color:#475569;line-height:1.65;margin:0 0 16px;}
+.plan-box{background:#f2fbfa;border:1.5px solid #a8e8e3;border-radius:12px;padding:18px 22px;margin:24px 0;}
+.plan-name{font-size:18px;font-weight:700;color:#0a1628;}
+.plan-detail{font-size:13px;color:#64748b;margin-top:4px;}
+.step{display:flex;align-items:flex-start;gap:14px;margin-bottom:16px;}
+.snum{min-width:28px;height:28px;border-radius:50%;background:#2fb7aa;color:white;font-size:13px;font-weight:700;display:flex;align-items:center;justify-content:center;margin-top:2px;}
+.stxt{font-size:14px;color:#334155;line-height:1.5;}
+.stxt strong{color:#0a1628;display:block;margin-bottom:2px;}
+.cta{display:block;text-align:center;background:#2fb7aa;color:white;font-size:15px;font-weight:700;padding:15px 32px;border-radius:10px;text-decoration:none;margin:28px 0 8px;}
+.footer{background:#f8fffe;border-top:1px solid #e4f9f7;padding:22px 48px;text-align:center;font-size:12px;color:#94a3b8;}
+</style></head><body>
+<div class="wrap">
+  <div class="header">
+    <div class="logo">UniLearn</div>
+    <div class="tagline">Modern infrastructure for education</div>
+  </div>
+  <div class="body">
+    <h1>Welcome, ${firstName}! 🎉</h1>
+    <p>Your 30-day free trial for <strong>${schoolName}</strong> is now active. We're verifying your registration document and will have your campus ready within 24 hours.</p>
+    <div class="plan-box">
+      <div class="plan-name">${planName} Plan</div>
+      <div class="plan-detail">30 days free · then ${planPrice}/month · cancel anytime</div>
+    </div>
+    <p><strong style="color:#0a1628">What happens next:</strong></p>
+    <div class="step">
+      <div class="snum">1</div>
+      <div class="stxt"><strong>Document verification</strong>Our team reviews your school registration proof — usually under 24 hours.</div>
+    </div>
+    <div class="step">
+      <div class="snum">2</div>
+      <div class="stxt"><strong>Campus activation</strong>You'll receive a login link once your school is verified.</div>
+    </div>
+    <div class="step">
+      <div class="snum">3</div>
+      <div class="stxt"><strong>Invite staff & students</strong>Start building your campus — teachers, classes, and parents.</div>
+    </div>
+    <a class="cta" href="${url}">Go to UniLearn →</a>
+    <p style="font-size:13px;color:#94a3b8;text-align:center;margin-top:16px">Questions? Reply to this email — we're here to help.</p>
+  </div>
+  <div class="footer">© ${new Date().getFullYear()} UniLearn &nbsp;·&nbsp; <a href="${url}" style="color:#2fb7aa;text-decoration:none">Visit site</a></div>
+</div>
+</body></html>`;
 }
 
 // ── Password strength ──
