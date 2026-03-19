@@ -1,0 +1,1381 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>UniLearn — School Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=DM+Sans:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+
+<!-- Supabase JS -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+  // Initialize Supabase client
+  window._db = window.supabase.createClient(
+    "https://twhajohjcrlxqlvbvddi.supabase.co",
+    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InR3aGFqb2hqY3JseHFsdmJ2ZGRpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM2NjQ1MjIsImV4cCI6MjA4OTI0MDUyMn0.vsTT2eErCB3xpLiQvUPQW8Us6lphGHEKSyO3eE0VcfA"
+  );
+</script>
+<style>
+:root {
+  --seafoam: #6ED3C7;
+  --seafoam-deep: #2fb7aa;
+  --seafoam-light: #e4f9f7;
+  --seafoam-mid: #a8e8e3;
+  --dark: #0a1628;
+  --dark2: #0f1f3d;
+  --dark3: #162440;
+  --slate: #475569;
+  --soft: #f2fbfa;
+  --radius: 16px;
+  --radius-sm: 10px;
+  --sidebar-w: 240px;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: #f0f4f8;
+  color: var(--dark);
+  display: flex;
+  height: 100vh;
+  overflow: hidden;
+}
+
+/* ── SIDEBAR ── */
+.sidebar {
+  width: var(--sidebar-w);
+  background: var(--dark);
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+  height: 100vh;
+  overflow-y: auto;
+  position: relative;
+  z-index: 10;
+}
+
+.sidebar::before {
+  content: '';
+  position: absolute;
+  width: 300px; height: 300px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(47,183,170,.1) 0%, transparent 70%);
+  top: -80px; left: -80px;
+  pointer-events: none;
+}
+
+.sidebar-logo {
+  padding: 24px 22px 20px;
+  display: flex; align-items: center; gap: 10px;
+  border-bottom: 1px solid rgba(255,255,255,.06);
+}
+.sidebar-logo-mark {
+  width: 34px; height: 34px; border-radius: 10px;
+  background: linear-gradient(135deg, var(--seafoam-deep), #1a9e92);
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'Sora', sans-serif; font-weight: 800;
+  font-size: 16px; color: white; flex-shrink: 0;
+}
+.sidebar-logo-text {
+  font-family: 'Sora', sans-serif; font-weight: 800;
+  font-size: 17px; color: white; letter-spacing: -.3px;
+}
+.sidebar-school {
+  font-size: 11px; color: #64748b; font-weight: 500;
+}
+
+.sidebar-section {
+  padding: 20px 12px 8px;
+  font-size: 10px; font-weight: 700; text-transform: uppercase;
+  letter-spacing: 1.5px; color: #334155;
+}
+
+.nav-item {
+  display: flex; align-items: center; gap: 11px;
+  padding: 10px 14px; margin: 1px 8px;
+  border-radius: var(--radius-sm);
+  cursor: pointer; transition: .18s;
+  font-size: 14px; font-weight: 500; color: #64748b;
+  position: relative;
+}
+.nav-item:hover { background: rgba(255,255,255,.05); color: #94a3b8; }
+.nav-item.active { background: rgba(47,183,170,.15); color: var(--seafoam); }
+.nav-item.active .nav-icon { opacity: 1; }
+.nav-icon {
+  width: 18px; height: 18px; opacity: .5; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+}
+.nav-icon svg { width: 18px; height: 18px; }
+.nav-item.active .nav-icon { opacity: 1; }
+.sc-icon svg { width: 20px; height: 20px; }
+.qa-icon { display:flex; align-items:center; }
+.qa-icon svg { width: 17px; height: 17px; }
+.toast-icon svg { width: 18px; height: 18px; }
+.nav-badge {
+  margin-left: auto; background: var(--seafoam-deep);
+  color: white; font-size: 10px; font-weight: 700;
+  padding: 2px 7px; border-radius: 999px;
+}
+
+.sidebar-bottom {
+  margin-top: auto;
+  padding: 16px 12px;
+  border-top: 1px solid rgba(255,255,255,.06);
+}
+.user-card {
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px 12px; border-radius: var(--radius-sm);
+  cursor: pointer; transition: .18s;
+}
+.user-card:hover { background: rgba(255,255,255,.05); }
+.user-card { cursor: pointer; }
+.user-av {
+  width: 34px; height: 34px; border-radius: 50%;
+  background: linear-gradient(135deg, var(--seafoam-mid), var(--seafoam-deep));
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'Sora', sans-serif; font-weight: 700;
+  font-size: 13px; color: white; flex-shrink: 0;
+}
+.user-name { font-size: 13px; font-weight: 600; color: white; }
+.user-role { font-size: 11px; color: #64748b; }
+
+/* ── MAIN ── */
+.main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* topbar */
+.topbar {
+  background: white;
+  padding: 0 32px;
+  height: 64px;
+  display: flex; align-items: center; justify-content: space-between;
+  border-bottom: 1px solid #e8f0ee;
+  flex-shrink: 0;
+}
+.topbar-left { display: flex; align-items: center; gap: 16px; }
+.page-title {
+  font-family: 'Sora', sans-serif; font-size: 18px; font-weight: 700;
+}
+.breadcrumb { font-size: 13px; color: #94a3b8; }
+.topbar-right { display: flex; align-items: center; gap: 12px; }
+.topbar-btn {
+  display: flex; align-items: center; gap: 7px;
+  padding: 8px 16px; border-radius: var(--radius-sm);
+  font-family: 'Sora', sans-serif; font-size: 13px; font-weight: 700;
+  cursor: pointer; border: none; transition: .18s;
+}
+.topbar-btn.primary { background: var(--seafoam-deep); color: white; }
+.topbar-btn.primary:hover { background: #27a396; }
+.topbar-btn.ghost { background: var(--soft); color: var(--slate); border: 1px solid #d8f0ed; }
+.topbar-btn.ghost:hover { background: #e4f9f7; }
+.notif-btn {
+  width: 38px; height: 38px; border-radius: 50%;
+  background: var(--soft); border: 1px solid #d8f0ed;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; font-size: 16px; position: relative; transition: .18s;
+}
+.notif-btn:hover { background: #e4f9f7; }
+.notif-dot {
+  position: absolute; top: 7px; right: 7px;
+  width: 8px; height: 8px; border-radius: 50%;
+  background: #ef4444; border: 2px solid white;
+}
+
+/* content area */
+.content {
+  flex: 1;
+  overflow-y: auto;
+  padding: 28px 32px;
+}
+
+/* ── SECTION VIEWS ── */
+.view { display: none; }
+.view.active { display: block; }
+
+/* ── OVERVIEW ── */
+.stats-row {
+  display: grid; grid-template-columns: repeat(4, 1fr);
+  gap: 18px; margin-bottom: 28px;
+}
+.stat-card {
+  background: white; border-radius: var(--radius);
+  padding: 22px 24px;
+  border: 1px solid #eef2f0;
+  transition: .2s;
+  animation: fadeUp .5s ease both;
+}
+.stat-card:hover { box-shadow: 0 8px 24px rgba(47,183,170,.1); transform: translateY(-2px); }
+.stat-card:nth-child(2) { animation-delay: .07s; }
+.stat-card:nth-child(3) { animation-delay: .14s; }
+.stat-card:nth-child(4) { animation-delay: .21s; }
+@keyframes fadeUp { from { opacity:0; transform:translateY(16px); } to { opacity:1; transform:translateY(0); } }
+
+.sc-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px; }
+.sc-icon {
+  width: 40px; height: 40px; border-radius: 12px;
+  display: flex; align-items: center; justify-content: center; font-size: 18px;
+}
+.sc-icon.teal { background: var(--seafoam-light); }
+.sc-icon.blue { background: #eff6ff; }
+.sc-icon.amber { background: #fffbeb; }
+.sc-icon.rose { background: #fff1f2; }
+.sc-delta {
+  font-size: 12px; font-weight: 600; padding: 3px 8px;
+  border-radius: 999px;
+}
+.sc-delta.up { background: #dcfce7; color: #16a34a; }
+.sc-delta.down { background: #fee2e2; color: #dc2626; }
+.sc-num {
+  font-family: 'Sora', sans-serif; font-size: 32px; font-weight: 800;
+  letter-spacing: -1px; margin-bottom: 4px;
+}
+.sc-label { font-size: 13px; color: var(--slate); }
+
+/* bottom grid */
+.overview-grid {
+  display: grid; grid-template-columns: 1fr 1fr;
+  gap: 18px;
+}
+.card {
+  background: white; border-radius: var(--radius);
+  border: 1px solid #eef2f0; overflow: hidden;
+}
+.card-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 18px 22px 14px;
+  border-bottom: 1px solid #f4faf9;
+}
+.card-title {
+  font-family: 'Sora', sans-serif; font-size: 15px; font-weight: 700;
+}
+.card-link {
+  font-size: 13px; color: var(--seafoam-deep); font-weight: 600;
+  cursor: pointer; text-decoration: none;
+}
+.card-link:hover { text-decoration: underline; }
+.card-body { padding: 0 22px 18px; }
+
+/* activity feed */
+.activity-item {
+  display: flex; align-items: flex-start; gap: 12px;
+  padding: 13px 0; border-bottom: 1px solid #f4faf9;
+}
+.activity-item:last-child { border-bottom: none; }
+.activity-av {
+  width: 34px; height: 34px; border-radius: 50%; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'Sora', sans-serif; font-size: 12px; font-weight: 700; color: white;
+}
+.activity-text { flex: 1; }
+.activity-text strong { font-weight: 600; }
+.activity-text p { font-size: 13px; color: var(--slate); line-height: 1.4; }
+.activity-time { font-size: 11px; color: #94a3b8; margin-top: 3px; }
+
+/* quick actions */
+.qa-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; padding: 14px 0 4px; }
+.qa-btn {
+  display: flex; align-items: center; gap: 10px;
+  padding: 13px 14px; border-radius: var(--radius-sm);
+  background: var(--soft); border: 1px solid #d8f0ed;
+  cursor: pointer; transition: .18s; font-size: 13px; font-weight: 600;
+}
+.qa-btn:hover { background: var(--seafoam-light); border-color: var(--seafoam-mid); color: var(--seafoam-deep); }
+.qa-icon { font-size: 18px; }
+
+/* attendance mini chart */
+.att-bars {
+  display: flex; align-items: flex-end; gap: 6px;
+  height: 80px; padding: 14px 0 4px;
+}
+.att-bar-wrap { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 6px; }
+.att-bar {
+  width: 100%; border-radius: 4px 4px 0 0;
+  background: var(--seafoam-mid); transition: .3s;
+}
+.att-bar.hi { background: var(--seafoam-deep); }
+.att-day { font-size: 10px; color: #94a3b8; }
+
+/* ── TEACHERS ── */
+.section-toolbar {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 20px; gap: 12px;
+}
+.search-box {
+  display: flex; align-items: center; gap: 8px;
+  background: white; border: 1px solid #d8f0ed;
+  border-radius: var(--radius-sm); padding: 9px 14px;
+  flex: 1; max-width: 320px;
+}
+.search-box input {
+  border: none; outline: none; font-family: 'DM Sans', sans-serif;
+  font-size: 14px; width: 100%; background: transparent;
+}
+.search-icon { font-size: 15px; color: #94a3b8; flex-shrink: 0; }
+.filter-select {
+  padding: 9px 14px; border-radius: var(--radius-sm);
+  border: 1px solid #d8f0ed; background: white;
+  font-family: 'DM Sans', sans-serif; font-size: 13px;
+  color: var(--slate); cursor: pointer; outline: none;
+}
+
+/* table */
+.table-wrap {
+  background: white; border-radius: var(--radius);
+  border: 1px solid #eef2f0; overflow: hidden;
+}
+.data-table { width: 100%; border-collapse: collapse; }
+.data-table thead tr {
+  background: var(--soft); border-bottom: 1px solid #e0f0ed;
+}
+.data-table th {
+  padding: 13px 18px; text-align: left;
+  font-family: 'Sora', sans-serif; font-size: 12px;
+  font-weight: 700; text-transform: uppercase; letter-spacing: .8px;
+  color: var(--slate); white-space: nowrap;
+}
+.data-table td {
+  padding: 14px 18px; font-size: 14px;
+  border-bottom: 1px solid #f4faf9;
+  vertical-align: middle;
+}
+.data-table tbody tr:last-child td { border-bottom: none; }
+.data-table tbody tr { transition: .15s; }
+.data-table tbody tr:hover td { background: #fafffe; }
+
+.teacher-cell { display: flex; align-items: center; gap: 12px; }
+.t-av {
+  width: 36px; height: 36px; border-radius: 50%; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'Sora', sans-serif; font-size: 13px; font-weight: 700; color: white;
+}
+.t-name { font-weight: 600; font-size: 14px; }
+.t-email { font-size: 12px; color: #94a3b8; }
+
+.badge {
+  display: inline-flex; align-items: center;
+  padding: 4px 10px; border-radius: 999px;
+  font-size: 12px; font-weight: 600;
+}
+.badge.active { background: #dcfce7; color: #16a34a; }
+.badge.inactive { background: #f1f5f9; color: #64748b; }
+.badge.leave { background: #fef3c7; color: #b45309; }
+.badge.math { background: #eff6ff; color: #2563eb; }
+.badge.science { background: #f0fdf4; color: #16a34a; }
+.badge.english { background: #fdf4ff; color: #9333ea; }
+.badge.history { background: #fff7ed; color: #c2410c; }
+.badge.arts { background: #fdf2f8; color: #db2777; }
+.badge.pe { background: #f0f9ff; color: #0284c7; }
+
+.row-actions { display: flex; gap: 6px; }
+.row-btn {
+  padding: 5px 12px; border-radius: 6px; border: none;
+  font-size: 12px; font-weight: 600; cursor: pointer; transition: .15s;
+  font-family: 'DM Sans', sans-serif;
+}
+.row-btn.edit { background: var(--seafoam-light); color: var(--seafoam-deep); }
+.row-btn.edit:hover { background: var(--seafoam-mid); }
+.row-btn.remove { background: #fee2e2; color: #dc2626; }
+.row-btn.remove:hover { background: #fecaca; }
+
+/* ── ATTENDANCE ── */
+.att-summary-row {
+  display: grid; grid-template-columns: repeat(3, 1fr);
+  gap: 16px; margin-bottom: 24px;
+}
+.att-card {
+  background: white; border-radius: var(--radius);
+  padding: 20px 22px; border: 1px solid #eef2f0;
+}
+.att-card-label { font-size: 13px; color: var(--slate); margin-bottom: 8px; }
+.att-card-num {
+  font-family: 'Sora', sans-serif; font-size: 28px; font-weight: 800;
+}
+.att-card-sub { font-size: 12px; color: #94a3b8; margin-top: 4px; }
+.att-rate-bar {
+  height: 6px; background: #f0f7f6; border-radius: 3px; margin-top: 10px; overflow: hidden;
+}
+.att-rate-fill { height: 100%; border-radius: 3px; background: var(--seafoam-deep); }
+
+.att-calendar {
+  background: white; border-radius: var(--radius);
+  border: 1px solid #eef2f0; overflow: hidden; margin-bottom: 24px;
+}
+.cal-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 16px 22px; border-bottom: 1px solid #f4faf9;
+}
+.cal-nav {
+  display: flex; gap: 8px;
+}
+.cal-nav-btn {
+  width: 30px; height: 30px; border-radius: 50%;
+  background: var(--soft); border: 1px solid #d8f0ed;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; font-size: 13px; transition: .15s;
+}
+.cal-nav-btn:hover { background: var(--seafoam-light); }
+.cal-grid {
+  display: grid; grid-template-columns: repeat(7, 1fr);
+  padding: 16px 22px; gap: 4px;
+}
+.cal-day-label {
+  text-align: center; font-size: 11px; font-weight: 700;
+  text-transform: uppercase; letter-spacing: .8px; color: #94a3b8;
+  padding: 6px 0;
+}
+.cal-day {
+  aspect-ratio: 1; border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 13px; cursor: pointer; transition: .15s;
+  position: relative;
+}
+.cal-day:hover { background: var(--seafoam-light); }
+.cal-day.today { background: var(--seafoam-deep); color: white; font-weight: 700; }
+.cal-day.high { background: #dcfce7; color: #16a34a; }
+.cal-day.low { background: #fee2e2; color: #dc2626; }
+.cal-day.empty { cursor: default; }
+.cal-day.other-month { color: #cbd5e1; }
+
+/* ── ANNOUNCEMENTS ── */
+.ann-compose {
+  background: white; border-radius: var(--radius);
+  border: 1px solid #eef2f0; padding: 22px;
+  margin-bottom: 24px;
+}
+.ann-compose-title {
+  font-family: 'Sora', sans-serif; font-size: 15px; font-weight: 700;
+  margin-bottom: 14px;
+}
+.ann-field {
+  width: 100%; border: 1.5px solid #e0f0ed;
+  border-radius: var(--radius-sm); padding: 10px 14px;
+  font-family: 'DM Sans', sans-serif; font-size: 14px;
+  outline: none; transition: .18s; background: white; color: var(--dark);
+}
+.ann-field:focus { border-color: var(--seafoam-deep); box-shadow: 0 0 0 3px rgba(47,183,170,.1); }
+.ann-textarea { resize: vertical; min-height: 80px; line-height: 1.6; }
+.ann-row { display: flex; gap: 12px; margin-top: 12px; }
+.ann-select { flex: 1; }
+.ann-footer { display: flex; justify-content: flex-end; gap: 10px; margin-top: 14px; }
+.ann-btn {
+  padding: 9px 20px; border-radius: var(--radius-sm);
+  font-family: 'Sora', sans-serif; font-size: 13px; font-weight: 700;
+  cursor: pointer; border: none; transition: .18s;
+}
+.ann-btn.send { background: var(--seafoam-deep); color: white; }
+.ann-btn.send:hover { background: #27a396; }
+.ann-btn.draft { background: var(--soft); color: var(--slate); border: 1px solid #d8f0ed; }
+.ann-btn.draft:hover { background: var(--seafoam-light); }
+
+.ann-list { display: flex; flex-direction: column; gap: 14px; }
+.ann-card {
+  background: white; border-radius: var(--radius);
+  border: 1px solid #eef2f0; padding: 20px 22px;
+  transition: .2s; position: relative; overflow: hidden;
+}
+.ann-card::before {
+  content: ''; position: absolute; left: 0; top: 0; bottom: 0;
+  width: 4px;
+}
+.ann-card.all::before { background: var(--seafoam-deep); }
+.ann-card.teachers::before { background: #8b5cf6; }
+.ann-card.parents::before { background: #f59e0b; }
+.ann-card.students::before { background: #3b82f6; }
+.ann-card:hover { box-shadow: 0 6px 20px rgba(0,0,0,.06); }
+.ann-card-top {
+  display: flex; align-items: flex-start; justify-content: space-between;
+  margin-bottom: 8px;
+}
+.ann-card-title { font-family: 'Sora', sans-serif; font-size: 15px; font-weight: 700; }
+.ann-meta { display: flex; align-items: center; gap: 10px; margin-top: 10px; }
+.ann-tag {
+  font-size: 11px; font-weight: 700; text-transform: uppercase;
+  letter-spacing: .8px; padding: 3px 9px; border-radius: 999px;
+}
+.ann-tag.all { background: var(--seafoam-light); color: var(--seafoam-deep); }
+.ann-tag.teachers { background: #f3e8ff; color: #7c3aed; }
+.ann-tag.parents { background: #fef3c7; color: #b45309; }
+.ann-tag.students { background: #eff6ff; color: #2563eb; }
+.ann-date { font-size: 12px; color: #94a3b8; }
+.ann-body { font-size: 14px; color: var(--slate); line-height: 1.6; }
+.ann-card-actions { display: flex; gap: 6px; }
+
+/* ── MODAL ── */
+.modal-overlay {
+  position: fixed; inset: 0; z-index: 1000;
+  background: rgba(10,22,40,.6); backdrop-filter: blur(4px);
+  display: flex; align-items: center; justify-content: center;
+  opacity: 0; pointer-events: none; transition: .2s;
+}
+.modal-overlay.open { opacity: 1; pointer-events: all; }
+.modal {
+  background: white; border-radius: 20px;
+  padding: 32px; width: 100%; max-width: 480px;
+  max-height: 90vh; overflow-y: auto;
+  transform: scale(.96) translateY(10px);
+  transition: .25s ease;
+  box-shadow: 0 24px 60px rgba(0,0,0,.2);
+}
+.modal-overlay.open .modal { transform: scale(1) translateY(0); }
+.modal-header {
+  display: flex; justify-content: space-between; align-items: center;
+  margin-bottom: 24px;
+}
+.modal-title { font-family: 'Sora', sans-serif; font-size: 20px; font-weight: 800; }
+.modal-close {
+  width: 32px; height: 32px; border-radius: 50%;
+  background: var(--soft); border: none; cursor: pointer;
+  font-size: 16px; transition: .15s;
+  display: flex; align-items: center; justify-content: center;
+}
+.modal-close:hover { background: #fee2e2; color: #dc2626; }
+.form-group { margin-bottom: 16px; }
+.form-label {
+  display: block; font-size: 12px; font-weight: 700;
+  text-transform: uppercase; letter-spacing: .8px;
+  color: var(--slate); margin-bottom: 7px;
+}
+.form-input {
+  width: 100%; border: 1.5px solid #e0f0ed;
+  border-radius: var(--radius-sm); padding: 10px 14px;
+  font-family: 'DM Sans', sans-serif; font-size: 14px;
+  outline: none; transition: .18s; color: var(--dark);
+}
+.form-input:focus { border-color: var(--seafoam-deep); box-shadow: 0 0 0 3px rgba(47,183,170,.1); }
+.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.modal-footer {
+  display: flex; gap: 10px; justify-content: flex-end;
+  margin-top: 24px; padding-top: 20px; border-top: 1px solid #f0f7f6;
+}
+.modal-btn {
+  padding: 11px 24px; border-radius: var(--radius-sm);
+  font-family: 'Sora', sans-serif; font-size: 14px; font-weight: 700;
+  cursor: pointer; border: none; transition: .18s;
+}
+.modal-btn.primary { background: var(--seafoam-deep); color: white; }
+.modal-btn.primary:hover { background: #27a396; }
+.modal-btn.cancel { background: var(--soft); color: var(--slate); border: 1px solid #d8f0ed; }
+.modal-btn.cancel:hover { background: #e4f9f7; }
+
+/* toast */
+.toast {
+  position: fixed; bottom: 28px; right: 28px; z-index: 2000;
+  background: var(--dark); color: white;
+  padding: 14px 20px; border-radius: var(--radius-sm);
+  font-size: 14px; font-weight: 500;
+  display: flex; align-items: center; gap: 10px;
+  box-shadow: 0 10px 30px rgba(0,0,0,.25);
+  transform: translateY(80px); opacity: 0;
+  transition: .3s cubic-bezier(.34,1.56,.64,1);
+  max-width: 340px;
+}
+.toast.show { transform: translateY(0); opacity: 1; }
+.toast-icon { font-size: 18px; }
+
+/* empty state */
+.empty-state {
+  text-align: center; padding: 60px 20px; color: #94a3b8;
+}
+.empty-state .ei { margin-bottom: 16px; } .empty-state .ei svg { width: 48px; height: 48px; opacity: .3; }
+.empty-state p { font-size: 14px; }
+
+/* scrollbar */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: #d8e8e6; border-radius: 3px; }
+</style>
+</head>
+<body>
+
+<!-- ══ SIDEBAR ══ -->
+<aside class="sidebar">
+  <div class="sidebar-logo">
+    <div class="sidebar-logo-mark">U</div>
+    <div>
+      <div class="sidebar-logo-text">UniLearn</div>
+      <div class="sidebar-school">Greenfield Academy</div>
+    </div>
+  </div>
+
+  <div class="sidebar-section">Main</div>
+  <div class="nav-item active" onclick="switchView('overview', this)">
+    <div class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9.5L12 3l9 6.5V20a1 1 0 01-1 1H4a1 1 0 01-1-1V9.5z"/><path d="M9 21V12h6v9"/></svg></div> Overview
+  </div>
+
+  <div class="sidebar-section">Manage</div>
+  <div class="nav-item" onclick="switchView('teachers', this)">
+    <div class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="7" r="4"/><path d="M3 21v-2a4 4 0 014-4h4a4 4 0 014 4v2"/><path d="M16 3.13a4 4 0 010 7.75"/><path d="M21 21v-2a4 4 0 00-3-3.87"/></svg></div> Teachers & Staff
+  </div>
+  <div class="nav-item" onclick="switchView('attendance', this)">
+    <div class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div> Attendance
+    <span class="nav-badge">3</span>
+  </div>
+  <div class="nav-item" onclick="switchView('announcements', this)">
+    <div class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l19-9-9 19-2-8-8-2z"/></svg></div> Announcements
+  </div>
+
+  <div class="sidebar-section">System</div>
+  <div class="nav-item">
+    <div class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg></div> Settings
+  </div>
+  <div class="nav-item">
+    <div class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></div> Support
+  </div>
+
+  <div class="sidebar-bottom">
+    <div class="user-card" onclick="handleLogout()" title="Click to log out" style="position:relative">
+      <div class="user-av">SJ</div>
+      <div>
+        <div class="user-name">Steve Jacob</div>
+        <div class="user-role">School Admin · Click to logout</div>
+      </div>
+      <svg style="position:absolute;right:8px;top:50%;transform:translateY(-50%);opacity:.4" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
+    </div>
+  </div>
+</aside>
+
+<!-- ══ MAIN ══ -->
+<div class="main">
+
+  <!-- TOPBAR -->
+  <div class="topbar">
+    <div class="topbar-left">
+      <div>
+        <div class="page-title" id="page-title">Overview</div>
+        <div class="breadcrumb">Greenfield Academy · 2025–26</div>
+      </div>
+    </div>
+    <div class="topbar-right">
+      <button class="topbar-btn ghost" onclick="showView('teachers'); openModal('add-teacher-modal')">+ Add Teacher</button>
+      <button class="topbar-btn primary" onclick="switchView('announcements', null); setTimeout(()=>document.getElementById('ann-title-input').focus(),100)"><span style="display:flex;align-items:center;gap:6px"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l19-9-9 19-2-8-8-2z"/></svg> New Announcement</span></button>
+      <div class="notif-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg><span class="notif-dot"></span></div>
+    </div>
+  </div>
+
+  <!-- CONTENT -->
+  <div class="content">
+
+    <!-- ── OVERVIEW VIEW ── -->
+    <div class="view active" id="view-overview">
+
+      <div class="stats-row">
+        <div class="stat-card">
+          <div class="sc-top">
+            <div class="sc-icon teal"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="7" r="4"/><path d="M3 21v-2a4 4 0 014-4h4a4 4 0 014 4v2"/><path d="M16 3.13a4 4 0 010 7.75"/><path d="M21 21v-2a4 4 0 00-3-3.87"/></svg></div>
+            <span class="sc-delta up">+2</span>
+          </div>
+          <div class="sc-num">24</div>
+          <div class="sc-label">Teachers & Staff</div>
+        </div>
+        <div class="stat-card">
+          <div class="sc-top">
+            <div class="sc-icon blue"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c0 1.657 2.686 3 6 3s6-1.343 6-3v-5"/></svg></div>
+            <span class="sc-delta up">+12</span>
+          </div>
+          <div class="sc-num">487</div>
+          <div class="sc-label">Enrolled Students</div>
+        </div>
+        <div class="stat-card">
+          <div class="sc-top">
+            <div class="sc-icon amber"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div>
+            <span class="sc-delta down">-1.2%</span>
+          </div>
+          <div class="sc-num">91%</div>
+          <div class="sc-label">Today's Attendance</div>
+        </div>
+        <div class="stat-card">
+          <div class="sc-top">
+            <div class="sc-icon rose"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l19-9-9 19-2-8-8-2z"/></svg></div>
+            <span class="sc-delta up">+3</span>
+          </div>
+          <div class="sc-num">7</div>
+          <div class="sc-label">Active Announcements</div>
+        </div>
+      </div>
+
+      <div class="overview-grid">
+
+        <!-- Recent Activity -->
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">Recent Activity</div>
+            <span class="card-link">View all</span>
+          </div>
+          <div class="card-body">
+            <div class="activity-item">
+              <div class="activity-av" style="background:linear-gradient(135deg,#6ED3C7,#2fb7aa)">MR</div>
+              <div class="activity-text">
+                <p><strong>Ms. Rachel</strong> marked attendance for Grade 10-A</p>
+                <div class="activity-time">2 minutes ago</div>
+              </div>
+            </div>
+            <div class="activity-item">
+              <div class="activity-av" style="background:linear-gradient(135deg,#818cf8,#6366f1)">AK</div>
+              <div class="activity-text">
+                <p><strong>Admin</strong> posted announcement: "Sports Day 2026"</p>
+                <div class="activity-time">34 minutes ago</div>
+              </div>
+            </div>
+            <div class="activity-item">
+              <div class="activity-av" style="background:linear-gradient(135deg,#f59e0b,#d97706)">TK</div>
+              <div class="activity-text">
+                <p><strong>Mr. Thomas</strong> was added to Science dept.</p>
+                <div class="activity-time">1 hour ago</div>
+              </div>
+            </div>
+            <div class="activity-item">
+              <div class="activity-av" style="background:linear-gradient(135deg,#f472b6,#ec4899)">SP</div>
+              <div class="activity-text">
+                <p><strong>Ms. Priya</strong> updated Grade 8 attendance — 3 absences flagged</p>
+                <div class="activity-time">2 hours ago</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">Quick Actions</div>
+          </div>
+          <div class="card-body">
+            <div class="qa-grid">
+              <div class="qa-btn" onclick="switchView('teachers', null); openModal('add-teacher-modal')">
+                <span class="qa-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></span> Add Teacher
+              </div>
+              <div class="qa-btn" onclick="switchView('attendance', null)">
+                <span class="qa-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/><line x1="9" y1="12" x2="15" y2="12"/><line x1="9" y1="16" x2="12" y2="16"/></svg></span> Mark Attendance
+              </div>
+              <div class="qa-btn" onclick="switchView('announcements', null)">
+                <span class="qa-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l19-9-9 19-2-8-8-2z"/></svg></span> Post Announcement
+              </div>
+              <div class="qa-btn">
+                <span class="qa-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg></span> Export Report
+              </div>
+              <div class="qa-btn">
+                <span class="qa-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg></span> Message Parents
+              </div>
+              <div class="qa-btn">
+                <span class="qa-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/><path d="M8 14h.01M12 14h.01M16 14h.01M8 18h.01M12 18h.01"/></svg></span> School Calendar
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Attendance this week -->
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">Attendance This Week</div>
+            <span class="card-link" onclick="switchView('attendance', null)">Full report →</span>
+          </div>
+          <div class="card-body">
+            <div class="att-bars">
+              <div class="att-bar-wrap"><div class="att-bar" style="height:82%"></div><div class="att-day">Mon</div></div>
+              <div class="att-bar-wrap"><div class="att-bar hi" style="height:96%"></div><div class="att-day">Tue</div></div>
+              <div class="att-bar-wrap"><div class="att-bar" style="height:88%"></div><div class="att-day">Wed</div></div>
+              <div class="att-bar-wrap"><div class="att-bar" style="height:78%"></div><div class="att-day">Thu</div></div>
+              <div class="att-bar-wrap"><div class="att-bar hi" style="height:91%"></div><div class="att-day">Fri</div></div>
+            </div>
+            <div style="display:flex;gap:16px;margin-top:8px;font-size:13px;color:var(--slate)">
+              <span>Avg: <strong style="color:var(--dark)">87%</strong></span>
+              <span>Best: <strong style="color:#16a34a">Tue 96%</strong></span>
+              <span>Low: <strong style="color:#dc2626">Thu 78%</strong></span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Staff by dept -->
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">Staff by Department</div>
+            <span class="card-link" onclick="switchView('teachers', null)">Manage →</span>
+          </div>
+          <div class="card-body" style="padding-top:14px">
+            <div id="dept-bars"></div>
+          </div>
+        </div>
+
+      </div>
+    </div><!-- /overview -->
+
+    <!-- ── TEACHERS VIEW ── -->
+    <div class="view" id="view-teachers">
+      <div class="section-toolbar">
+        <div class="search-box">
+          <span class="search-icon" style="display:flex;align-items:center;color:#94a3b8"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></span>
+          <input type="text" placeholder="Search teachers…" id="teacher-search" oninput="filterTeachers()">
+        </div>
+        <div style="display:flex;gap:10px;align-items:center">
+          <select class="filter-select" id="dept-filter" onchange="filterTeachers()">
+            <option value="">All Departments</option>
+            <option>Mathematics</option>
+            <option>Science</option>
+            <option>English</option>
+            <option>History</option>
+            <option>Arts</option>
+            <option>P.E.</option>
+          </select>
+          <select class="filter-select" id="status-filter" onchange="filterTeachers()">
+            <option value="">All Status</option>
+            <option>Active</option>
+            <option>On Leave</option>
+            <option>Inactive</option>
+          </select>
+          <button class="topbar-btn primary" onclick="openModal('add-teacher-modal')">+ Add Teacher</button>
+        </div>
+      </div>
+
+      <div class="table-wrap">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Teacher</th>
+              <th>Department</th>
+              <th>Classes</th>
+              <th>Students</th>
+              <th>Status</th>
+              <th>Joined</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="teacher-tbody"></tbody>
+        </table>
+      </div>
+    </div><!-- /teachers -->
+
+    <!-- ── ATTENDANCE VIEW ── -->
+    <div class="view" id="view-attendance">
+      <div class="att-summary-row">
+        <div class="att-card">
+          <div class="att-card-label">Present Today</div>
+          <div class="att-card-num" style="color:#16a34a">443</div>
+          <div class="att-card-sub">out of 487 students</div>
+          <div class="att-rate-bar"><div class="att-rate-fill" style="width:91%;background:#22c55e"></div></div>
+        </div>
+        <div class="att-card">
+          <div class="att-card-label">Absent Today</div>
+          <div class="att-card-num" style="color:#dc2626">44</div>
+          <div class="att-card-sub">9% absence rate</div>
+          <div class="att-rate-bar"><div class="att-rate-fill" style="width:9%;background:#ef4444"></div></div>
+        </div>
+        <div class="att-card">
+          <div class="att-card-label">Monthly Average</div>
+          <div class="att-card-num" style="color:var(--seafoam-deep)">87%</div>
+          <div class="att-card-sub">March 2026 so far</div>
+          <div class="att-rate-bar"><div class="att-rate-fill" style="width:87%"></div></div>
+        </div>
+      </div>
+
+      <div class="att-calendar">
+        <div class="cal-header">
+          <div class="card-title" id="cal-month-label">March 2026</div>
+          <div class="cal-nav">
+            <div class="cal-nav-btn" onclick="changeMonth(-1)">‹</div>
+            <div class="cal-nav-btn" onclick="changeMonth(1)">›</div>
+          </div>
+        </div>
+        <div class="cal-grid" id="cal-grid"></div>
+      </div>
+
+      <div class="table-wrap">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Class</th>
+              <th>Teacher</th>
+              <th>Present</th>
+              <th>Absent</th>
+              <th>Rate</th>
+              <th>Status</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody id="att-tbody"></tbody>
+        </table>
+      </div>
+    </div><!-- /attendance -->
+
+    <!-- ── ANNOUNCEMENTS VIEW ── -->
+    <div class="view" id="view-announcements">
+
+      <div class="ann-compose">
+        <div class="ann-compose-title" style="display:flex;align-items:center;gap:8px"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg> New Announcement</div>
+        <input class="ann-field" id="ann-title-input" type="text" placeholder="Announcement title…">
+        <textarea class="ann-field ann-textarea" id="ann-body-input" style="margin-top:10px" placeholder="Write your message here…"></textarea>
+        <div class="ann-row">
+          <select class="ann-field ann-select" id="ann-audience">
+            <option value="all">Everyone</option>
+            <option value="teachers">Teachers only</option>
+            <option value="parents">Parents only</option>
+            <option value="students">Students only</option>
+          </select>
+          <select class="ann-field ann-select" id="ann-priority">
+            <option>Normal</option>
+            <option>Important</option>
+            <option>Urgent</option>
+          </select>
+        </div>
+        <div class="ann-footer">
+          <button class="ann-btn draft">Save Draft</button>
+          <button class="ann-btn send" onclick="postAnnouncement()"><span style="display:flex;align-items:center;gap:6px"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg> Post Now</span></button>
+        </div>
+      </div>
+
+      <div class="card-title" style="margin-bottom:16px">Posted Announcements</div>
+      <div class="ann-list" id="ann-list"></div>
+    </div><!-- /announcements -->
+
+  </div><!-- /content -->
+</div><!-- /main -->
+
+<!-- ── ADD TEACHER MODAL ── -->
+<div class="modal-overlay" id="add-teacher-modal" onclick="handleOverlayClick(event,'add-teacher-modal')">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">Add New Teacher</div>
+      <button class="modal-close" onclick="closeModal('add-teacher-modal')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">First Name</label>
+        <input class="form-input" id="t-fname" type="text" placeholder="e.g. Sarah">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Last Name</label>
+        <input class="form-input" id="t-lname" type="text" placeholder="e.g. Johnson">
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Email Address</label>
+      <input class="form-input" id="t-email" type="email" placeholder="sarah.johnson@school.edu">
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Department</label>
+        <select class="form-input" id="t-dept">
+          <option value="">Select…</option>
+          <option>Mathematics</option>
+          <option>Science</option>
+          <option>English</option>
+          <option>History</option>
+          <option>Arts</option>
+          <option>P.E.</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Role</label>
+        <select class="form-input" id="t-role">
+          <option>Teacher</option>
+          <option>Head of Department</option>
+          <option>Vice Principal</option>
+          <option>Counsellor</option>
+          <option>Admin Staff</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Phone (optional)</label>
+      <input class="form-input" id="t-phone" type="tel" placeholder="+1 555 000 0000">
+    </div>
+    <div class="modal-footer">
+      <button class="modal-btn cancel" onclick="closeModal('add-teacher-modal')">Cancel</button>
+      <button class="modal-btn primary" onclick="addTeacher()">Add Teacher</button>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast">
+  <span class="toast-icon" id="toast-icon" style="display:flex;align-items:center"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>
+  <span id="toast-msg">Done!</span>
+</div>
+
+<script>
+// ══ DATA ══
+const TEACHER_COLORS = ['#2fb7aa','#6366f1','#f59e0b','#ec4899','#3b82f6','#22c55e','#8b5cf6','#ef4444'];
+
+let teachers = [
+  { id:1, fname:'Rachel', lname:'Kim',     email:'r.kim@greenfield.edu',     dept:'Science',     classes:4, students:128, status:'Active',   joined:'Aug 2022' },
+  { id:2, fname:'Marcus', lname:'Osei',    email:'m.osei@greenfield.edu',    dept:'Mathematics', classes:5, students:152, status:'Active',   joined:'Jan 2021' },
+  { id:3, fname:'Sofia',  lname:'Larsson', email:'s.larsson@greenfield.edu', dept:'English',     classes:3, students:94,  status:'Active',   joined:'Aug 2023' },
+  { id:4, fname:'Thomas', lname:'Berg',    email:'t.berg@greenfield.edu',    dept:'Science',     classes:4, students:118, status:'Active',   joined:'Mar 2024' },
+  { id:5, fname:'Priya',  lname:'Sharma',  email:'p.sharma@greenfield.edu',  dept:'History',     classes:3, students:96,  status:'On Leave', joined:'Aug 2020' },
+  { id:6, fname:'James',  lname:'Adeyemi', email:'j.adeyemi@greenfield.edu', dept:'P.E.',        classes:6, students:180, status:'Active',   joined:'Sep 2019' },
+  { id:7, fname:'Lena',   lname:'Müller',  email:'l.muller@greenfield.edu',  dept:'Arts',        classes:3, students:72,  status:'Active',   joined:'Aug 2021' },
+  { id:8, fname:'Carlos', lname:'Rivera',  email:'c.rivera@greenfield.edu',  dept:'Mathematics', classes:4, students:122, status:'Inactive', joined:'Aug 2018' },
+];
+let nextId = 9;
+
+let announcements = [
+  { id:1, title:'Sports Day 2026 — Save the Date!', body:'We are excited to announce that Sports Day will be held on April 12th. All students and parents are welcome. Further details to follow shortly.', audience:'all',      date:'Mar 17, 2026', author:'Admin' },
+  { id:2, title:'Staff Meeting — Friday 4pm',        body:'Reminder for all teaching staff: compulsory staff meeting this Friday at 4:00 PM in the main conference room. Attendance is mandatory.', audience:'teachers',  date:'Mar 16, 2026', author:'Principal' },
+  { id:3, title:'Parent-Teacher Conferences Open',   body:'Booking for the March Parent-Teacher conference is now open. Slots available via the parent portal from today. First come, first served.', audience:'parents',   date:'Mar 15, 2026', author:'Admin' },
+  { id:4, title:'Exam Schedule Published',           body:'The final exam schedule for Term 2 has been published. Students can view their personal timetable in the Assignments section.', audience:'students',  date:'Mar 14, 2026', author:'Academic Coordinator' },
+];
+let nextAnnId = 5;
+
+// ══ VIEW SWITCHER ══
+function switchView(name, el) {
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  document.getElementById('view-' + name).classList.add('active');
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  if (el) el.classList.add('active');
+  else {
+    const map = { overview:'Overview', teachers:'Teachers & Staff', attendance:'Attendance', announcements:'Announcements' };
+    document.querySelectorAll('.nav-item').forEach(n => {
+      if (n.textContent.trim().startsWith(map[name] || '')) n.classList.add('active');
+    });
+  }
+  const titles = { overview:'Overview', teachers:'Teachers & Staff', attendance:'Attendance', announcements:'Announcements' };
+  document.getElementById('page-title').textContent = titles[name] || name;
+}
+function showView(name) { switchView(name, null); }
+
+// ══ TEACHERS ══
+function initials(f, l) { return (f[0] + l[0]).toUpperCase(); }
+function avatarColor(id) { return TEACHER_COLORS[id % TEACHER_COLORS.length]; }
+
+function deptBadgeClass(dept) {
+  const map = { Mathematics:'math', Science:'science', English:'english', History:'history', Arts:'arts', 'P.E.':'pe' };
+  return map[dept] || 'math';
+}
+function statusBadgeClass(s) {
+  if (s === 'Active') return 'active';
+  if (s === 'On Leave') return 'leave';
+  return 'inactive';
+}
+
+function renderTeachers(list) {
+  const tbody = document.getElementById('teacher-tbody');
+  if (!list.length) {
+    tbody.innerHTML = `<tr><td colspan="7"><div class="empty-state"><div class="ei" style="display:flex;justify-content:center;opacity:.3"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="7" r="4"/><path d="M3 21v-2a4 4 0 014-4h4a4 4 0 014 4v2"/><path d="M16 3.13a4 4 0 010 7.75"/><path d="M21 21v-2a4 4 0 00-3-3.87"/></svg></div><p>No teachers found.</p></div></td></tr>`;
+    return;
+  }
+  tbody.innerHTML = list.map(t => `
+    <tr id="tr-${t.id}">
+      <td>
+        <div class="teacher-cell">
+          <div class="t-av" style="background:${avatarColor(t.id)}">${initials(t.fname, t.lname)}</div>
+          <div>
+            <div class="t-name">${t.fname} ${t.lname}</div>
+            <div class="t-email">${t.email}</div>
+          </div>
+        </div>
+      </td>
+      <td><span class="badge ${deptBadgeClass(t.dept)}">${t.dept}</span></td>
+      <td>${t.classes}</td>
+      <td>${t.students}</td>
+      <td><span class="badge ${statusBadgeClass(t.status)}">${t.status}</span></td>
+      <td style="color:var(--slate);font-size:13px">${t.joined}</td>
+      <td>
+        <div class="row-actions">
+          <button class="row-btn edit" onclick="editTeacher(${t.id})">Edit</button>
+          <button class="row-btn remove" onclick="removeTeacher(${t.id})">Remove</button>
+        </div>
+      </td>
+    </tr>
+  `).join('');
+}
+
+function filterTeachers() {
+  const q = document.getElementById('teacher-search').value.toLowerCase();
+  const dept = document.getElementById('dept-filter').value;
+  const status = document.getElementById('status-filter').value;
+  renderTeachers(teachers.filter(t => {
+    const name = (t.fname + ' ' + t.lname + ' ' + t.email).toLowerCase();
+    return (!q || name.includes(q))
+      && (!dept || t.dept === dept)
+      && (!status || t.status === status);
+  }));
+}
+
+function addTeacher() {
+  const f = document.getElementById('t-fname').value.trim();
+  const l = document.getElementById('t-lname').value.trim();
+  const e = document.getElementById('t-email').value.trim();
+  const d = document.getElementById('t-dept').value;
+  if (!f || !l || !e || !d) { toast('⚠️', 'Please fill in all required fields.'); return; }
+  teachers.push({ id: nextId++, fname: f, lname: l, email: e, dept: d,
+    classes: 0, students: 0, status: 'Active', joined: 'Mar 2026' });
+  filterTeachers();
+  renderDeptBars();
+  closeModal('add-teacher-modal');
+  ['t-fname','t-lname','t-email','t-phone'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('t-dept').value = '';
+  toast('✅', `${f} ${l} added to ${d} department.`);
+}
+
+function removeTeacher(id) {
+  const t = teachers.find(x => x.id === id);
+  if (!confirm(`Remove ${t.fname} ${t.lname}?`)) return;
+  teachers = teachers.filter(x => x.id !== id);
+  filterTeachers();
+  renderDeptBars();
+  toast('🗑️', `${t.fname} ${t.lname} removed.`);
+}
+
+function editTeacher(id) {
+  const t = teachers.find(x => x.id === id);
+  toast('✏️', `Editing ${t.fname} ${t.lname} — feature coming soon.`);
+}
+
+// dept bar chart
+function renderDeptBars() {
+  const counts = {};
+  teachers.forEach(t => { counts[t.dept] = (counts[t.dept] || 0) + 1; });
+  const max = Math.max(...Object.values(counts));
+  const colors = { Mathematics:'#6366f1', Science:'#22c55e', English:'#a855f7', History:'#f59e0b', Arts:'#ec4899', 'P.E.':'#3b82f6' };
+  document.getElementById('dept-bars').innerHTML = Object.entries(counts).map(([dept, n]) => `
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
+      <div style="width:90px;font-size:13px;color:var(--slate);flex-shrink:0">${dept}</div>
+      <div style="flex:1;height:8px;background:#f0f7f6;border-radius:4px;overflow:hidden">
+        <div style="height:100%;width:${(n/max)*100}%;background:${colors[dept]||'#2fb7aa'};border-radius:4px;transition:.5s"></div>
+      </div>
+      <div style="font-size:13px;font-weight:700;width:20px;text-align:right">${n}</div>
+    </div>
+  `).join('');
+}
+
+// ══ ATTENDANCE CALENDAR ══
+let calYear = 2026, calMonth = 2; // 0-indexed, March = 2
+
+const ATT_DATA = { 2:{ 2:94,3:96,4:91,5:88,6:85,9:92,10:97,11:89,12:82,13:79,16:91,17:93 } };
+
+function renderCalendar() {
+  const months = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+  document.getElementById('cal-month-label').textContent = months[calMonth] + ' ' + calYear;
+  const grid = document.getElementById('cal-grid');
+  const days = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+  const firstDay = new Date(calYear, calMonth, 1).getDay();
+  const daysInMonth = new Date(calYear, calMonth + 1, 0).getDate();
+  const today = new Date();
+
+  let html = days.map(d => `<div class="cal-day-label">${d}</div>`).join('');
+  for (let i = 0; i < firstDay; i++) html += `<div class="cal-day empty"></div>`;
+  for (let d = 1; d <= daysInMonth; d++) {
+    const isToday = today.getDate() === d && today.getMonth() === calMonth && today.getFullYear() === calYear;
+    const rate = ATT_DATA[calMonth]?.[d];
+    const cls = isToday ? 'today' : rate >= 90 ? 'high' : rate ? 'low' : '';
+    const title = rate ? `${rate}% attendance` : '';
+    html += `<div class="cal-day ${cls}" title="${title}">${d}</div>`;
+  }
+  grid.innerHTML = html;
+}
+
+function changeMonth(dir) {
+  calMonth += dir;
+  if (calMonth > 11) { calMonth = 0; calYear++; }
+  if (calMonth < 0)  { calMonth = 11; calYear--; }
+  renderCalendar();
+}
+
+// attendance table
+const ATT_CLASSES = [
+  { cls:'Grade 6-A', teacher:'Ms. Larsson',  present:28, total:30 },
+  { cls:'Grade 7-B', teacher:'Mr. Osei',     present:26, total:32 },
+  { cls:'Grade 8-A', teacher:'Ms. Sharma',   present:24, total:31, flagged:true },
+  { cls:'Grade 9-C', teacher:'Mr. Berg',     present:30, total:30 },
+  { cls:'Grade 10-A',teacher:'Ms. Kim',      present:27, total:29 },
+  { cls:'Grade 10-B',teacher:'Mr. Adeyemi',  present:22, total:28, flagged:true },
+];
+
+function renderAttTable() {
+  document.getElementById('att-tbody').innerHTML = ATT_CLASSES.map(a => {
+    const rate = Math.round((a.present / a.total) * 100);
+    const absent = a.total - a.present;
+    const statusCls = a.flagged ? 'leave' : rate >= 90 ? 'active' : 'inactive';
+    const statusTxt = a.flagged ? 'Flagged' : rate >= 90 ? 'Good' : 'Low';
+    return `
+      <tr>
+        <td style="font-weight:600">${a.cls}</td>
+        <td style="color:var(--slate)">${a.teacher}</td>
+        <td style="color:#16a34a;font-weight:600">${a.present}</td>
+        <td style="color:#dc2626;font-weight:600">${absent}</td>
+        <td>
+          <div style="display:flex;align-items:center;gap:8px">
+            <div style="width:80px;height:6px;background:#f0f7f6;border-radius:3px;overflow:hidden">
+              <div style="height:100%;width:${rate}%;background:${rate>=90?'#22c55e':rate>=75?'#f59e0b':'#ef4444'};border-radius:3px"></div>
+            </div>
+            <span style="font-size:13px;font-weight:700">${rate}%</span>
+          </div>
+        </td>
+        <td><span class="badge ${statusCls}">${statusTxt}</span></td>
+        <td><button class="row-btn edit" onclick="toast('📋','Attendance details for ${a.cls} — coming soon.')">View</button></td>
+      </tr>
+    `;
+  }).join('');
+}
+
+// ══ ANNOUNCEMENTS ══
+function renderAnnouncements() {
+  const list = document.getElementById('ann-list');
+  if (!announcements.length) {
+    list.innerHTML = `<div class="empty-state"><div class="ei" style="display:flex;justify-content:center;opacity:.3"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l19-9-9 19-2-8-8-2z"/></svg></div><p>No announcements yet. Post one above!</p></div>`;
+    return;
+  }
+  list.innerHTML = [...announcements].reverse().map(a => `
+    <div class="ann-card ${a.audience}">
+      <div class="ann-card-top">
+        <div class="ann-card-title">${a.title}</div>
+        <div class="ann-card-actions">
+          <button class="row-btn edit" onclick="toast('✏️','Edit announcement — coming soon.')">Edit</button>
+          <button class="row-btn remove" onclick="deleteAnnouncement(${a.id})">Delete</button>
+        </div>
+      </div>
+      <div class="ann-body">${a.body}</div>
+      <div class="ann-meta">
+        <span class="ann-tag ${a.audience}">${{all:'Everyone',teachers:'Teachers',parents:'Parents',students:'Students'}[a.audience]}</span>
+        <span class="ann-date" style="display:inline-flex;align-items:center;gap:4px"><svg style="width:12px;height:12px;flex-shrink:0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>${a.date} · by ${a.author}</span>
+      </div>
+    </div>
+  `).join('');
+}
+
+function postAnnouncement() {
+  const title = document.getElementById('ann-title-input').value.trim();
+  const body  = document.getElementById('ann-body-input').value.trim();
+  const aud   = document.getElementById('ann-audience').value;
+  if (!title || !body) { toast('⚠️','Please enter a title and message.'); return; }
+  const months=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  const now = new Date();
+  const dateStr = `${months[now.getMonth()]} ${now.getDate()}, ${now.getFullYear()}`;
+  announcements.push({ id: nextAnnId++, title, body, audience: aud, date: dateStr, author: 'Admin' });
+  renderAnnouncements();
+  document.getElementById('ann-title-input').value = '';
+  document.getElementById('ann-body-input').value = '';
+  toast('📢', 'Announcement posted successfully!');
+}
+
+function deleteAnnouncement(id) {
+  announcements = announcements.filter(a => a.id !== id);
+  renderAnnouncements();
+  toast('🗑️', 'Announcement deleted.');
+}
+
+// ══ MODAL ══
+function openModal(id) {
+  document.getElementById(id).classList.add('open');
+}
+function closeModal(id) {
+  document.getElementById(id).classList.remove('open');
+}
+function handleOverlayClick(e, id) {
+  if (e.target === document.getElementById(id)) closeModal(id);
+}
+
+
+// ── SVG Icon Map for toast ──
+const SVG_ICONS = {
+  check: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>`,
+  warning: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>`,
+  trash: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4h6v2"/></svg>`,
+  edit: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>`,
+  megaphone: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l19-9-9 19-2-8-8-2z"/></svg>`,
+  plus: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>`,
+};
+function iconFor(str) {
+  if(str.includes('✅')||str.includes('check')) return SVG_ICONS.check;
+  if(str.includes('⚠️')||str.includes('warning')) return SVG_ICONS.warning;
+  if(str.includes('🗑️')||str.includes('trash')) return SVG_ICONS.trash;
+  if(str.includes('✏️')||str.includes('edit')) return SVG_ICONS.edit;
+  if(str.includes('📢')||str.includes('ann')) return SVG_ICONS.megaphone;
+  if(str.includes('📋')) return SVG_ICONS.check;
+  return SVG_ICONS.check;
+}
+
+// ══ TOAST ══
+function toast(icon, msg) {
+  const el = document.getElementById('toast');
+  document.getElementById('toast-icon').innerHTML = iconFor(icon);
+  document.getElementById('toast-msg').textContent = msg;
+  el.classList.add('show');
+  clearTimeout(el._t);
+  el._t = setTimeout(() => el.classList.remove('show'), 3000);
+}
+
+// ══ AUTH ══
+// Check if user is logged in
+async function checkAuth() {
+  if (!window._db) {
+    console.error('Supabase not initialized');
+    redirectToLogin();
+    return null;
+  }
+
+  try {
+    const { data: { session }, error } = await window._db.auth.getSession();
+
+    if (error || !session) {
+      redirectToLogin();
+      return null;
+    }
+
+    // Update user info in sidebar
+    const user = session.user;
+    const fullName = user?.user_metadata?.full_name || user?.email?.split('@')[0] || 'Admin';
+    const schoolName = user?.user_metadata?.school_name || 'Your School';
+
+    // Update the user card
+    const userNameEl = document.querySelector('.user-name');
+    const userRoleEl = document.querySelector('.user-role');
+    const sidebarSchoolEl = document.querySelector('.sidebar-school');
+
+    if (userNameEl) userNameEl.textContent = fullName;
+    if (userRoleEl) userRoleEl.textContent = 'School Admin';
+    if (sidebarSchoolEl) sidebarSchoolEl.textContent = schoolName;
+
+    // Update avatar initials
+    const userAvEl = document.querySelector('.user-av');
+    if (userAvEl) {
+      const initials = fullName.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
+      userAvEl.textContent = initials || 'A';
+    }
+
+    return session;
+  } catch (err) {
+    console.error('Auth check error:', err);
+    redirectToLogin();
+    return null;
+  }
+}
+
+function redirectToLogin() {
+  // Use root-relative path - works on any domain
+  window.location.href = '/main/unilearn_login.html';
+}
+
+// Handle logout
+async function handleLogout() {
+  if (!window._db) return;
+
+  try {
+    const { error } = await window._db.auth.signOut();
+    if (error) throw error;
+    redirectToLogin();
+  } catch (err) {
+    console.error('Logout error:', err);
+    toast('⚠️', 'Failed to log out. Please try again.');
+  }
+}
+
+// Make logout available globally
+window.handleLogout = handleLogout;
+
+// ══ INIT ══
+checkAuth().then(session => {
+  if (session) {
+    renderTeachers(teachers);
+    renderDeptBars();
+    renderCalendar();
+    renderAttTable();
+    renderAnnouncements();
+  }
+});
+</script>
+</body>
+</html>

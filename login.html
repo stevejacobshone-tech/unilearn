@@ -1,0 +1,656 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>UniLearn — Log In</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=DM+Sans:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+
+<!-- Supabase JS -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+  // Initialize Supabase client
+  window._db = window.supabase.createClient(
+    "https://twhajohjcrlxqlvbvddi.supabase.co",
+    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InR3aGFqb2hqY3JseHFsdmJ2ZGRpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM2NjQ1MjIsImV4cCI6MjA4OTI0MDUyMn0.vsTT2eErCB3xpLiQvUPQW8Us6lphGHEKSyO3eE0VcfA"
+  );
+</script>
+
+<style>
+:root{
+  --seafoam:#6ED3C7;
+  --seafoam-deep:#2fb7aa;
+  --seafoam-light:#e4f9f7;
+  --seafoam-mid:#a8e8e3;
+  --dark:#0a1628;
+  --slate:#475569;
+  --soft:#f2fbfa;
+  --radius:22px;
+  --radius-sm:12px;
+  --error:#ef4444;
+}
+
+*{ box-sizing:border-box; margin:0; padding:0; }
+body{
+  font-family:'DM Sans',sans-serif;
+  background:linear-gradient(170deg, white 0%, var(--soft) 55%, #c8f0ec 100%);
+  color:var(--dark);
+  min-height:100vh;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:20px;
+}
+
+/* Background blobs */
+.blob{
+  position:fixed; border-radius:50%; pointer-events:none;
+}
+.blob-1{
+  width:600px; height:600px;
+  background:radial-gradient(circle, rgba(110,211,199,.18) 0%, transparent 70%);
+  top:-150px; right:-150px;
+  animation:floatA 12s ease-in-out infinite;
+}
+.blob-2{
+  width:400px; height:400px;
+  background:radial-gradient(circle, rgba(47,183,170,.12) 0%, transparent 70%);
+  bottom:-100px; left:-100px;
+  animation:floatB 15s ease-in-out infinite;
+}
+@keyframes floatA{
+  0%,100%{ transform:translateY(0) scale(1); }
+  50%{ transform:translateY(-30px) scale(1.04); }
+}
+@keyframes floatB{
+  0%,100%{ transform:translateY(0) rotate(0deg); }
+  50%{ transform:translateY(-20px) rotate(3deg); }
+}
+
+/* Card */
+.login-card{
+  background:white;
+  border-radius:var(--radius);
+  box-shadow:0 30px 80px rgba(47,183,170,.15), 0 0 0 1px rgba(110,211,199,.2);
+  width:100%;
+  max-width:440px;
+  padding:48px;
+  position:relative;
+  z-index:1;
+}
+
+/* Logo */
+.logo-wrap{
+  text-align:center;
+  margin-bottom:32px;
+}
+.logo{
+  font-family:'Sora',sans-serif;
+  font-size:28px;
+  font-weight:800;
+  color:var(--seafoam-deep);
+  text-decoration:none;
+  letter-spacing:-1px;
+}
+.logo-sub{
+  font-size:13px;
+  color:var(--slate);
+  margin-top:4px;
+}
+
+/* Heading */
+h1{
+  font-family:'Sora',sans-serif;
+  font-size:24px;
+  font-weight:800;
+  text-align:center;
+  margin-bottom:8px;
+  letter-spacing:-0.5px;
+}
+.subtitle{
+  text-align:center;
+  font-size:14px;
+  color:var(--slate);
+  margin-bottom:32px;
+}
+
+/* Form fields */
+.field{ margin-bottom:20px; }
+.field label{
+  display:block;
+  font-size:13px;
+  font-weight:600;
+  color:var(--dark);
+  margin-bottom:6px;
+}
+.field input{
+  width:100%;
+  padding:13px 16px;
+  border:1.5px solid #e2eeec;
+  border-radius:var(--radius-sm);
+  font-family:'DM Sans',sans-serif;
+  font-size:15px;
+  color:var(--dark);
+  background:white;
+  transition:.2s;
+  outline:none;
+}
+.field input:focus{
+  border-color:var(--seafoam-deep);
+  box-shadow:0 0 0 3px rgba(47,183,170,.1);
+}
+.field.has-error input{
+  border-color:var(--error);
+  box-shadow:0 0 0 3px rgba(239,68,68,.08);
+}
+.field .err-msg{
+  font-size:12px;
+  color:var(--error);
+  margin-top:6px;
+  display:none;
+}
+.field.has-error .err-msg{ display:block; }
+
+/* Password field with toggle */
+.pw-wrap{ position:relative; }
+.pw-wrap input{ padding-right:44px; }
+.pw-toggle{
+  position:absolute;
+  right:12px;
+  top:50%;
+  transform:translateY(-50%);
+  background:none;
+  border:none;
+  cursor:pointer;
+  color:#94a3b8;
+  font-size:18px;
+  line-height:1;
+  padding:4px;
+  transition:.2s;
+  display:flex;
+  align-items:center;
+}
+.pw-toggle:hover{ color:var(--seafoam-deep); }
+
+/* Options row */
+.options{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  margin-bottom:24px;
+  font-size:13px;
+}
+.remember{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  cursor:pointer;
+  color:var(--slate);
+}
+.remember input{
+  width:16px;
+  height:16px;
+  accent-color:var(--seafoam-deep);
+  cursor:pointer;
+}
+.forgot{
+  color:var(--seafoam-deep);
+  text-decoration:none;
+  font-weight:600;
+}
+.forgot:hover{ text-decoration:underline; }
+
+/* Submit button */
+.btn-submit{
+  width:100%;
+  padding:14px 22px;
+  border-radius:var(--radius-sm);
+  background:var(--seafoam-deep);
+  color:white;
+  font-family:'Sora',sans-serif;
+  font-size:15px;
+  font-weight:700;
+  border:none;
+  cursor:pointer;
+  transition:.22s;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:8px;
+}
+.btn-submit:hover{
+  background:#27a396;
+  transform:translateY(-1px);
+  box-shadow:0 8px 24px rgba(47,183,170,.3);
+}
+.btn-submit:disabled{
+  opacity:.7;
+  cursor:not-allowed;
+  transform:none !important;
+}
+.spinner{
+  width:18px;
+  height:18px;
+  border:2px solid rgba(255,255,255,.3);
+  border-top-color:white;
+  border-radius:50%;
+  animation:spin .7s linear infinite;
+  display:none;
+}
+@keyframes spin{ to{transform:rotate(360deg)} }
+.btn-submit.loading .btn-label{ display:none; }
+.btn-submit.loading .spinner{ display:block; }
+
+/* Error message box */
+.error-box{
+  background:#fef2f2;
+  border:1px solid #fecaca;
+  border-radius:10px;
+  padding:12px 16px;
+  margin-bottom:20px;
+  font-size:13px;
+  color:var(--error);
+  display:none;
+}
+.error-box.show{ display:block; }
+
+/* Divider */
+.divider{
+  display:flex;
+  align-items:center;
+  gap:16px;
+  margin:28px 0;
+  color:#94a3b8;
+  font-size:13px;
+}
+.divider::before,
+.divider::after{
+  content:'';
+  flex:1;
+  height:1px;
+  background:#e2e8f0;
+}
+
+/* Social login */
+.social-btn{
+  width:100%;
+  padding:12px 16px;
+  border-radius:var(--radius-sm);
+  background:white;
+  border:1.5px solid #e2eeec;
+  color:var(--dark);
+  font-family:'DM Sans',sans-serif;
+  font-size:14px;
+  font-weight:600;
+  cursor:pointer;
+  transition:.2s;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:10px;
+}
+.social-btn:hover{
+  border-color:var(--seafoam-mid);
+  background:var(--soft);
+}
+
+/* Footer */
+.card-footer{
+  text-align:center;
+  margin-top:28px;
+  padding-top:24px;
+  border-top:1px solid #e8f5f3;
+  font-size:14px;
+  color:var(--slate);
+}
+.card-footer a{
+  color:var(--seafoam-deep);
+  text-decoration:none;
+  font-weight:600;
+}
+.card-footer a:hover{ text-decoration:underline; }
+
+/* Responsive */
+@media(max-width:480px){
+  .login-card{ padding:32px 24px; }
+  h1{ font-size:22px; }
+}
+</style>
+</head>
+<body>
+
+<!-- Background blobs -->
+<div class="blob blob-1"></div>
+<div class="blob blob-2"></div>
+
+<!-- Login Card -->
+<div class="login-card">
+  <div class="logo-wrap">
+    <a href="unilearn_homepage.html" class="logo">UniLearn</a>
+    <div class="logo-sub">Welcome back</div>
+  </div>
+
+  <h1>Log in to your account</h1>
+  <p class="subtitle">Enter your email and password to continue</p>
+
+  <!-- Error box -->
+  <div class="error-box" id="error-box"></div>
+
+  <form id="login-form" onsubmit="handleLogin(event)">
+    <!-- Email -->
+    <div class="field" id="f-email">
+      <label for="email">Email address</label>
+      <input
+        type="email"
+        id="email"
+        name="email"
+        placeholder="you@school.edu"
+        autocomplete="email"
+        required
+      >
+      <div class="err-msg">Please enter a valid email address.</div>
+    </div>
+
+    <!-- Password -->
+    <div class="field" id="f-password">
+      <label for="password">Password</label>
+      <div class="pw-wrap">
+        <input
+          type="password"
+          id="password"
+          name="password"
+          placeholder="Enter your password"
+          autocomplete="current-password"
+          required
+        >
+        <button type="button" class="pw-toggle" onclick="togglePassword()" aria-label="Toggle password visibility">
+          <!-- Eye icon -->
+          <svg id="eye-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+            <circle cx="12" cy="12" r="3"></circle>
+          </svg>
+        </button>
+      </div>
+      <div class="err-msg">Please enter your password.</div>
+    </div>
+
+    <!-- Options -->
+    <div class="options">
+      <label class="remember">
+        <input type="checkbox" id="remember" checked>
+        <span>Remember me</span>
+      </label>
+      <a href="#" class="forgot" onclick="handleForgotPassword(event)">Forgot password?</a>
+    </div>
+
+    <!-- Submit button -->
+    <button type="submit" class="btn-submit" id="submit-btn">
+      <span class="btn-label">Log In</span>
+      <div class="spinner"></div>
+    </button>
+  </form>
+
+  <!-- Divider -->
+  <div class="divider">or</div>
+
+  <!-- Google Sign In -->
+  <button class="social-btn" onclick="handleGoogleLogin()">
+    <svg width="18" height="18" viewBox="0 0 24 24">
+      <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+      <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+      <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
+      <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+    </svg>
+    Continue with Google
+  </button>
+
+  <!-- Footer -->
+  <div class="card-footer">
+    Don't have an account? <a href="unilearn_signup.html">Sign up</a>
+  </div>
+</div>
+
+<script>
+// Get dashboard URL - works for both local dev and production
+function getDashboardUrl() {
+  // Use root-relative path - works on any domain
+  return '/dashboard/school/unilearn_dashboard.html';
+}
+
+// Check if Supabase is available
+if (!window._db) {
+  console.error('Supabase client not initialized');
+  showError('Authentication service unavailable. Please refresh the page.');
+}
+
+// Check if user is already logged in
+if (window._db) {
+  window._db.auth.getSession().then(({ data: { session } }) => {
+    if (session) {
+      // User is already logged in, redirect to dashboard
+      window.location.href = getDashboardUrl();
+    }
+  }).catch(err => {
+    console.error('Session check error:', err);
+  });
+
+  // Listen for auth state changes
+  window._db.auth.onAuthStateChange((event, session) => {
+    if (event === 'SIGNED_IN' && session) {
+      window.location.href = getDashboardUrl();
+    }
+  });
+}
+
+// Toggle password visibility
+function togglePassword() {
+  const pwInput = document.getElementById('password');
+  const eyeIcon = document.getElementById('eye-icon');
+
+  if (pwInput.type === 'password') {
+    pwInput.type = 'text';
+    // Eye-off icon
+    eyeIcon.innerHTML = `
+      <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path>
+      <line x1="1" y1="1" x2="23" y2="23"></line>
+    `;
+  } else {
+    pwInput.type = 'password';
+    // Eye icon
+    eyeIcon.innerHTML = `
+      <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+      <circle cx="12" cy="12" r="3"></circle>
+    `;
+  }
+}
+
+// Show error message
+function showError(message) {
+  const errorBox = document.getElementById('error-box');
+  errorBox.textContent = message;
+  errorBox.classList.add('show');
+}
+
+// Hide error message
+function hideError() {
+  const errorBox = document.getElementById('error-box');
+  errorBox.classList.remove('show');
+}
+
+// Clear field errors on input
+document.querySelectorAll('input').forEach(input => {
+  input.addEventListener('input', () => {
+    input.closest('.field')?.classList.remove('has-error');
+    hideError();
+  });
+});
+
+// Handle login form submission
+async function handleLogin(event) {
+  event.preventDefault();
+  hideError();
+
+  // Check if Supabase is available
+  if (!window._db) {
+    showError('Authentication service not available. Please check your connection and refresh.');
+    return;
+  }
+
+  const email = document.getElementById('email').value.trim();
+  const password = document.getElementById('password').value;
+  const remember = document.getElementById('remember').checked;
+  const submitBtn = document.getElementById('submit-btn');
+
+  // Basic validation
+  let hasError = false;
+
+  if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    document.getElementById('f-email').classList.add('has-error');
+    hasError = true;
+  }
+
+  if (!password) {
+    document.getElementById('f-password').classList.add('has-error');
+    hasError = true;
+  }
+
+  if (hasError) return;
+
+  // Show loading state
+  submitBtn.classList.add('loading');
+  submitBtn.disabled = true;
+
+  try {
+    // Sign in with Supabase Auth
+    const { data, error } = await window._db.auth.signInWithPassword({
+      email,
+      password,
+    });
+
+    if (error) {
+      throw error;
+    }
+
+    // Store remember preference
+    if (remember) {
+      localStorage.setItem('unilearn_remember_email', email);
+    } else {
+      localStorage.removeItem('unilearn_remember_email');
+    }
+
+    // Login successful - the onAuthStateChange listener will handle redirect
+    console.log('Login successful:', data);
+
+  } catch (error) {
+    console.error('Login error:', error);
+
+    // Show appropriate error message
+    let errorMsg = 'Invalid email or password. Please try again.';
+    if (error.message) {
+      const msg = error.message.toLowerCase();
+      if (msg.includes('invalid login')) {
+        errorMsg = 'Invalid email or password. Please try again.';
+      } else if (msg.includes('email not confirmed')) {
+        errorMsg = 'Please confirm your email address before logging in.';
+      } else if (msg.includes('rate limit') || msg.includes('too many requests')) {
+        errorMsg = 'Too many attempts. Please try again later.';
+      } else if (msg.includes('network') || msg.includes('fetch')) {
+        errorMsg = 'Network error. Please check your connection and try again.';
+      } else {
+        errorMsg = error.message;
+      }
+    }
+
+    showError(errorMsg);
+    submitBtn.classList.remove('loading');
+    submitBtn.disabled = false;
+  }
+}
+
+// Load remembered email on page load
+(function loadRememberedEmail() {
+  const rememberedEmail = localStorage.getItem('unilearn_remember_email');
+  if (rememberedEmail) {
+    const emailInput = document.getElementById('email');
+    if (emailInput) {
+      emailInput.value = rememberedEmail;
+      document.getElementById('remember').checked = true;
+    }
+  }
+})();
+
+// Get absolute URL for OAuth redirects (must be full URL for Supabase)
+function getAbsoluteDashboardUrl() {
+  // Use current origin - works for localhost and production domain
+  return window.location.origin + '/dashboard/school/unilearn_dashboard.html';
+}
+
+// Handle Google OAuth login
+async function handleGoogleLogin() {
+  if (!window._db) {
+    showError('Authentication service not available. Please check your connection and refresh.');
+    return;
+  }
+
+  try {
+    const { data, error } = await window._db.auth.signInWithOAuth({
+      provider: 'google',
+      options: {
+        redirectTo: getAbsoluteDashboardUrl()
+      }
+    });
+
+    if (error) throw error;
+
+    // OAuth will redirect the user
+  } catch (error) {
+    console.error('Google login error:', error);
+    showError('Failed to sign in with Google. Please try again.');
+  }
+}
+
+// Handle forgot password
+async function handleForgotPassword(event) {
+  event.preventDefault();
+
+  if (!window._db) {
+    showError('Authentication service not available. Please check your connection and refresh.');
+    return;
+  }
+
+  const email = document.getElementById('email').value.trim();
+
+  if (!email) {
+    showError('Please enter your email address first.');
+    document.getElementById('f-email').classList.add('has-error');
+    return;
+  }
+
+  // Validate email format
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    showError('Please enter a valid email address.');
+    document.getElementById('f-email').classList.add('has-error');
+    return;
+  }
+
+  try {
+    const { error } = await window._db.auth.resetPasswordForEmail(email, {
+      redirectTo: window.location.origin + '/main/unilearn_login.html'
+    });
+    // Note: For production, add your domain to Supabase Auth > URL Configuration
+    // Allowed Sites: http://localhost:5500, https://yourdomain.com
+
+    if (error) throw error;
+
+    alert('Password reset instructions have been sent to your email.');
+    hideError();
+  } catch (error) {
+    console.error('Password reset error:', error);
+    showError('Failed to send reset email. Please try again.');
+  }
+}
+</script>
+
+</body>
+</html>

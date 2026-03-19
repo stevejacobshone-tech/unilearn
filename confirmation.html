@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>UniLearn — You're in! 🎉</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --seafoam:#6ED3C7; --seafoam-deep:#2fb7aa; --seafoam-light:#e4f9f7;
+  --seafoam-mid:#a8e8e3; --dark:#0a1628; --slate:#475569; --soft:#f2fbfa;
+  --radius:22px; --radius-sm:12px;
+}
+*{ box-sizing:border-box; margin:0; padding:0; }
+body{ font-family:'DM Sans',sans-serif; background:var(--dark); color:white; min-height:100vh; overflow-x:hidden; }
+
+.bg-blob{ position:fixed; border-radius:50%; pointer-events:none; z-index:0; }
+.bg-blob-1{ width:800px; height:800px; background:radial-gradient(circle,rgba(110,211,199,.08) 0%,transparent 70%); top:-300px; right:-200px; animation:floatA 14s ease-in-out infinite; }
+.bg-blob-2{ width:600px; height:600px; background:radial-gradient(circle,rgba(47,183,170,.07) 0%,transparent 70%); bottom:-200px; left:-150px; animation:floatB 18s ease-in-out infinite; }
+@keyframes floatA{ 0%,100%{transform:translateY(0)} 50%{transform:translateY(-30px)} }
+@keyframes floatB{ 0%,100%{transform:translateY(0)} 50%{transform:translateY(-20px)} }
+
+header{ position:relative; z-index:10; display:flex; justify-content:space-between; align-items:center; padding:22px 60px; border-bottom:1px solid rgba(255,255,255,.07); }
+.logo{ font-family:'Sora',sans-serif; font-size:22px; font-weight:800; color:var(--seafoam-deep); text-decoration:none; }
+.nav-home{ display:flex; align-items:center; gap:7px; text-decoration:none; color:#64748b; font-size:14px; font-weight:500; transition:.2s; }
+.nav-home:hover{ color:var(--seafoam); }
+
+#confetti-canvas{ position:fixed; inset:0; pointer-events:none; z-index:5; }
+
+.main{ position:relative; z-index:1; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:80px 20px; min-height:calc(100vh - 73px); text-align:center; }
+
+.success-ring{
+  width:96px; height:96px; border-radius:50%;
+  background:linear-gradient(135deg,rgba(110,211,199,.15),rgba(47,183,170,.2));
+  border:1.5px solid rgba(110,211,199,.3);
+  display:flex; align-items:center; justify-content:center;
+  margin:0 auto 28px;
+  animation:ringPop .6s .2s cubic-bezier(.34,1.56,.64,1) both, ringGlow 2s 1.2s ease-in-out infinite;
+}
+@keyframes ringPop{ from{opacity:0;transform:scale(.4)} to{opacity:1;transform:scale(1)} }
+@keyframes ringGlow{ 0%,100%{box-shadow:0 0 0 0 rgba(47,183,170,.3)} 50%{box-shadow:0 0 0 18px rgba(47,183,170,0)} }
+.success-icon{ font-size:44px; animation:iconBounce .5s .55s cubic-bezier(.34,1.56,.64,1) both; }
+@keyframes iconBounce{ from{opacity:0;transform:scale(.4) rotate(-15deg)} to{opacity:1;transform:scale(1) rotate(0)} }
+
+@keyframes fadeUp{ from{opacity:0;transform:translateY(18px)} to{opacity:1;transform:translateY(0)} }
+
+.eyebrow{ display:inline-flex; align-items:center; gap:8px; background:rgba(110,211,199,.1); border:1px solid rgba(110,211,199,.2); border-radius:999px; padding:6px 16px; font-size:13px; font-weight:600; color:var(--seafoam); margin-bottom:20px; animation:fadeUp .6s .45s ease both; }
+
+h1{ font-family:'Sora',sans-serif; font-size:52px; font-weight:800; line-height:1.05; letter-spacing:-1.5px; margin-bottom:16px; max-width:680px; animation:fadeUp .7s .55s ease both; }
+h1 span{ color:var(--seafoam); }
+
+.sub-text{ font-size:17px; color:#94a3b8; line-height:1.65; max-width:500px; margin:0 auto 44px; animation:fadeUp .7s .65s ease both; }
+.sub-text strong{ color:white; }
+
+.info-card{ background:rgba(255,255,255,.05); border:1.5px solid rgba(110,211,199,.15); border-radius:var(--radius); padding:30px 34px; max-width:540px; width:100%; margin:0 auto 28px; animation:fadeUp .7s .72s ease both; text-align:left; }
+
+.info-card-header{ display:flex; align-items:center; gap:12px; margin-bottom:22px; padding-bottom:18px; border-bottom:1px solid rgba(255,255,255,.07); }
+.plan-badge{ background:linear-gradient(135deg,var(--seafoam-deep),#1da99d); border-radius:10px; padding:8px 14px; font-family:'Sora',sans-serif; font-size:13px; font-weight:700; color:white; flex-shrink:0; }
+.plan-detail h4{ font-family:'Sora',sans-serif; font-size:16px; font-weight:700; color:white; margin-bottom:2px; }
+.plan-detail p{ font-size:13px; color:#64748b; }
+
+.next-steps{ display:flex; flex-direction:column; gap:14px; }
+.next-step{ display:flex; align-items:flex-start; gap:13px; }
+.ns-num{ width:28px; height:28px; border-radius:50%; background:rgba(47,183,170,.15); border:1px solid rgba(47,183,170,.25); display:flex; align-items:center; justify-content:center; font-family:'Sora',sans-serif; font-size:12px; font-weight:700; color:var(--seafoam); flex-shrink:0; margin-top:2px; }
+.ns-text h5{ font-family:'Sora',sans-serif; font-size:14px; font-weight:700; color:white; margin-bottom:2px; }
+.ns-text p{ font-size:13px; color:#64748b; line-height:1.5; }
+
+.email-note{ display:flex; align-items:flex-start; gap:12px; background:rgba(110,211,199,.07); border:1px solid rgba(110,211,199,.14); border-radius:var(--radius-sm); padding:14px 18px; max-width:540px; width:100%; margin:0 auto 36px; animation:fadeUp .7s .8s ease both; text-align:left; }
+.email-note .icon{ font-size:20px; flex-shrink:0; margin-top:1px; }
+.email-note p{ font-size:13px; color:#94a3b8; line-height:1.55; }
+.email-note p strong{ color:var(--seafoam); }
+
+.cta-btns{ display:flex; gap:14px; flex-wrap:wrap; justify-content:center; animation:fadeUp .7s .88s ease both; }
+.btn-primary{ padding:15px 32px; border-radius:var(--radius-sm); background:var(--seafoam-deep); color:white; font-family:'Sora',sans-serif; font-size:15px; font-weight:700; text-decoration:none; transition:.22s; box-shadow:0 8px 24px rgba(47,183,170,.3); }
+.btn-primary:hover{ background:#27a396; transform:translateY(-2px); box-shadow:0 14px 32px rgba(47,183,170,.4); }
+.btn-ghost{ padding:15px 32px; border-radius:var(--radius-sm); background:transparent; color:#94a3b8; border:1.5px solid rgba(255,255,255,.1); font-family:'Sora',sans-serif; font-size:15px; font-weight:600; text-decoration:none; transition:.22s; }
+.btn-ghost:hover{ border-color:rgba(255,255,255,.2); color:white; background:rgba(255,255,255,.04); }
+
+.trial-clock{ margin-top:52px; padding-top:30px; border-top:1px solid rgba(255,255,255,.06); animation:fadeUp .7s 1s ease both; }
+.trial-clock p{ font-size:13px; color:#334155; margin-bottom:10px; }
+.clock-bar-wrap{ width:320px; height:5px; background:rgba(255,255,255,.07); border-radius:999px; overflow:hidden; margin:0 auto 8px; }
+.clock-bar{ height:100%; width:100%; border-radius:999px; background:linear-gradient(90deg,var(--seafoam-deep),var(--seafoam)); animation:shrinkBar 30s linear forwards; }
+@keyframes shrinkBar{ to{width:0} }
+.clock-label{ font-size:12px; color:#334155; }
+.clock-label strong{ color:var(--seafoam); }
+
+@media(max-width:600px){
+  header{ padding:16px 20px; }
+  h1{ font-size:34px; }
+  .info-card{ padding:22px 18px; }
+  .cta-btns{ flex-direction:column; align-items:stretch; }
+  .btn-primary,.btn-ghost{ text-align:center; }
+}
+</style>
+</head>
+<body>
+
+<div class="bg-blob bg-blob-1"></div>
+<div class="bg-blob bg-blob-2"></div>
+<canvas id="confetti-canvas"></canvas>
+
+<header>
+  <a class="logo" href="unilearn_homepage.html">UniLearn</a>
+  <a class="nav-home" href="unilearn_homepage.html">← Back to home</a>
+</header>
+
+<main class="main">
+  <div class="success-ring"><div class="success-icon">🎉</div></div>
+
+  <div class="eyebrow">✦ Application received</div>
+
+  <h1>Welcome to<br><span id="school-display">your school</span>'s<br>new campus!</h1>
+
+  <p class="sub-text">
+    Hey <strong id="name-display">there</strong> — your 30-day free trial is now active.
+    We'll verify your registration document and have everything ready within 24 hours.
+  </p>
+
+  <div class="info-card">
+    <div class="info-card-header">
+      <div class="plan-badge" id="plan-badge">Campus Plan</div>
+      <div class="plan-detail">
+        <h4>30 days free, then <span id="plan-price">$50</span>/month</h4>
+        <p>No charge until your trial ends. Cancel anytime.</p>
+      </div>
+    </div>
+    <div class="next-steps">
+      <div class="next-step">
+        <div class="ns-num">1</div>
+        <div class="ns-text"><h5>Check your inbox</h5><p>A confirmation email with your login link and setup guide is on its way.</p></div>
+      </div>
+      <div class="next-step">
+        <div class="ns-num">2</div>
+        <div class="ns-text"><h5>Document verification</h5><p>Our team verifies your school registration proof — usually under 24 hours.</p></div>
+      </div>
+      <div class="next-step">
+        <div class="ns-num">3</div>
+        <div class="ns-text"><h5>Invite staff & students</h5><p>Once verified, you'll get instant access to start building your campus.</p></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="email-note">
+    <div class="icon">📧</div>
+    <p>A UniLearn onboarding specialist will reach out to <strong id="email-hint">your registered email</strong> within 24 hours to walk you through setup personally.</p>
+  </div>
+
+  <div class="cta-btns">
+    <a class="btn-primary" href="unilearn_homepage.html">Go to homepage</a>
+    <a class="btn-ghost" href="unilearn_onboarding.html">View plan details</a>
+  </div>
+
+  <div class="trial-clock">
+    <p>Your 30-day free trial has begun</p>
+    <div class="clock-bar-wrap"><div class="clock-bar"></div></div>
+    <div class="clock-label">30 days remaining · <strong>No charge until trial ends</strong></div>
+  </div>
+</main>
+
+<script>
+// ── Populate from URL params ──
+const params  = new URLSearchParams(window.location.search);
+const name    = params.get('name')   || 'there';
+const school  = params.get('school') || 'Your School';
+const planKey = (params.get('plan')  || 'campus').toLowerCase();
+
+const PLANS = {
+  seed:    { label:'Seed Plan',     price:'$20'  },
+  campus:  { label:'Campus Plan',   price:'$50'  },
+  district:{ label:'District Plan', price:'$150' }
+};
+const plan = PLANS[planKey] || PLANS.campus;
+
+document.getElementById('name-display').textContent   = name;
+document.getElementById('school-display').textContent = school;
+document.getElementById('plan-badge').textContent     = plan.label;
+document.getElementById('plan-price').textContent     = plan.price;
+
+// ── Confetti ──
+(function(){
+  const canvas = document.getElementById('confetti-canvas');
+  const ctx    = canvas.getContext('2d');
+  function resize(){ canvas.width=innerWidth; canvas.height=innerHeight; }
+  resize(); window.addEventListener('resize', resize);
+
+  const colors = ['#6ED3C7','#2fb7aa','#a8e8e3','#ffffff','#fcd34d','#86efac','#f9a8d4'];
+  const pieces = Array.from({length:150}, ()=>({
+    x: Math.random()*innerWidth,
+    y: Math.random()*-innerHeight,
+    r: Math.random()*6+3,
+    dx: (Math.random()-.5)*1.5,
+    dy: Math.random()*2+1.5,
+    color: colors[Math.floor(Math.random()*colors.length)],
+    angle: Math.random()*360,
+    spin: (Math.random()-.5)*.12,
+    shape: Math.random()>.4?'rect':'circle',
+    opacity: Math.random()*.5+.5
+  }));
+
+  let frame=0, running=true;
+  function draw(){
+    if(!running) return;
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+    frame++;
+    if(frame>320){ running=false; ctx.clearRect(0,0,canvas.width,canvas.height); return; }
+    const fade = Math.max(0, 1-frame/300);
+    pieces.forEach(p=>{
+      ctx.save();
+      ctx.globalAlpha = p.opacity * fade;
+      ctx.fillStyle = p.color;
+      ctx.translate(p.x, p.y);
+      ctx.rotate(p.angle * Math.PI/180);
+      if(p.shape==='rect') ctx.fillRect(-p.r*.5,-p.r,p.r,p.r*2.4);
+      else{ ctx.beginPath(); ctx.arc(0,0,p.r,0,Math.PI*2); ctx.fill(); }
+      ctx.restore();
+      p.x += p.dx; p.y += p.dy; p.angle += p.spin*180/Math.PI;
+      if(p.y > canvas.height+20){ p.y=-10; p.x=Math.random()*canvas.width; }
+    });
+    requestAnimationFrame(draw);
+  }
+  setTimeout(draw, 500);
+})();
+</script>
+</body>
+</html>

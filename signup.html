@@ -1,0 +1,762 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>UniLearn — Start Your Free Trial</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=DM+Sans:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+:root{
+  --seafoam:#6ED3C7;
+  --seafoam-deep:#2fb7aa;
+  --seafoam-light:#e4f9f7;
+  --seafoam-mid:#a8e8e3;
+  --dark:#0a1628;
+  --slate:#475569;
+  --soft:#f2fbfa;
+  --radius:22px;
+  --radius-sm:12px;
+  --error:#ef4444;
+}
+*{ box-sizing:border-box; margin:0; padding:0; scroll-behavior:smooth; }
+body{ font-family:'DM Sans',sans-serif; background:var(--soft); color:var(--dark); min-height:100vh; overflow-x:hidden; }
+
+/* NAV */
+header{
+  position:sticky; top:0; z-index:100;
+  display:flex; justify-content:space-between; align-items:center;
+  padding:18px 60px;
+  background:rgba(255,255,255,.92); backdrop-filter:blur(12px);
+  border-bottom:1px solid #edf2f2;
+}
+.logo{ font-family:'Sora',sans-serif; font-size:22px; font-weight:800; color:var(--seafoam-deep); text-decoration:none; }
+.nav-back{ display:flex; align-items:center; gap:7px; text-decoration:none; color:var(--slate); font-size:14px; font-weight:500; transition:.2s; }
+.nav-back:hover{ color:var(--seafoam-deep); }
+.nav-back svg{ transition:.2s; }
+.nav-back:hover svg{ transform:translateX(-3px); }
+
+/* LAYOUT */
+.page{ display:grid; grid-template-columns:1fr 500px; min-height:calc(100vh - 65px); }
+
+/* LEFT */
+.left-panel{
+  background:var(--dark); padding:60px 64px;
+  display:flex; flex-direction:column; justify-content:space-between;
+  position:relative; overflow:hidden;
+}
+.left-panel::before{
+  content:''; position:absolute; width:600px; height:600px; border-radius:50%;
+  background:radial-gradient(circle,rgba(110,211,199,.1) 0%,transparent 70%);
+  top:-200px; right:-200px; pointer-events:none;
+}
+.left-panel::after{
+  content:''; position:absolute; width:400px; height:400px; border-radius:50%;
+  background:radial-gradient(circle,rgba(47,183,170,.08) 0%,transparent 70%);
+  bottom:-100px; left:-100px; pointer-events:none;
+}
+.panel-content{ position:relative; z-index:1; }
+
+.trial-badge{
+  display:inline-flex; align-items:center; gap:8px;
+  background:rgba(110,211,199,.12); border:1px solid rgba(110,211,199,.25);
+  border-radius:999px; padding:7px 16px;
+  font-size:13px; font-weight:600; color:var(--seafoam); margin-bottom:36px;
+}
+.trial-badge .dot{ width:7px; height:7px; border-radius:50%; background:var(--seafoam); animation:pulse 1.8s infinite; }
+@keyframes pulse{ 0%,100%{opacity:1;box-shadow:0 0 0 0 rgba(110,211,199,.4)} 50%{opacity:.6;box-shadow:0 0 0 5px rgba(110,211,199,0)} }
+
+.panel-content h2{
+  font-family:'Sora',sans-serif; font-size:38px; font-weight:800;
+  color:white; line-height:1.1; letter-spacing:-1px; margin-bottom:16px;
+}
+.panel-content h2 span{ color:var(--seafoam); }
+.panel-content > p{ font-size:16px; color:#94a3b8; line-height:1.65; margin-bottom:40px; max-width:380px; }
+
+.selected-plan{
+  background:rgba(255,255,255,.06); border:1.5px solid rgba(110,211,199,.2);
+  border-radius:var(--radius-sm); padding:20px 22px;
+  margin-bottom:40px; display:flex; align-items:center; justify-content:space-between;
+}
+.plan-label-tag{ font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:1.5px; color:var(--seafoam); margin-bottom:4px; }
+.plan-name-display{ font-family:'Sora',sans-serif; font-size:20px; font-weight:800; color:white; margin-bottom:2px; }
+.plan-price-display{ font-size:13px; color:#64748b; }
+.plan-price-display strong{ color:#94a3b8; }
+.change-plan{ font-size:13px; color:var(--seafoam-deep); font-weight:600; text-decoration:none; border-bottom:1px solid rgba(47,183,170,.3); padding-bottom:1px; transition:.2s; flex-shrink:0; margin-left:12px; }
+.change-plan:hover{ border-color:var(--seafoam-deep); }
+
+.perks{ display:flex; flex-direction:column; gap:16px; }
+.perk{ display:flex; align-items:flex-start; gap:14px; }
+.perk-icon{ width:38px; height:38px; border-radius:10px; background:rgba(110,211,199,.1); border:1px solid rgba(110,211,199,.15); display:flex; align-items:center; justify-content:center; font-size:17px; flex-shrink:0; }
+.perk-text h5{ font-family:'Sora',sans-serif; font-size:14px; font-weight:700; color:white; margin-bottom:2px; }
+.perk-text p{ font-size:13px; color:#64748b; line-height:1.5; }
+
+.trust-row{ position:relative; z-index:1; display:flex; align-items:center; gap:14px; padding-top:36px; border-top:1px solid rgba(255,255,255,.07); }
+.trust-avatars{ display:flex; }
+.trust-avatars .av{ width:34px; height:34px; border-radius:50%; border:2px solid var(--dark); background:linear-gradient(135deg,var(--seafoam-mid),var(--seafoam-deep)); display:flex; align-items:center; justify-content:center; font-family:'Sora',sans-serif; font-size:11px; font-weight:700; color:white; margin-right:-8px; }
+.trust-text{ font-size:13px; color:#64748b; line-height:1.5; margin-left:16px; }
+.trust-text strong{ color:#94a3b8; display:block; }
+
+/* RIGHT */
+.right-panel{ background:white; padding:50px 48px; display:flex; flex-direction:column; overflow-y:auto; }
+
+/* PROGRESS */
+.step-progress{ display:flex; align-items:center; margin-bottom:40px; }
+.pip{ width:32px; height:32px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-family:'Sora',sans-serif; font-size:13px; font-weight:700; transition:.3s; flex-shrink:0; border:2px solid #e2e8f0; color:#94a3b8; background:white; }
+.pip.active{ background:var(--seafoam-deep); border-color:var(--seafoam-deep); color:white; }
+.pip.done{ background:var(--seafoam-light); border-color:var(--seafoam-mid); color:var(--seafoam-deep); }
+.pip-label{ font-size:11px; font-weight:600; color:#94a3b8; white-space:nowrap; margin-left:7px; transition:.3s; }
+.pip.active ~ .pip-label-active{ color:var(--seafoam-deep); }
+.pip-line{ flex:1; height:2px; background:#e2e8f0; margin:0 10px; position:relative; overflow:hidden; }
+.pip-line::after{ content:''; position:absolute; inset:0; background:var(--seafoam-deep); transform:scaleX(0); transform-origin:left; transition:.4s ease; }
+.pip-line.filled::after{ transform:scaleX(1); }
+
+/* STEP PANELS */
+.step-panel{ display:none; }
+.step-panel.active{ display:block; animation:stepIn .35s ease both; }
+@keyframes stepIn{ from{opacity:0;transform:translateX(14px)} to{opacity:1;transform:translateX(0)} }
+
+.step-heading{ font-family:'Sora',sans-serif; font-size:24px; font-weight:800; margin-bottom:6px; letter-spacing:-.4px; }
+.step-sub{ font-size:14px; color:var(--slate); margin-bottom:28px; line-height:1.5; }
+
+/* FIELDS */
+.field-row{ display:grid; grid-template-columns:1fr 1fr; gap:16px; }
+.field{ margin-bottom:18px; }
+.field label{ display:block; font-size:13px; font-weight:600; color:var(--dark); margin-bottom:6px; }
+.field label .req{ color:var(--seafoam-deep); margin-left:2px; }
+.field input, .field select, .field textarea{
+  width:100%; padding:12px 14px; border:1.5px solid #e2eeec; border-radius:var(--radius-sm);
+  font-family:'DM Sans',sans-serif; font-size:14px; color:var(--dark);
+  background:white; transition:.2s; outline:none; appearance:none;
+}
+.field input:focus,.field select:focus{ border-color:var(--seafoam-deep); box-shadow:0 0 0 3px rgba(47,183,170,.1); }
+.field .err-msg{ font-size:12px; color:var(--error); margin-top:5px; display:none; }
+.field.has-error .err-msg{ display:block; }
+.field.has-error input,.field.has-error select{ border-color:var(--error); box-shadow:0 0 0 3px rgba(239,68,68,.08); }
+
+.select-wrap{ position:relative; }
+.select-wrap::after{ content:'▾'; position:absolute; right:14px; top:50%; transform:translateY(-50%); color:#94a3b8; pointer-events:none; font-size:13px; }
+.select-wrap select{ padding-right:36px; cursor:pointer; }
+
+/* PASSWORD */
+.pw-wrap{ position:relative; }
+.pw-wrap input{ padding-right:44px; }
+.pw-toggle{ position:absolute; right:12px; top:50%; transform:translateY(-50%); background:none; border:none; cursor:pointer; color:#94a3b8; font-size:17px; line-height:1; padding:4px; transition:.2s; }
+.pw-toggle:hover{ color:var(--seafoam-deep); }
+.pw-strength{ margin-top:8px; }
+.pw-bars{ display:flex; gap:4px; margin-bottom:4px; }
+.pw-bar{ flex:1; height:3px; border-radius:2px; background:#e2e8f0; transition:.3s; }
+.pw-bar.weak{ background:#ef4444; }
+.pw-bar.fair{ background:#f59e0b; }
+.pw-bar.strong{ background:#22c55e; }
+.pw-label{ font-size:11px; }
+
+/* FILE UPLOAD */
+.file-drop{
+  border:2px dashed #cce9e6; border-radius:var(--radius-sm);
+  padding:26px 20px; text-align:center; cursor:pointer; transition:.25s;
+  position:relative; overflow:hidden; background:var(--soft);
+}
+.file-drop:hover,.file-drop.drag-over{ border-color:var(--seafoam-deep); background:var(--seafoam-light); }
+.file-drop input[type="file"]{ position:absolute; inset:0; opacity:0; cursor:pointer; width:100%; height:100%; }
+.upload-icon{ font-size:30px; margin-bottom:8px; }
+.upload-text{ font-size:14px; font-weight:600; color:var(--dark); margin-bottom:3px; }
+.upload-hint{ font-size:12px; color:#94a3b8; }
+.upload-hint span{ color:var(--seafoam-deep); font-weight:600; }
+.file-preview{ display:none; align-items:center; gap:10px; background:var(--seafoam-light); border-radius:var(--radius-sm); padding:11px 14px; margin-top:10px; border:1px solid var(--seafoam-mid); }
+.file-preview.show{ display:flex; }
+.file-preview .fname{ font-size:13px; font-weight:600; flex:1; color:var(--dark); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.file-preview .fremove{ background:none; border:none; color:#ef4444; cursor:pointer; font-size:16px; line-height:1; flex-shrink:0; }
+.file-err-msg{ font-size:12px; color:var(--error); margin-top:6px; display:none; }
+
+/* CHECKBOX */
+.checkbox-field{ display:flex; align-items:flex-start; gap:10px; margin-bottom:20px; }
+.checkbox-field input[type=checkbox]{ width:18px; height:18px; accent-color:var(--seafoam-deep); cursor:pointer; flex-shrink:0; margin-top:2px; }
+.checkbox-field label{ font-size:13px; color:var(--slate); line-height:1.55; cursor:pointer; }
+.checkbox-field label a{ color:var(--seafoam-deep); text-decoration:none; }
+.checkbox-field label a:hover{ text-decoration:underline; }
+
+/* BUTTONS */
+.btn-row{ display:flex; gap:12px; margin-top:6px; }
+.btn-next,.btn-submit{
+  flex:1; padding:14px 22px; border-radius:var(--radius-sm);
+  background:var(--seafoam-deep); color:white;
+  font-family:'Sora',sans-serif; font-size:15px; font-weight:700;
+  border:none; cursor:pointer; transition:.22s;
+  display:flex; align-items:center; justify-content:center; gap:8px;
+}
+.btn-next:hover,.btn-submit:hover{ background:#27a396; transform:translateY(-1px); box-shadow:0 8px 24px rgba(47,183,170,.3); }
+.btn-back{ padding:14px 20px; border-radius:var(--radius-sm); background:var(--soft); color:var(--slate); font-family:'Sora',sans-serif; font-size:15px; font-weight:600; border:1.5px solid #e2eeec; cursor:pointer; transition:.2s; }
+.btn-back:hover{ background:#e8f5f3; border-color:var(--seafoam-mid); }
+.spinner{ width:18px; height:18px; border:2px solid rgba(255,255,255,.3); border-top-color:white; border-radius:50%; animation:spin .7s linear infinite; display:none; }
+@keyframes spin{ to{transform:rotate(360deg)} }
+.btn-submit.loading .btn-label{ display:none; }
+.btn-submit.loading .spinner{ display:block; }
+.btn-submit:disabled{ opacity:.7; cursor:not-allowed; transform:none !important; }
+
+/* REVIEW */
+.review-block{ margin-bottom:22px; }
+.review-block-header{ display:flex; align-items:center; justify-content:space-between; margin-bottom:10px; }
+.review-block-header h5{ font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:1.5px; color:var(--seafoam-deep); }
+.review-edit{ font-size:12px; color:var(--seafoam-deep); font-weight:600; background:none; border:none; cursor:pointer; padding:0; }
+.review-edit:hover{ text-decoration:underline; }
+.review-row{ display:flex; justify-content:space-between; align-items:center; padding:9px 0; border-bottom:1px solid #f0f7f6; font-size:14px; gap:12px; }
+.review-row:last-child{ border:none; }
+.rk{ color:var(--slate); flex-shrink:0; }
+.rv{ font-weight:600; color:var(--dark); text-align:right; }
+
+/* RESPONSIVE */
+@media(max-width:920px){
+  header{ padding:16px 20px; }
+  .page{ grid-template-columns:1fr; }
+  .left-panel{ padding:40px 24px; }
+  .right-panel{ padding:36px 24px; }
+  .field-row{ grid-template-columns:1fr; }
+}
+</style>
+</head>
+<body>
+
+<header>
+  <a class="logo" href="index.html">UniLearn</a>
+  <a class="nav-back" href="pricing_plan.html">
+    <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M10 12L6 8L10 4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    Back to pricing
+  </a>
+</header>
+
+<div class="page">
+
+  <!-- LEFT PANEL -->
+  <div class="left-panel">
+    <div class="panel-content">
+      <div class="trial-badge"><span class="dot"></span> 30-day free trial · No credit card</div>
+      <h2>Start your<br><span>free trial</span><br>today.</h2>
+      <p>Get full platform access for 30 days. Set up your school, invite your staff, and go live — completely free.</p>
+
+      <div class="selected-plan">
+        <div>
+          <div class="plan-label-tag" id="pd-tier">Growth</div>
+          <div class="plan-name-display" id="pd-name">Campus</div>
+          <div class="plan-price-display"><strong id="pd-price">$50</strong>/month after trial</div>
+        </div>
+        <a class="change-plan" href="pricing_plan.html">Change plan</a>
+      </div>
+
+      <div class="perks">
+        <div class="perk">
+          <div class="perk-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg></div>
+          <div class="perk-text"><h5>No credit card needed</h5><p>Start free. Add billing only when you're ready to continue.</p></div>
+        </div>
+        <div class="perk">
+          <div class="perk-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg></div>
+          <div class="perk-text"><h5>Live in under an hour</h5><p>Most schools onboard fully within a single school day.</p></div>
+        </div>
+        <div class="perk">
+          <div class="perk-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c0 1.657 2.686 3 6 3s6-1.343 6-3v-5"/></svg></div>
+          <div class="perk-text"><h5>Dedicated onboarding support</h5><p>A UniLearn specialist reaches out within 24 hours to help you set up.</p></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="trust-row">
+      <div class="trust-avatars">
+        <div class="av">RK</div><div class="av">MO</div><div class="av">SL</div><div class="av">+</div>
+      </div>
+      <div class="trust-text">
+        <strong>400+ schools onboarded</strong>
+        Trusted by principals, teachers &amp; admins worldwide.
+      </div>
+    </div>
+  </div>
+
+  <!-- RIGHT PANEL -->
+  <div class="right-panel">
+
+    <!-- Step progress -->
+    <div class="step-progress" id="step-progress">
+      <div class="pip active" id="pip-1">1</div>
+      <span class="pip-label" id="pl-1" style="color:var(--seafoam-deep)">School Info</span>
+      <div class="pip-line" id="line-1"></div>
+      <div class="pip" id="pip-2">2</div>
+      <span class="pip-label" id="pl-2">Your Account</span>
+      <div class="pip-line" id="line-2"></div>
+      <div class="pip" id="pip-3">3</div>
+      <span class="pip-label" id="pl-3">Review</span>
+    </div>
+
+    <!-- STEP 1 -->
+    <div class="step-panel active" id="step-1">
+      <div class="step-heading">Tell us about your school</div>
+      <p class="step-sub">Basic details to personalise your campus setup.</p>
+
+      <div class="field" id="f-school-name">
+        <label>School name <span class="req">*</span></label>
+        <input type="text" id="school-name" placeholder="e.g. Greenfield Academy" autocomplete="organization">
+        <div class="err-msg">Please enter your school name.</div>
+      </div>
+
+      <div class="field-row">
+        <div class="field" id="f-school-type">
+          <label>School type <span class="req">*</span></label>
+          <div class="select-wrap">
+            <select id="school-type">
+              <option value="">Select type</option>
+              <option>Primary School</option>
+              <option>Secondary School</option>
+              <option>Higher Secondary</option>
+              <option>International School</option>
+              <option>Vocational / Technical</option>
+              <option>University / College</option>
+              <option>Other</option>
+            </select>
+          </div>
+          <div class="err-msg">Please select a school type.</div>
+        </div>
+        <div class="field" id="f-student-count">
+          <label>Number of students <span class="req">*</span></label>
+          <div class="select-wrap">
+            <select id="student-count">
+              <option value="">Select range</option>
+              <option>Under 100</option>
+              <option>100 – 200</option>
+              <option>201 – 500</option>
+              <option>501 – 1,000</option>
+              <option>1,001 – 3,000</option>
+              <option>3,000+</option>
+            </select>
+          </div>
+          <div class="err-msg">Please select a student range.</div>
+        </div>
+      </div>
+
+      <div class="field">
+        <label>School registration proof <span class="req">*</span></label>
+        <div class="file-drop" id="file-drop">
+          <input type="file" id="reg-file" accept=".pdf,.jpg,.jpeg,.png">
+          <div class="upload-icon" style="display:flex;justify-content:center;margin-bottom:12px"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="color:#94a3b8"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><line x1="9" y1="15" x2="15" y2="15"/></svg></div>
+          <div class="upload-text">Drop your file here</div>
+          <div class="upload-hint">or <span>browse to upload</span> · PDF, JPG, PNG · max 10 MB</div>
+        </div>
+        <div class="file-preview" id="file-preview">
+          <span style="display:flex;align-items:center;color:var(--seafoam-deep)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.44 11.05l-9.19 9.19a6 6 0 01-8.49-8.49l9.19-9.19a4 4 0 015.66 5.66l-9.2 9.19a2 2 0 01-2.83-2.83l8.49-8.48"/></svg></span>
+          <span class="fname" id="file-name-display"></span>
+          <button class="fremove" id="file-remove" type="button"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+        </div>
+        <div class="file-err-msg" id="file-err">Please upload your school registration document.</div>
+      </div>
+
+      <div class="btn-row">
+        <button class="btn-next" onclick="goStep(2)">
+          <span>Continue</span>
+          <svg width="15" height="15" viewBox="0 0 16 16" fill="none"><path d="M6 4L10 8L6 12" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- STEP 2 -->
+    <div class="step-panel" id="step-2">
+      <div class="step-heading">Create your admin account</div>
+      <p class="step-sub">You'll manage the school campus. More staff can be added after signup.</p>
+
+      <div class="field-row">
+        <div class="field" id="f-fname">
+          <label>First name <span class="req">*</span></label>
+          <input type="text" id="fname" placeholder="Rachel" autocomplete="given-name">
+          <div class="err-msg">Required.</div>
+        </div>
+        <div class="field" id="f-lname">
+          <label>Last name <span class="req">*</span></label>
+          <input type="text" id="lname" placeholder="Kim" autocomplete="family-name">
+          <div class="err-msg">Required.</div>
+        </div>
+      </div>
+
+      <div class="field" id="f-email">
+        <label>Work email <span class="req">*</span></label>
+        <input type="email" id="email" placeholder="rachel@greenfieldacademy.edu" autocomplete="email">
+        <div class="err-msg">Please enter a valid email address.</div>
+      </div>
+
+      <div class="field" id="f-phone">
+        <label>Phone number <span class="req">*</span></label>
+        <input type="tel" id="phone" placeholder="+1 (555) 000-0000" autocomplete="tel">
+        <div class="err-msg">Please enter a valid phone number.</div>
+      </div>
+
+      <div class="field" id="f-password">
+        <label>Password <span class="req">*</span></label>
+        <div class="pw-wrap">
+          <input type="password" id="password" placeholder="At least 8 characters" autocomplete="new-password" oninput="checkStrength(this.value)">
+          <button class="pw-toggle" type="button" onclick="togglePw('password')" style="line-height:0;display:flex;align-items:center"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button>
+        </div>
+        <div class="pw-strength" id="pw-strength" style="display:none">
+          <div class="pw-bars">
+            <div class="pw-bar" id="b1"></div><div class="pw-bar" id="b2"></div>
+            <div class="pw-bar" id="b3"></div><div class="pw-bar" id="b4"></div>
+          </div>
+          <div class="pw-label" id="pw-label"></div>
+        </div>
+        <div class="err-msg">Password must be at least 8 characters.</div>
+      </div>
+
+      <div class="field" id="f-confirm-pw">
+        <label>Confirm password <span class="req">*</span></label>
+        <div class="pw-wrap">
+          <input type="password" id="confirm-pw" placeholder="Re-enter your password" autocomplete="new-password">
+          <button class="pw-toggle" type="button" onclick="togglePw('confirm-pw')" style="line-height:0;display:flex;align-items:center"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button>
+        </div>
+        <div class="err-msg">Passwords do not match.</div>
+      </div>
+
+      <div class="checkbox-field">
+        <input type="checkbox" id="terms" checked>
+        <label for="terms">I agree to UniLearn's <a href="#">Terms of Service</a> and <a href="#">Privacy Policy</a></label>
+      </div>
+      <div id="terms-err" style="display:none;font-size:12px;color:var(--error);margin-top:-12px;margin-bottom:16px;">You must agree to the Terms of Service to continue.</div>
+
+      <div class="btn-row">
+        <button class="btn-back" onclick="goStep(1)">Back</button>
+        <button class="btn-next" onclick="goStep(3)">
+          <span>Review & confirm</span>
+          <svg width="15" height="15" viewBox="0 0 16 16" fill="none"><path d="M6 4L10 8L6 12" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- STEP 3 REVIEW -->
+    <div class="step-panel" id="step-3">
+      <div class="step-heading">Review your details</div>
+      <p class="step-sub">Double-check everything before we create your campus.</p>
+
+      <div class="review-block">
+        <div class="review-block-header"><h5>Selected plan</h5></div>
+        <div class="review-row"><span class="rk">Plan</span><span class="rv" id="rv-plan">—</span></div>
+        <div class="review-row"><span class="rk">Trial period</span><span class="rv">30 days free, then monthly</span></div>
+      </div>
+
+      <div class="review-block">
+        <div class="review-block-header">
+          <h5>School information</h5>
+          <button class="review-edit" onclick="goStep(1)">Edit</button>
+        </div>
+        <div class="review-row"><span class="rk">School name</span><span class="rv" id="rv-school">—</span></div>
+        <div class="review-row"><span class="rk">Type</span><span class="rv" id="rv-type">—</span></div>
+        <div class="review-row"><span class="rk">Students</span><span class="rv" id="rv-students">—</span></div>
+        <div class="review-row"><span class="rk">Registration doc</span><span class="rv" id="rv-doc">—</span></div>
+      </div>
+
+      <div class="review-block">
+        <div class="review-block-header">
+          <h5>Admin account</h5>
+          <button class="review-edit" onclick="goStep(2)">Edit</button>
+        </div>
+        <div class="review-row"><span class="rk">Name</span><span class="rv" id="rv-name">—</span></div>
+        <div class="review-row"><span class="rk">Email</span><span class="rv" id="rv-email">—</span></div>
+        <div class="review-row"><span class="rk">Phone</span><span class="rv" id="rv-phone">—</span></div>
+      </div>
+
+      <div class="btn-row">
+        <button class="btn-back" onclick="goStep(2)">Back</button>
+        <button class="btn-submit" id="submit-btn" onclick="submitForm()">
+          <span class="btn-label" style="display:flex;align-items:center;gap:8px"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 00-2.91-.09z"/><path d="M12 15l-3-3a22 22 0 012-3.95A12.88 12.88 0 0122 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 01-4 2z"/></svg> Start my free trial</span>
+          <div class="spinner"></div>
+        </button>
+      </div>
+    </div>
+
+  </div><!-- /right-panel -->
+</div><!-- /page -->
+
+<script>
+// ── Plan data ──
+const PLANS = {
+  seed:    { tier:'Starter',    name:'Seed',     price:'$20' },
+  campus:  { tier:'Growth',     name:'Campus',   price:'$50' },
+  district:{ tier:'Enterprise', name:'District', price:'$150' }
+};
+
+function getPlanKey(){
+  return (new URLSearchParams(window.location.search).get('plan') || 'campus').toLowerCase();
+}
+
+(function initPlan(){
+  const p = PLANS[getPlanKey()] || PLANS.campus;
+  document.getElementById('pd-tier').textContent  = p.tier;
+  document.getElementById('pd-name').textContent  = p.name;
+  document.getElementById('pd-price').textContent = p.price;
+})();
+
+// ── Step navigation ──
+let currentStep = 1;
+
+function goStep(n){
+  // Only validate when moving forward
+  if(n > currentStep && !validateStep(currentStep)) return;
+
+  document.querySelectorAll('.step-panel').forEach(p => p.classList.remove('active'));
+  document.getElementById('step-' + n).classList.add('active');
+
+  [1,2,3].forEach(i => {
+    const pip   = document.getElementById('pip-' + i);
+    const label = document.getElementById('pl-' + i);
+    pip.classList.remove('active','done');
+    if(i < n){
+      pip.classList.add('done');
+      pip.textContent = '✓';
+      label.style.color = 'var(--slate)';
+    } else if(i === n){
+      pip.classList.add('active');
+      pip.textContent = i;
+      label.style.color = 'var(--seafoam-deep)';
+    } else {
+      pip.textContent = i;
+      label.style.color = '#94a3b8';
+    }
+  });
+
+  document.getElementById('line-1').classList.toggle('filled', n > 1);
+  document.getElementById('line-2').classList.toggle('filled', n > 2);
+
+  currentStep = n;
+  if(n === 3) fillReview();
+  document.querySelector('.right-panel').scrollTo({top:0, behavior:'smooth'});
+}
+
+// ── Validation ──
+function setErr(fieldId, hasError){
+  document.getElementById(fieldId).classList.toggle('has-error', hasError);
+}
+
+function validateStep(step){
+  let ok = true;
+
+  if(step === 1){
+    const sn = document.getElementById('school-name').value.trim();
+    setErr('f-school-name', !sn); if(!sn) ok=false;
+
+    const st = document.getElementById('school-type').value;
+    setErr('f-school-type', !st); if(!st) ok=false;
+
+    const sc = document.getElementById('student-count').value;
+    setErr('f-student-count', !sc); if(!sc) ok=false;
+
+    // Use droppedFile if set (drag-drop), otherwise fileInput.files
+    const hasFile = (window._droppedFile != null) || document.getElementById('reg-file').files.length > 0;
+    document.getElementById('file-err').style.display = hasFile ? 'none' : 'block';
+    if(!hasFile) ok=false;
+  }
+
+  if(step === 2){
+    const fn = document.getElementById('fname').value.trim();
+    setErr('f-fname', !fn); if(!fn) ok=false;
+
+    const ln = document.getElementById('lname').value.trim();
+    setErr('f-lname', !ln); if(!ln) ok=false;
+
+    const em = document.getElementById('email').value.trim();
+    const validEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(em);
+    setErr('f-email', !validEmail); if(!validEmail) ok=false;
+
+    const ph = document.getElementById('phone').value.trim();
+    setErr('f-phone', ph.length < 7); if(ph.length < 7) ok=false;
+
+    const pw = document.getElementById('password').value;
+    setErr('f-password', pw.length < 8); if(pw.length < 8) ok=false;
+
+    const cpw = document.getElementById('confirm-pw').value;
+    const pwMismatch = cpw !== pw || !cpw;
+    setErr('f-confirm-pw', pwMismatch); if(pwMismatch) ok=false;
+
+    // Inline terms error instead of alert()
+    const termsOk = document.getElementById('terms').checked;
+    document.getElementById('terms-err').style.display = termsOk ? 'none' : 'block';
+    if(!termsOk) ok=false;
+  }
+
+  return ok;
+}
+
+// ── Review ──
+function fillReview(){
+  const p = PLANS[getPlanKey()] || PLANS.campus;
+  document.getElementById('rv-plan').textContent     = p.name + ' (' + p.tier + ') — ' + p.price + '/mo';
+  document.getElementById('rv-school').textContent   = document.getElementById('school-name').value;
+  document.getElementById('rv-type').textContent     = document.getElementById('school-type').value;
+  document.getElementById('rv-students').textContent = document.getElementById('student-count').value;
+  // Use droppedFile name if available, else fileInput
+  const droppedFile = window._droppedFile;
+  const inputFile   = document.getElementById('reg-file').files[0];
+  const f = droppedFile || inputFile;
+  document.getElementById('rv-doc').textContent      = f ? f.name : '—';
+  document.getElementById('rv-name').textContent     = document.getElementById('fname').value + ' ' + document.getElementById('lname').value;
+  document.getElementById('rv-email').textContent    = document.getElementById('email').value;
+  document.getElementById('rv-phone').textContent    = document.getElementById('phone').value;
+}
+
+// ── Show error helper ──
+function showError(btn, msg) {
+  // Reuse existing element or create once
+  let errEl = document.getElementById('submit-error');
+  if (!errEl) {
+    errEl = document.createElement('div');
+    errEl.id = 'submit-error';
+    errEl.style.cssText = 'color:#ef4444;font-size:13px;margin-top:10px;padding:10px 14px;background:#fef2f2;border:1px solid #fecaca;border-radius:10px;';
+    btn.parentNode.appendChild(errEl);
+  }
+  errEl.textContent = '⚠️ ' + msg;
+  errEl.style.display = 'block';
+  btn.classList.remove('loading');
+  btn.disabled = false;
+}
+
+function hideSubmitError(){
+  const el = document.getElementById('submit-error');
+  if(el) el.style.display = 'none';
+}
+
+// ── Submit ──
+async function submitForm(){
+  hideSubmitError();
+  const btn = document.getElementById('submit-btn');
+  btn.classList.add('loading'); btn.disabled = true;
+
+  const plan     = getPlanKey();
+  const p        = PLANS[plan] || PLANS.campus;
+  const regFile  = window._droppedFile || document.getElementById('reg-file').files[0];
+
+  // Convert file to base64 so we can send it in JSON to the Worker
+  let regFileBase64 = null;
+  let regFileExt    = null;
+  if (regFile) {
+    regFileExt    = regFile.name.split('.').pop().toLowerCase();
+    regFileBase64 = await new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload  = () => resolve(reader.result.split(',')[1]); // strip data:...;base64,
+      reader.onerror = reject;
+      reader.readAsDataURL(regFile);
+    });
+  }
+
+  const payload = {
+    firstName:     document.getElementById('fname').value.trim(),
+    lastName:      document.getElementById('lname').value.trim(),
+    email:         document.getElementById('email').value.trim(),
+    phone:         document.getElementById('phone').value.trim(),
+    password:      document.getElementById('password').value,
+    schoolName:    document.getElementById('school-name').value.trim(),
+    schoolType:    document.getElementById('school-type').value,
+    students:      document.getElementById('student-count').value,
+    plan,
+    planName:      p.name,
+    planTier:      p.tier,
+    planPrice:     p.price,
+    regFileBase64,
+    regFileExt,
+  };
+
+  try {
+    const res  = await fetch('/api/signup', {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body:    JSON.stringify(payload),
+    });
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      showError(btn, data.error || 'Something went wrong. Please try again.');
+      return;
+    }
+
+    // ── All done — redirect ──
+    window.location.href =
+      'confirmation.html?name='   + encodeURIComponent(payload.firstName) +
+      '&school=' + encodeURIComponent(payload.schoolName) +
+      '&plan='   + plan +
+      '&email='  + encodeURIComponent(payload.email);
+
+  } catch(err) {
+    console.error('Unexpected error:', err);
+    showError(btn, 'Something went wrong. Please check your connection and try again.');
+  }
+}
+
+// ── Password strength ──
+function checkStrength(v){
+  const el = document.getElementById('pw-strength');
+  if(!v){ el.style.display='none'; return; }
+  el.style.display='block';
+  let score=0;
+  if(v.length>=8) score++;
+  if(/[A-Z]/.test(v)) score++;
+  if(/[0-9]/.test(v)) score++;
+  if(/[^A-Za-z0-9]/.test(v)) score++;
+  const cls = score<=1?'weak':score===2?'fair':'strong';
+  const labels = {1:'Weak',2:'Fair',3:'Good',4:'Strong'};
+  const colours = {1:'#ef4444',2:'#f59e0b',3:'#22c55e',4:'#22c55e'};
+  [1,2,3,4].forEach(i=>{
+    const b = document.getElementById('b'+i);
+    b.className = 'pw-bar' + (i<=score?' '+cls:'');
+  });
+  const lbl = document.getElementById('pw-label');
+  lbl.textContent = labels[score]||'Too short';
+  lbl.style.color = colours[score]||'#94a3b8';
+}
+
+// ── Toggle PW visibility ──
+function togglePw(id){
+  const el=document.getElementById(id);
+  el.type = el.type==='password'?'text':'password';
+}
+
+// ── File upload ──
+// _droppedFile holds File from drag-drop (since DataTransfer can't be assigned to input.files)
+window._droppedFile = null;
+
+const fileDrop  = document.getElementById('file-drop');
+const fileInput = document.getElementById('reg-file');
+
+function showFile(file){
+  window._droppedFile = (file instanceof File) ? file : null;
+  const name = file instanceof File ? file.name : file;
+  document.getElementById('file-name-display').textContent = name;
+  document.getElementById('file-preview').classList.add('show');
+  document.getElementById('file-err').style.display = 'none';
+}
+
+fileInput.addEventListener('change', () => {
+  if(fileInput.files[0]){
+    window._droppedFile = null; // use fileInput.files directly
+    showFile(fileInput.files[0].name);
+  }
+});
+
+document.getElementById('file-remove').addEventListener('click', () => {
+  fileInput.value = '';
+  window._droppedFile = null;
+  document.getElementById('file-preview').classList.remove('show');
+});
+
+fileDrop.addEventListener('dragover',  e => { e.preventDefault(); fileDrop.classList.add('drag-over'); });
+fileDrop.addEventListener('dragleave', () => fileDrop.classList.remove('drag-over'));
+fileDrop.addEventListener('drop', e => {
+  e.preventDefault();
+  fileDrop.classList.remove('drag-over');
+  const file = e.dataTransfer.files[0];
+  if(file) showFile(file); // stores actual File object in _droppedFile
+});
+
+// ── Clear errors on input/change ──
+document.querySelectorAll('input,select').forEach(el => {
+  el.addEventListener('input',  () => el.closest('.field')?.classList.remove('has-error'));
+  el.addEventListener('change', () => el.closest('.field')?.classList.remove('has-error'));
+});
+
+// Clear terms error when checkbox is ticked
+document.getElementById('terms').addEventListener('change', function(){
+  if(this.checked) document.getElementById('terms-err').style.display = 'none';
+});
+</script>
+</body>
+</html>
