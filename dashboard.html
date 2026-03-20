@@ -983,9 +983,12 @@ async function loadAll(){
   renderAll();
 }
 async function loadConfig(){
-  const{data}=await DB.from('school_config').select('*').limit(1).single().catch(()=>({data:null}));
+  const query=currentSchoolId
+    ? DB.from('school_config').select('*').eq('id',currentSchoolId).single()
+    : DB.from('school_config').select('*').limit(1).single();
+  const{data}=await query.catch(()=>({data:null}));
   schoolConfig=data;
-  currentSchoolId=data?.id;
+  if(data&&!currentSchoolId)currentSchoolId=data.id;
   if(!data)return;
   document.getElementById('sb-school').textContent=data.school_name||'Your School';
   document.getElementById('pg-bc').textContent=`${data.school_name} · ${data.academic_year}`;
@@ -1598,7 +1601,12 @@ async function init(){
   if(!currentUser)return;
   const{data:adm}=await DB.from('admins').select('*').eq('auth_user_id',currentUser.id).single().catch(()=>({data:null}));
   currentAdmin=adm;
-  if(adm){document.getElementById('sb-uname').textContent=adm.full_name||document.getElementById('sb-uname').textContent;document.getElementById('sb-uav').textContent=ini(adm.full_name||'Admin');document.getElementById('sb-urole').textContent=adm.role==='super_admin'?'Super Admin':'Sub Admin';}
+  if(adm){
+    currentSchoolId=adm.school_id;
+    document.getElementById('sb-uname').textContent=adm.full_name||document.getElementById('sb-uname').textContent;
+    document.getElementById('sb-uav').textContent=ini(adm.full_name||'Admin');
+    document.getElementById('sb-urole').textContent=adm.role==='super_admin'?'Super Admin':'Sub Admin';
+  }
   await loadAll();
 }
 init();
