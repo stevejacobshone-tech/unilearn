@@ -10,7 +10,6 @@
 <!-- Supabase JS -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
-  // Initialize Supabase client
   window._db = window.supabase.createClient(
     "https://twhajohjcrlxqlvbvddi.supabase.co",
     "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InR3aGFqb2hqY3JseHFsdmJ2ZGRpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM2NjQ1MjIsImV4cCI6MjA4OTI0MDUyMn0.vsTT2eErCB3xpLiQvUPQW8Us6lphGHEKSyO3eE0VcfA"
@@ -43,7 +42,6 @@ body{
   padding:20px;
 }
 
-/* Background blobs */
 .blob{
   position:fixed; border-radius:50%; pointer-events:none;
 }
@@ -68,7 +66,6 @@ body{
   50%{ transform:translateY(-20px) rotate(3deg); }
 }
 
-/* Card */
 .login-card{
   background:white;
   border-radius:var(--radius);
@@ -78,9 +75,13 @@ body{
   padding:48px;
   position:relative;
   z-index:1;
+  animation: cardIn .5s cubic-bezier(.34,1.2,.64,1) both;
+}
+@keyframes cardIn{
+  from{ opacity:0; transform:translateY(20px) scale(.97); }
+  to{ opacity:1; transform:translateY(0) scale(1); }
 }
 
-/* Logo */
 .logo-wrap{
   text-align:center;
   margin-bottom:32px;
@@ -99,7 +100,6 @@ body{
   margin-top:4px;
 }
 
-/* Heading */
 h1{
   font-family:'Sora',sans-serif;
   font-size:24px;
@@ -115,7 +115,6 @@ h1{
   margin-bottom:32px;
 }
 
-/* Form fields */
 .field{ margin-bottom:20px; }
 .field label{
   display:block;
@@ -152,7 +151,6 @@ h1{
 }
 .field.has-error .err-msg{ display:block; }
 
-/* Password field with toggle */
 .pw-wrap{ position:relative; }
 .pw-wrap input{ padding-right:44px; }
 .pw-toggle{
@@ -164,8 +162,6 @@ h1{
   border:none;
   cursor:pointer;
   color:#94a3b8;
-  font-size:18px;
-  line-height:1;
   padding:4px;
   transition:.2s;
   display:flex;
@@ -173,7 +169,6 @@ h1{
 }
 .pw-toggle:hover{ color:var(--seafoam-deep); }
 
-/* Options row */
 .options{
   display:flex;
   justify-content:space-between;
@@ -201,7 +196,6 @@ h1{
 }
 .forgot:hover{ text-decoration:underline; }
 
-/* Submit button */
 .btn-submit{
   width:100%;
   padding:14px 22px;
@@ -228,6 +222,7 @@ h1{
   opacity:.7;
   cursor:not-allowed;
   transform:none !important;
+  box-shadow:none !important;
 }
 .spinner{
   width:18px;
@@ -242,60 +237,27 @@ h1{
 .btn-submit.loading .btn-label{ display:none; }
 .btn-submit.loading .spinner{ display:block; }
 
-/* Error message box */
-.error-box{
-  background:#fef2f2;
-  border:1px solid #fecaca;
+/* Error / info message box */
+.msg-box{
   border-radius:10px;
   padding:12px 16px;
   margin-bottom:20px;
   font-size:13px;
-  color:var(--error);
   display:none;
+  line-height:1.5;
 }
-.error-box.show{ display:block; }
-
-/* Divider */
-.divider{
-  display:flex;
-  align-items:center;
-  gap:16px;
-  margin:28px 0;
-  color:#94a3b8;
-  font-size:13px;
+.msg-box.show{ display:block; }
+.msg-box.error{
+  background:#fef2f2;
+  border:1px solid #fecaca;
+  color:var(--error);
 }
-.divider::before,
-.divider::after{
-  content:'';
-  flex:1;
-  height:1px;
-  background:#e2e8f0;
+.msg-box.info{
+  background:var(--seafoam-light);
+  border:1px solid var(--seafoam-mid);
+  color:#0f766e;
 }
 
-/* Social login */
-.social-btn{
-  width:100%;
-  padding:12px 16px;
-  border-radius:var(--radius-sm);
-  background:white;
-  border:1.5px solid #e2eeec;
-  color:var(--dark);
-  font-family:'DM Sans',sans-serif;
-  font-size:14px;
-  font-weight:600;
-  cursor:pointer;
-  transition:.2s;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  gap:10px;
-}
-.social-btn:hover{
-  border-color:var(--seafoam-mid);
-  background:var(--soft);
-}
-
-/* Footer */
 .card-footer{
   text-align:center;
   margin-top:28px;
@@ -311,7 +273,11 @@ h1{
 }
 .card-footer a:hover{ text-decoration:underline; }
 
-/* Responsive */
+/* Forgot-password reset state */
+.reset-mode .normal-only{ display:none; }
+.reset-mode .reset-only{ display:block !important; }
+.reset-only{ display:none; }
+
 @media(max-width:480px){
   .login-card{ padding:32px 24px; }
   h1{ font-size:22px; }
@@ -320,24 +286,23 @@ h1{
 </head>
 <body>
 
-<!-- Background blobs -->
 <div class="blob blob-1"></div>
 <div class="blob blob-2"></div>
 
-<!-- Login Card -->
-<div class="login-card">
+<div class="login-card" id="login-card">
   <div class="logo-wrap">
-    <a href="unilearn_homepage.html" class="logo">UniLearn</a>
-    <div class="logo-sub">Welcome back</div>
+    <a href="index.html" class="logo">UniLearn</a>
+    <div class="logo-sub" id="logo-sub">Welcome back</div>
   </div>
 
-  <h1>Log in to your account</h1>
-  <p class="subtitle">Enter your email and password to continue</p>
+  <h1 id="card-heading">Log in to your account</h1>
+  <p class="subtitle" id="card-subtitle">Enter your email and password to continue</p>
 
-  <!-- Error box -->
-  <div class="error-box" id="error-box"></div>
+  <!-- message box (error or info) -->
+  <div class="msg-box" id="msg-box"></div>
 
   <form id="login-form" onsubmit="handleLogin(event)">
+
     <!-- Email -->
     <div class="field" id="f-email">
       <label for="email">Email address</label>
@@ -352,8 +317,8 @@ h1{
       <div class="err-msg">Please enter a valid email address.</div>
     </div>
 
-    <!-- Password -->
-    <div class="field" id="f-password">
+    <!-- Password (hidden in reset mode) -->
+    <div class="field normal-only" id="f-password">
       <label for="password">Password</label>
       <div class="pw-wrap">
         <input
@@ -362,80 +327,67 @@ h1{
           name="password"
           placeholder="Enter your password"
           autocomplete="current-password"
-          required
         >
         <button type="button" class="pw-toggle" onclick="togglePassword()" aria-label="Toggle password visibility">
-          <!-- Eye icon -->
           <svg id="eye-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
-            <circle cx="12" cy="12" r="3"></circle>
+            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+            <circle cx="12" cy="12" r="3"/>
           </svg>
         </button>
       </div>
       <div class="err-msg">Please enter your password.</div>
     </div>
 
-    <!-- Options -->
-    <div class="options">
+    <!-- Options row -->
+    <div class="options normal-only">
       <label class="remember">
         <input type="checkbox" id="remember" checked>
         <span>Remember me</span>
       </label>
-      <a href="#" class="forgot" onclick="handleForgotPassword(event)">Forgot password?</a>
+      <a href="#" class="forgot" onclick="enterResetMode(event)">Forgot password?</a>
     </div>
 
-    <!-- Submit button -->
+    <!-- Submit -->
     <button type="submit" class="btn-submit" id="submit-btn">
-      <span class="btn-label">Log In</span>
+      <span class="btn-label" id="btn-label-text">Log In</span>
       <div class="spinner"></div>
     </button>
+
+    <!-- Back to login (reset mode only) -->
+    <button type="button" class="reset-only" onclick="exitResetMode()" style="width:100%;margin-top:12px;padding:11px;border:1.5px solid #e2eeec;border-radius:var(--radius-sm);background:white;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:500;color:var(--slate);cursor:pointer;transition:.2s;">
+      ← Back to login
+    </button>
+
   </form>
 
-  <!-- Divider -->
-  <div class="divider">or</div>
-
-  <!-- Google Sign In -->
-  <button class="social-btn" onclick="handleGoogleLogin()">
-    <svg width="18" height="18" viewBox="0 0 24 24">
-      <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
-      <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
-      <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
-      <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
-    </svg>
-    Continue with Google
-  </button>
-
-  <!-- Footer -->
   <div class="card-footer">
-    Don't have an account? <a href="unilearn_signup.html">Sign up</a>
+    Don't have an account? <a href="signup.html">Sign up</a>
   </div>
 </div>
 
 <script>
-// Get dashboard URL - works for both local dev and production
+// ── Helpers ──
 function getDashboardUrl() {
-  // Use root-relative path - works on any domain
   return '/dashboard/school/unilearn_dashboard.html';
 }
 
-// Check if Supabase is available
-if (!window._db) {
-  console.error('Supabase client not initialized');
-  showError('Authentication service unavailable. Please refresh the page.');
+function showMsg(type, message) {
+  const el = document.getElementById('msg-box');
+  el.textContent = message;
+  el.className = 'msg-box show ' + type;
 }
 
-// Check if user is already logged in
+function hideMsg() {
+  const el = document.getElementById('msg-box');
+  el.className = 'msg-box';
+}
+
+// ── Check session on load ──
 if (window._db) {
   window._db.auth.getSession().then(({ data: { session } }) => {
-    if (session) {
-      // User is already logged in, redirect to dashboard
-      window.location.href = getDashboardUrl();
-    }
-  }).catch(err => {
-    console.error('Session check error:', err);
-  });
+    if (session) window.location.href = getDashboardUrl();
+  }).catch(() => {});
 
-  // Listen for auth state changes
   window._db.auth.onAuthStateChange((event, session) => {
     if (event === 'SIGNED_IN' && session) {
       window.location.href = getDashboardUrl();
@@ -443,214 +395,151 @@ if (window._db) {
   });
 }
 
-// Toggle password visibility
+// ── Password toggle ──
 function togglePassword() {
-  const pwInput = document.getElementById('password');
-  const eyeIcon = document.getElementById('eye-icon');
+  const input = document.getElementById('password');
+  const icon  = document.getElementById('eye-icon');
 
-  if (pwInput.type === 'password') {
-    pwInput.type = 'text';
-    // Eye-off icon
-    eyeIcon.innerHTML = `
-      <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path>
-      <line x1="1" y1="1" x2="23" y2="23"></line>
+  if (input.type === 'password') {
+    input.type = 'text';
+    icon.innerHTML = `
+      <path d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19m-6.72-1.07a3 3 0 11-4.24-4.24"/>
+      <line x1="1" y1="1" x2="23" y2="23"/>
     `;
   } else {
-    pwInput.type = 'password';
-    // Eye icon
-    eyeIcon.innerHTML = `
-      <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
-      <circle cx="12" cy="12" r="3"></circle>
+    input.type = 'password';
+    icon.innerHTML = `
+      <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+      <circle cx="12" cy="12" r="3"/>
     `;
   }
 }
 
-// Show error message
-function showError(message) {
-  const errorBox = document.getElementById('error-box');
-  errorBox.textContent = message;
-  errorBox.classList.add('show');
-}
-
-// Hide error message
-function hideError() {
-  const errorBox = document.getElementById('error-box');
-  errorBox.classList.remove('show');
-}
-
-// Clear field errors on input
+// ── Clear errors on input ──
 document.querySelectorAll('input').forEach(input => {
   input.addEventListener('input', () => {
     input.closest('.field')?.classList.remove('has-error');
-    hideError();
+    hideMsg();
   });
 });
 
-// Handle login form submission
-async function handleLogin(event) {
-  event.preventDefault();
-  hideError();
+// ── Forgot-password UI ──
+let inResetMode = false;
 
-  // Check if Supabase is available
+function enterResetMode(e) {
+  e.preventDefault();
+  inResetMode = true;
+  document.getElementById('login-card').classList.add('reset-mode');
+  document.getElementById('card-heading').textContent = 'Reset your password';
+  document.getElementById('card-subtitle').textContent = "Enter your email and we'll send you a reset link.";
+  document.getElementById('logo-sub').textContent = 'Password recovery';
+  document.getElementById('btn-label-text').textContent = 'Send Reset Link';
+  hideMsg();
+}
+
+function exitResetMode() {
+  inResetMode = false;
+  document.getElementById('login-card').classList.remove('reset-mode');
+  document.getElementById('card-heading').textContent = 'Log in to your account';
+  document.getElementById('card-subtitle').textContent = 'Enter your email and password to continue';
+  document.getElementById('logo-sub').textContent = 'Welcome back';
+  document.getElementById('btn-label-text').textContent = 'Log In';
+  hideMsg();
+}
+
+// ── Login ──
+async function handleLogin(e) {
+  e.preventDefault();
+  hideMsg();
+
   if (!window._db) {
-    showError('Authentication service not available. Please check your connection and refresh.');
+    showMsg('error', 'Authentication service unavailable. Please refresh the page.');
     return;
   }
 
-  const email = document.getElementById('email').value.trim();
-  const password = document.getElementById('password').value;
-  const remember = document.getElementById('remember').checked;
-  const submitBtn = document.getElementById('submit-btn');
+  const email    = document.getElementById('email').value.trim();
+  const btn      = document.getElementById('submit-btn');
 
-  // Basic validation
-  let hasError = false;
-
+  // Validate email
   if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
     document.getElementById('f-email').classList.add('has-error');
-    hasError = true;
+    return;
   }
+
+  // ── Reset password mode ──
+  if (inResetMode) {
+    btn.classList.add('loading'); btn.disabled = true;
+
+    try {
+      const { error } = await window._db.auth.resetPasswordForEmail(email, {
+        // 🔧 DOMAIN NOTE: Right now this uses your current deployment origin.
+        // When you buy your domain, replace window.location.origin with
+        // 'https://yourdomain.com' — and add that domain to Supabase →
+        // Authentication → URL Configuration → Redirect URLs.
+        redirectTo: window.location.origin + '/main/unilearn_login.html'
+      });
+
+      if (error) throw error;
+
+      showMsg('info', `✓ Reset link sent to ${email}. Check your inbox (and spam folder).`);
+    } catch (err) {
+      console.error('Reset error:', err);
+      showMsg('error', 'Failed to send reset email. Please try again.');
+    } finally {
+      btn.classList.remove('loading'); btn.disabled = false;
+    }
+    return;
+  }
+
+  // ── Regular login ──
+  const password = document.getElementById('password').value;
+  let hasError = false;
 
   if (!password) {
     document.getElementById('f-password').classList.add('has-error');
     hasError = true;
   }
-
   if (hasError) return;
 
-  // Show loading state
-  submitBtn.classList.add('loading');
-  submitBtn.disabled = true;
+  const remember = document.getElementById('remember').checked;
+
+  btn.classList.add('loading'); btn.disabled = true;
 
   try {
-    // Sign in with Supabase Auth
-    const { data, error } = await window._db.auth.signInWithPassword({
-      email,
-      password,
-    });
+    const { data, error } = await window._db.auth.signInWithPassword({ email, password });
 
-    if (error) {
-      throw error;
-    }
+    if (error) throw error;
 
-    // Store remember preference
     if (remember) {
       localStorage.setItem('unilearn_remember_email', email);
     } else {
       localStorage.removeItem('unilearn_remember_email');
     }
 
-    // Login successful - the onAuthStateChange listener will handle redirect
-    console.log('Login successful:', data);
+    // onAuthStateChange handles redirect
 
-  } catch (error) {
-    console.error('Login error:', error);
+  } catch (err) {
+    console.error('Login error:', err);
 
-    // Show appropriate error message
-    let errorMsg = 'Invalid email or password. Please try again.';
-    if (error.message) {
-      const msg = error.message.toLowerCase();
-      if (msg.includes('invalid login')) {
-        errorMsg = 'Invalid email or password. Please try again.';
-      } else if (msg.includes('email not confirmed')) {
-        errorMsg = 'Please confirm your email address before logging in.';
-      } else if (msg.includes('rate limit') || msg.includes('too many requests')) {
-        errorMsg = 'Too many attempts. Please try again later.';
-      } else if (msg.includes('network') || msg.includes('fetch')) {
-        errorMsg = 'Network error. Please check your connection and try again.';
-      } else {
-        errorMsg = error.message;
-      }
-    }
+    let msg = 'Invalid email or password. Please try again.';
+    const m = (err.message || '').toLowerCase();
+    if (m.includes('email not confirmed'))          msg = 'Please confirm your email address before logging in. Check your inbox.';
+    else if (m.includes('rate limit') || m.includes('too many')) msg = 'Too many attempts. Please wait a moment and try again.';
+    else if (m.includes('network') || m.includes('fetch'))       msg = 'Network error. Check your connection and try again.';
 
-    showError(errorMsg);
-    submitBtn.classList.remove('loading');
-    submitBtn.disabled = false;
+    showMsg('error', msg);
+    btn.classList.remove('loading'); btn.disabled = false;
   }
 }
 
-// Load remembered email on page load
-(function loadRememberedEmail() {
-  const rememberedEmail = localStorage.getItem('unilearn_remember_email');
-  if (rememberedEmail) {
-    const emailInput = document.getElementById('email');
-    if (emailInput) {
-      emailInput.value = rememberedEmail;
-      document.getElementById('remember').checked = true;
-    }
+// ── Pre-fill remembered email ──
+(function() {
+  const saved = localStorage.getItem('unilearn_remember_email');
+  if (saved) {
+    document.getElementById('email').value = saved;
+    document.getElementById('remember').checked = true;
   }
 })();
-
-// Get absolute URL for OAuth redirects (must be full URL for Supabase)
-function getAbsoluteDashboardUrl() {
-  // Use current origin - works for localhost and production domain
-  return window.location.origin + '/dashboard/school/unilearn_dashboard.html';
-}
-
-// Handle Google OAuth login
-async function handleGoogleLogin() {
-  if (!window._db) {
-    showError('Authentication service not available. Please check your connection and refresh.');
-    return;
-  }
-
-  try {
-    const { data, error } = await window._db.auth.signInWithOAuth({
-      provider: 'google',
-      options: {
-        redirectTo: getAbsoluteDashboardUrl()
-      }
-    });
-
-    if (error) throw error;
-
-    // OAuth will redirect the user
-  } catch (error) {
-    console.error('Google login error:', error);
-    showError('Failed to sign in with Google. Please try again.');
-  }
-}
-
-// Handle forgot password
-async function handleForgotPassword(event) {
-  event.preventDefault();
-
-  if (!window._db) {
-    showError('Authentication service not available. Please check your connection and refresh.');
-    return;
-  }
-
-  const email = document.getElementById('email').value.trim();
-
-  if (!email) {
-    showError('Please enter your email address first.');
-    document.getElementById('f-email').classList.add('has-error');
-    return;
-  }
-
-  // Validate email format
-  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-    showError('Please enter a valid email address.');
-    document.getElementById('f-email').classList.add('has-error');
-    return;
-  }
-
-  try {
-    const { error } = await window._db.auth.resetPasswordForEmail(email, {
-      redirectTo: window.location.origin + '/main/unilearn_login.html'
-    });
-    // Note: For production, add your domain to Supabase Auth > URL Configuration
-    // Allowed Sites: http://localhost:5500, https://yourdomain.com
-
-    if (error) throw error;
-
-    alert('Password reset instructions have been sent to your email.');
-    hideError();
-  } catch (error) {
-    console.error('Password reset error:', error);
-    showError('Failed to send reset email. Please try again.');
-  }
-}
 </script>
-
 </body>
 </html>
