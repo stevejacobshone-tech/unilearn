@@ -1,0 +1,4 @@
+buy a domain
+replace resend global to domain
+buy supabase
+buy cloudflare
