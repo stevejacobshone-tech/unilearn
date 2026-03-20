@@ -885,7 +885,7 @@ body{font-family:'DM Sans',sans-serif;background:#eef4f3;color:var(--ink);displa
 <script>
 /* ═══════════ STATE ═══════════ */
 const DB = window._db;
-let currentUser = null, currentAdmin = null, schoolConfig = null, academicYearId = null;
+let currentUser = null, currentAdmin = null, schoolConfig = null, academicYearId = null, currentSchoolId = null;
 let allClasses=[], allStudents=[], allTeachers=[], allPayments=[], allFeeStructures=[];
 let allEvents=[], allForms=[], allAdmins=[], allAnnouncements=[], todayAttendance=[];
 let setupStep=1, feeCycle='monthly';
@@ -947,16 +947,17 @@ async function saveSetup(){
   // School config
   const{data:cfg,error:ce}=await DB.from('school_config').upsert({school_name:sname,board,address:document.getElementById('s-addr').value.trim()||null,phone:document.getElementById('s-phone').value.trim()||null,email:document.getElementById('s-email').value.trim()||null,academic_year:ay,current_term:term,fee_structure:feeCycle,setup_complete:true},{onConflict:'id'}).select().single();
   if(ce&&ce.code!=='PGRST116')throw ce;
+  currentSchoolId=cfg.id;
   // Academic year
   const yrStart=ay.split('-')[0];
-  const{data:ayd}=await DB.from('academic_years').upsert({label:ay,start_date:`${yrStart}-04-01`,end_date:`20${ay.split('-')[1]}-03-31`,is_current:true},{onConflict:'label'}).select().single();
+  const{data:ayd}=await DB.from('academic_years').upsert({label:ay,start_date:`${yrStart}-04-01`,end_date:`20${ay.split('-')[1]}-03-31`,is_current:true,school_id:currentSchoolId},{onConflict:'label'}).select().single();
   if(ayd)academicYearId=ayd.id;
   // Classes
   const secs=document.getElementById('s-secs').value.split(',').map(s=>s.trim()).filter(Boolean);
   const selCls=[...document.querySelectorAll('#cls-pick .cls-chip.sel')].map(c=>c.textContent.trim().replace('Cl. ','Class '));
-  for(const cn of selCls)for(const sec of secs)await DB.from('classes').upsert({academic_year_id:academicYearId,name:cn,section:sec,board:board==='Both'?'CBSE':board},{onConflict:'academic_year_id,name,section'});
+  for(const cn of selCls)for(const sec of secs)await DB.from('classes').upsert({academic_year_id:academicYearId,name:cn,section:sec,board:board==='Both'?'CBSE':board,school_id:currentSchoolId},{onConflict:'academic_year_id,name,section'});
   // Admin
-  if(currentUser){await DB.from('admins').upsert({auth_user_id:currentUser.id,full_name:document.getElementById('s-aname').value.trim(),email:currentUser.email,phone:document.getElementById('s-aphone').value.trim()||null,role:'super_admin'},{onConflict:'auth_user_id'});}
+  if(currentUser){await DB.from('admins').upsert({auth_user_id:currentUser.id,full_name:document.getElementById('s-aname').value.trim(),email:currentUser.email,phone:document.getElementById('s-aphone').value.trim()||null,role:'super_admin',school_id:currentSchoolId},{onConflict:'auth_user_id'});}
 }
 async function finishSetup(){document.getElementById('setup-ov').classList.add('hidden');await loadAll();}
 
@@ -984,6 +985,7 @@ async function loadAll(){
 async function loadConfig(){
   const{data}=await DB.from('school_config').select('*').limit(1).single().catch(()=>({data:null}));
   schoolConfig=data;
+  currentSchoolId=data?.id;
   if(!data)return;
   document.getElementById('sb-school').textContent=data.school_name||'Your School';
   document.getElementById('pg-bc').textContent=`${data.school_name} · ${data.academic_year}`;
@@ -1084,7 +1086,7 @@ async function saveStudent(){
   const classId=document.getElementById('n-cls').value;
   if(!name||!admno||!phone){toast('Name, admission number, and guardian phone are required.','error');return;}
   const cls=allClasses.find(c=>c.id===classId);
-  const{error}=await DB.from('students').insert({full_name:name,admission_number:admno,class_id:classId||null,academic_year_id:academicYearId,board:cls?.board||null,date_of_birth:document.getElementById('n-dob').value||null,gender:document.getElementById('n-gender').value||null,blood_group:document.getElementById('n-blood').value||null,caste_category:document.getElementById('n-cat').value||null,father_name:document.getElementById('n-father').value.trim()||null,mother_name:document.getElementById('n-mother').value.trim()||null,guardian_phone:phone,guardian_email:document.getElementById('n-gemail').value.trim()||null,address:document.getElementById('n-addr').value.trim()||null,status:'active'});
+  const{error}=await DB.from('students').insert({school_id:currentSchoolId,full_name:name,admission_number:admno,class_id:classId||null,academic_year_id:academicYearId,board:cls?.board||null,date_of_birth:document.getElementById('n-dob').value||null,gender:document.getElementById('n-gender').value||null,blood_group:document.getElementById('n-blood').value||null,caste_category:document.getElementById('n-cat').value||null,father_name:document.getElementById('n-father').value.trim()||null,mother_name:document.getElementById('n-mother').value.trim()||null,guardian_phone:phone,guardian_email:document.getElementById('n-gemail').value.trim()||null,address:document.getElementById('n-addr').value.trim()||null,status:'active'});
   if(error){toast(error.message.includes('duplicate')?'Admission number already exists.':error.message,'error');return;}
   toast(`${name} enrolled!`,'success');closeModal('m-add-st');
   ['n-stname','n-admno','n-dob','n-father','n-mother','n-gphone','n-gemail','n-addr'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
@@ -1179,7 +1181,7 @@ function markAllPresent(){
 async function saveAttendance(){
   if(!attClassId||!attDate)return;
   const btn=document.getElementById('save-att');btn.textContent='Saving…';btn.disabled=true;
-  const recs=Object.entries(attState).map(([sid,st])=>({student_id:sid,class_id:attClassId,date:attDate,status:st,marked_by:currentAdmin?.id||null}));
+  const recs=Object.entries(attState).map(([sid,st])=>({school_id:currentSchoolId,student_id:sid,class_id:attClassId,date:attDate,status:st,marked_by:currentAdmin?.id||null}));
   const{error}=await DB.from('attendance').upsert(recs,{onConflict:'student_id,date'});
   if(error){toast(error.message,'error');btn.textContent='Save Attendance';btn.disabled=false;return;}
   toast(`Attendance saved for ${recs.length} students!`,'success');btn.textContent='Saved ✓';btn.disabled=false;
@@ -1247,7 +1249,7 @@ async function saveTeacher(){
   const email=document.getElementById('tc-email').value.trim();
   if(!name||!email){toast('Name and email are required.','error');return;}
   const subj=document.getElementById('tc-subj').value.split(',').map(s=>s.trim()).filter(Boolean);
-  const{data:tc,error}=await DB.from('teachers').insert({full_name:name,email,employee_id:document.getElementById('tc-empid').value.trim()||null,phone:document.getElementById('tc-phone').value.trim()||null,qualification:document.getElementById('tc-qual').value.trim()||null,date_of_joining:document.getElementById('tc-join').value||null,subjects:subj,status:'active'}).select().single();
+  const{data:tc,error}=await DB.from('teachers').insert({school_id:currentSchoolId,full_name:name,email,employee_id:document.getElementById('tc-empid').value.trim()||null,phone:document.getElementById('tc-phone').value.trim()||null,qualification:document.getElementById('tc-qual').value.trim()||null,date_of_joining:document.getElementById('tc-join').value||null,subjects:subj,status:'active'}).select().single();
   if(error){toast(error.message.includes('duplicate')?'Email already in use.':error.message,'error');return;}
   const clsId=document.getElementById('tc-clsof').value;
   if(clsId&&tc)await DB.from('classes').update({class_teacher_id:tc.id}).eq('id',clsId);
@@ -1279,7 +1281,7 @@ async function saveClass(){
   const sec=document.getElementById('cls-sec').value.trim();
   const board=document.getElementById('cls-board').value;
   if(!name||!sec||!board){toast('Class name, section and board are required.','error');return;}
-  const{error}=await DB.from('classes').insert({academic_year_id:academicYearId,name,section:sec,board,room_number:document.getElementById('cls-room').value.trim()||null,class_teacher_id:document.getElementById('cls-tc').value||null,max_strength:+document.getElementById('cls-max').value||40});
+  const{error}=await DB.from('classes').insert({school_id:currentSchoolId,academic_year_id:academicYearId,name,section:sec,board,room_number:document.getElementById('cls-room').value.trim()||null,class_teacher_id:document.getElementById('cls-tc').value||null,max_strength:+document.getElementById('cls-max').value||40});
   if(error){toast(error.message.includes('unique')?'This class/section already exists.':error.message,'error');return;}
   toast(`${name}–${sec} added!`,'success');closeModal('m-add-cls');
   await loadClasses();renderClasses(allClasses);populateClsSels();
@@ -1350,7 +1352,7 @@ async function saveFeeStructure(){
   const amt=document.getElementById('fst-amt').value;
   const cycle=document.getElementById('fst-cycle').value;
   if(!type||!amt){toast('Fee type and amount are required.','error');return;}
-  const{error}=await DB.from('fee_structures').insert({academic_year_id:academicYearId,class_id:document.getElementById('fst-cls').value||null,fee_type:type,amount:+amt,billing_cycle:cycle,due_date:document.getElementById('fst-due').value||null,late_fine_per_day:+document.getElementById('fst-fine').value||0});
+  const{error}=await DB.from('fee_structures').insert({school_id:currentSchoolId,academic_year_id:academicYearId,class_id:document.getElementById('fst-cls').value||null,fee_type:type,amount:+amt,billing_cycle:cycle,due_date:document.getElementById('fst-due').value||null,late_fine_per_day:+document.getElementById('fst-fine').value||0});
   if(error){toast(error.message,'error');return;}
   toast('Fee head added!','success');closeModal('m-add-fst');
   await loadFeeStructures();renderFeeStructures(allFeeStructures);renderPending();
@@ -1415,7 +1417,7 @@ async function collectFee(){
   if(!type||!amt||!method||!date){toast('Fill all required fields.','error');return;}
   const year=new Date().getFullYear();
   const rcpt=`RC-${year}-${String(allPayments.length+1).padStart(4,'0')}`;
-  const{data:pay,error}=await DB.from('fee_payments').insert({receipt_number:rcpt,student_id:sid,amount_paid:amt,fine_paid:+document.getElementById('fee-fine').value||0,discount:+document.getElementById('fee-disc').value||0,payment_method:method,payment_date:date,billing_cycle:document.getElementById('fee-period').value,remarks:document.getElementById('fee-rem').value.trim()||null,collected_by:currentAdmin?.id||null}).select().single();
+  const{data:pay,error}=await DB.from('fee_payments').insert({school_id:currentSchoolId,receipt_number:rcpt,student_id:sid,amount_paid:amt,fine_paid:+document.getElementById('fee-fine').value||0,discount:+document.getElementById('fee-disc').value||0,payment_method:method,payment_date:date,billing_cycle:document.getElementById('fee-period').value,remarks:document.getElementById('fee-rem').value.trim()||null,collected_by:currentAdmin?.id||null}).select().single();
   if(error){toast(error.message,'error');return;}
   toast(`Fee collected! Receipt: ${rcpt}`,'success');closeModal('m-fee');
   await loadPayments();renderFees();renderOverview();
@@ -1457,7 +1459,7 @@ async function saveEvent(){
   const title=document.getElementById('ev-title').value.trim();
   const start=document.getElementById('ev-start').value;
   if(!title||!start){toast('Title and start date are required.','error');return;}
-  const{error}=await DB.from('events').insert({title,start_date:start,event_type:document.getElementById('ev-type').value,end_date:document.getElementById('ev-end').value||null,venue:document.getElementById('ev-venue').value.trim()||null,description:document.getElementById('ev-desc').value.trim()||null,target_audience:[document.getElementById('ev-aud').value],created_by:currentAdmin?.id||null});
+  const{error}=await DB.from('events').insert({school_id:currentSchoolId,title,start_date:start,event_type:document.getElementById('ev-type').value,end_date:document.getElementById('ev-end').value||null,venue:document.getElementById('ev-venue').value.trim()||null,description:document.getElementById('ev-desc').value.trim()||null,target_audience:[document.getElementById('ev-aud').value],created_by:currentAdmin?.id||null});
   if(error){toast(error.message,'error');return;}
   toast(`"${title}" added!`,'success');closeModal('m-add-ev');
   await loadEvents();renderEvents(allEvents);
@@ -1482,7 +1484,7 @@ function filterForms(){
 async function saveForm(){
   const title=document.getElementById('frm-title').value.trim();
   if(!title){toast('Title is required.','error');return;}
-  const{error}=await DB.from('forms').insert({title,description:document.getElementById('frm-desc').value.trim()||null,form_type:document.getElementById('frm-type').value,deadline:document.getElementById('frm-deadline').value||null,target_audience:[document.getElementById('frm-aud').value],is_active:true,fields:[],created_by:currentAdmin?.id||null});
+  const{error}=await DB.from('forms').insert({school_id:currentSchoolId,title,description:document.getElementById('frm-desc').value.trim()||null,form_type:document.getElementById('frm-type').value,deadline:document.getElementById('frm-deadline').value||null,target_audience:[document.getElementById('frm-aud').value],is_active:true,fields:[],created_by:currentAdmin?.id||null});
   if(error){toast(error.message,'error');return;}
   toast(`"${title}" created!`,'success');closeModal('m-add-frm');
   await loadForms();renderForms(allForms);document.getElementById('nb-fm').textContent=allForms.filter(f=>f.is_active).length;
@@ -1504,7 +1506,7 @@ async function postAnn(){
   const title=document.getElementById('ann-title').value.trim();
   const body=document.getElementById('ann-body').value.trim();
   if(!title||!body){toast('Title and message are required.','error');return;}
-  const{error}=await DB.from('announcements').insert({title,body,audience:[document.getElementById('ann-aud').value],priority:document.getElementById('ann-pri').value,created_by:currentAdmin?.id||null});
+  const{error}=await DB.from('announcements').insert({school_id:currentSchoolId,title,body,audience:[document.getElementById('ann-aud').value],priority:document.getElementById('ann-pri').value,created_by:currentAdmin?.id||null});
   if(error){toast(error.message,'error');return;}
   toast('📢 Posted!','success');document.getElementById('ann-title').value='';document.getElementById('ann-body').value='';
   await loadAnnouncements();renderAnnouncements(allAnnouncements);
@@ -1524,7 +1526,7 @@ async function inviteAdmin(){
   const role=document.getElementById('inv-role').value;
   if(!name||!email){toast('Name and email are required.','error');return;}
   const perms={};document.querySelectorAll('#m-inv-admin input[data-p]').forEach(cb=>perms[cb.dataset.p]=cb.checked);
-  const{error}=await DB.from('admins').insert({full_name:name,email,phone:document.getElementById('inv-phone').value.trim()||null,role,permissions:perms,is_active:true,invited_by:currentAdmin?.id||null});
+  const{error}=await DB.from('admins').insert({school_id:currentSchoolId,full_name:name,email,phone:document.getElementById('inv-phone').value.trim()||null,role,permissions:perms,is_active:true,invited_by:currentAdmin?.id||null});
   if(error){toast(error.message.includes('duplicate')?'Admin with this email already exists.':error.message,'error');return;}
   toast(`${name} added as ${role==='super_admin'?'Super Admin':'Sub Admin'}!`,'success');closeModal('m-inv-admin');
   await loadAdmins();renderAdmins(allAdmins);
