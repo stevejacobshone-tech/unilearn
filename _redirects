@@ -1,6 +1,1 @@
-# Cloudflare Pages _redirects
-# All routes fall through to their HTML file; 404s go to index
-/dashboard  /dashboard.html  200
-/login      /login.html      200
-/signup     /signup.html     200
-/pricing    /pricing_plan.html 200
+/pricing    /pricing_plan.html  200
