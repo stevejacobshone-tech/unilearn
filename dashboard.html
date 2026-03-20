@@ -2818,7 +2818,7 @@ async function checkAuth() {
   if (!window._db) return;
   try {
     const { data:{session}, error } = await window._db.auth.getSession();
-    if (error||!session) { window.location.href='/main/unilearn_login.html'; return; }
+    if (error||!session) { window.location.href='/login.html'; return; }
     const user = session.user;
     const name = user?.user_metadata?.full_name || user?.email?.split('@')[0] || 'Admin';
     const school = user?.user_metadata?.school_name || 'Greenfield Academy';
@@ -2832,7 +2832,7 @@ async function checkAuth() {
 
 async function handleLogout() {
   if (!window._db) return;
-  try { await window._db.auth.signOut(); window.location.href='/main/unilearn_login.html'; }
+  try { await window._db.auth.signOut(); window.location.href='/login.html'; }
   catch(e) { toast('Failed to log out.','error'); }
 }
 
