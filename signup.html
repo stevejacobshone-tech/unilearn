@@ -708,7 +708,31 @@ async function submitForm(){
 
     const userId = authData.id;
 
-    // ── 3. Save to school_signups table ──
+    // ── 3. Insert into admins table ──
+    // This is what lets the dashboard RLS work — get_my_school_id() reads from here.
+    // school_id is null at this point — it gets filled when they complete the setup wizard.
+    const adminInsertRes = await fetch(`${CFG.supabaseUrl}/rest/v1/admins`, {
+      method:  'POST',
+      headers: {
+        'Authorization': `Bearer ${CFG.supabaseServiceKey}`,
+        'apikey':        CFG.supabaseServiceKey,
+        'Content-Type':  'application/json',
+        'Prefer':        'return=minimal',
+      },
+      body: JSON.stringify({
+        auth_user_id: userId,
+        full_name:    `${firstName} ${lastName}`,
+        email,
+        phone,
+        role:         'super_admin',
+        is_active:    true,
+      }),
+    });
+    if (!adminInsertRes.ok) {
+      console.warn('Admin insert failed (non-fatal):', await adminInsertRes.text());
+    }
+
+    // ── 4. Save to school_signups table ──
     // phone omitted — DB column has a unique constraint that causes 409s
     const dbRes = await fetch(`${CFG.supabaseUrl}/rest/v1/school_signups`, {
       method:  'POST',
@@ -742,7 +766,7 @@ async function submitForm(){
       // Other DB errors are non-fatal — auth account exists, still send welcome email
     }
 
-    // ── 4. Send welcome email via Resend ──
+    // ── 5. Send welcome email via Resend ──
     await fetch('https://api.resend.com/emails', {
       method:  'POST',
       headers: {
