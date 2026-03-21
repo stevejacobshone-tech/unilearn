@@ -499,6 +499,7 @@ body{font-family:'DM Sans',sans-serif;background:#eef4f3;color:var(--ink);displa
         </div>
         <div style="display:flex;gap:7px">
           <button class="btn btn-s" onclick="exportStudentsCSV()">⬇ Export CSV</button>
+          <button class="btn btn-s" onclick="showModal('m-import-st')">⬆ Import CSV</button>
           <button class="btn btn-p" onclick="openAddStudent()">+ Add Student</button>
         </div>
       </div>
@@ -877,6 +878,75 @@ body{font-family:'DM Sans',sans-serif;background:#eef4f3;color:var(--ink);displa
   <div class="mh"><div class="mt">Fee Receipt</div><button class="mx" onclick="closeModal('m-receipt')">×</button></div>
   <div class="mb" id="receipt-body"></div>
   <div class="mf"><button class="btn btn-s" onclick="closeModal('m-receipt')">Close</button><button class="btn btn-p" onclick="printReceipt()">🖨 Print</button></div>
+</div></div>
+
+
+<!-- Import Students CSV Modal -->
+<div class="modal" id="m-import-st"><div class="mc" style="max-width:660px" onclick="e=>e.stopPropagation()">
+  <div class="mh"><div class="mt">Import Students from CSV</div><button class="mx" onclick="closeModal('m-import-st')">×</button></div>
+  <div class="mb">
+
+    <!-- AI Prompt section -->
+    <div style="background:#f5f3ff;border:1px solid #ddd6fe;border-radius:var(--rsm);padding:13px 15px;margin-bottom:14px">
+      <div style="font-family:'Sora',sans-serif;font-size:12.5px;font-weight:700;color:#7c3aed;margin-bottom:6px;display:flex;align-items:center;gap:6px">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+        Have an existing student list? Use AI to convert it
+      </div>
+      <div style="font-size:12px;color:#5b21b6;line-height:1.6;margin-bottom:9px">Copy this prompt and paste it into Claude, ChatGPT, or any AI — along with your existing spreadsheet data:</div>
+      <div style="background:#fff;border:1px solid #ddd6fe;border-radius:6px;padding:10px 12px;font-size:11.5px;font-family:monospace;color:#374151;line-height:1.7;position:relative">
+        <div id="ai-prompt-text">Convert my student list into a CSV with exactly these columns in this order:
+admission_number, full_name, date_of_birth, gender, class_name, section, father_name, mother_name, guardian_phone, guardian_email, address, caste_category, blood_group
+
+Rules:
+- date_of_birth format: YYYY-MM-DD (e.g. 2010-05-14)
+- gender: Male, Female, or Other
+- caste_category: General, OBC, SC, ST, or EWS
+- blood_group: A+, A-, B+, B-, O+, O-, AB+, AB-
+- Leave unknown fields empty (just a comma, no text)
+- First row must be the header row exactly as above
+- No extra columns, no merged cells, no formatting
+- admission_number must be unique for each student
+
+Here is my student data:
+[PASTE YOUR DATA HERE]</div>
+        <button onclick="copyAIPrompt()" style="position:absolute;top:7px;right:7px;padding:3px 9px;border-radius:4px;border:1px solid #ddd6fe;background:#f5f3ff;color:#7c3aed;font-size:11px;font-weight:600;cursor:pointer">Copy</button>
+      </div>
+    </div>
+
+    <!-- CSV Format reference -->
+    <div style="background:var(--teal-w);border:1px solid var(--teal-m);border-radius:var(--rsm);padding:11px 13px;margin-bottom:14px;font-size:12px;color:#0f766e">
+      <div style="font-weight:700;margin-bottom:4px">Required CSV format — columns in this exact order:</div>
+      <div style="font-family:monospace;font-size:11px;background:rgba(255,255,255,.6);border-radius:4px;padding:6px 9px;margin-top:5px;overflow-x:auto;white-space:nowrap">admission_number, full_name, date_of_birth, gender, class_name, section, father_name, mother_name, guardian_phone, guardian_email, address, caste_category, blood_group</div>
+      <div style="margin-top:6px;font-size:11px;opacity:.85">Only <strong>admission_number</strong>, <strong>full_name</strong>, and <strong>guardian_phone</strong> are required. All other columns can be empty.</div>
+    </div>
+
+    <!-- File drop zone -->
+    <div id="csv-drop" style="border:2px dashed var(--border);border-radius:var(--rsm);padding:22px;text-align:center;cursor:pointer;transition:.2s;background:var(--surface);position:relative" ondragover="e=>{e.preventDefault();document.getElementById('csv-drop').style.borderColor='var(--teal)'}" ondragleave="document.getElementById('csv-drop').style.borderColor='var(--border)'" ondrop="handleCSVDrop(event)">
+      <input type="file" id="csv-file-input" accept=".csv" style="position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%" onchange="handleCSVFile(this.files[0])">
+      <div style="font-size:22px;margin-bottom:7px">📄</div>
+      <div style="font-weight:600;font-size:13px;color:var(--ink);margin-bottom:3px">Drop your CSV file here</div>
+      <div style="font-size:12px;color:var(--muted)">or <span style="color:var(--teal);font-weight:600">browse to upload</span> · .csv files only</div>
+    </div>
+
+    <!-- Preview table -->
+    <div id="csv-preview" style="display:none;margin-top:13px">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+        <div style="font-family:'Sora',sans-serif;font-size:13px;font-weight:700" id="csv-preview-count"></div>
+        <div id="csv-error-count" style="font-size:12px;color:var(--red);font-weight:600"></div>
+      </div>
+      <div style="max-height:220px;overflow-y:auto;border:1px solid var(--border);border-radius:var(--rsm)">
+        <table class="dt" id="csv-preview-table">
+          <thead><tr><th>#</th><th>Adm. No.</th><th>Name</th><th>Class</th><th>Phone</th><th>Status</th></tr></thead>
+          <tbody id="csv-preview-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+
+  </div>
+  <div class="mf">
+    <button class="btn btn-s" onclick="closeModal('m-import-st');resetCSVImport()">Cancel</button>
+    <button class="btn btn-p" id="csv-import-btn" onclick="importStudentsFromCSV()" disabled>Import Students</button>
+  </div>
 </div></div>
 
 <!-- Toast -->
@@ -1594,6 +1664,155 @@ function toast(msg,type='success'){const el=document.getElementById('toast');doc
 
 /* ═══════════ CSV UTIL ═══════════ */
 function dlCSV(name,rows){const csv=rows.map(r=>r.map(v=>`"${String(v||'').replace(/"/g,'""')}"`).join(',')).join('\n');const a=document.createElement('a');a.href='data:text/csv;charset=utf-8,'+encodeURIComponent(csv);a.download=name;a.click();}
+
+
+/* ═══════════ CSV IMPORT ═══════════ */
+let csvParsedRows = [];
+
+function copyAIPrompt(){
+  const txt = document.getElementById('ai-prompt-text').innerText;
+  navigator.clipboard.writeText(txt).then(()=>toast('Prompt copied! Paste it into Claude or ChatGPT.','success'));
+}
+
+function handleCSVDrop(e){
+  e.preventDefault();
+  document.getElementById('csv-drop').style.borderColor='var(--border)';
+  const file = e.dataTransfer.files[0];
+  if(file) handleCSVFile(file);
+}
+
+function handleCSVFile(file){
+  if(!file || !file.name.endsWith('.csv')){toast('Please upload a .csv file.','error');return;}
+  const reader = new FileReader();
+  reader.onload = e => parseAndPreviewCSV(e.target.result);
+  reader.readAsText(file);
+}
+
+function parseCSVLine(line){
+  const result=[];let cur='',inQ=false;
+  for(let i=0;i<line.length;i++){
+    const ch=line[i];
+    if(ch==='"'){if(inQ&&line[i+1]==='"'){cur+='"';i++;}else{inQ=!inQ;}}
+    else if(ch===','&&!inQ){result.push(cur.trim());cur='';}
+    else{cur+=ch;}
+  }
+  result.push(cur.trim());
+  return result;
+}
+
+function parseAndPreviewCSV(text){
+  const lines = text.split(/\r?\n/).filter(l=>l.trim());
+  if(lines.length<2){toast('CSV must have a header row and at least one data row.','error');return;}
+
+  const EXPECTED = ['admission_number','full_name','date_of_birth','gender','class_name','section','father_name','mother_name','guardian_phone','guardian_email','address','caste_category','blood_group'];
+  const headers = parseCSVLine(lines[0]).map(h=>h.toLowerCase().trim());
+
+  // Check required headers
+  const missing = ['admission_number','full_name','guardian_phone'].filter(h=>!headers.includes(h));
+  if(missing.length){toast('CSV missing required columns: '+missing.join(', '),'error');return;}
+
+  csvParsedRows = [];
+  const tbody = document.getElementById('csv-preview-tbody');
+  tbody.innerHTML = '';
+  let errCount = 0;
+
+  for(let i=1;i<lines.length;i++){
+    if(!lines[i].trim()) continue;
+    const vals = parseCSVLine(lines[i]);
+    const row = {};
+    headers.forEach((h,idx)=>row[h]=vals[idx]||'');
+
+    const errors = [];
+    if(!row.admission_number) errors.push('Missing adm. no.');
+    if(!row.full_name) errors.push('Missing name');
+    if(!row.guardian_phone) errors.push('Missing phone');
+    if(row.date_of_birth && !/^\d{4}-\d{2}-\d{2}$/.test(row.date_of_birth)) errors.push('DOB format should be YYYY-MM-DD');
+    if(row.gender && !['Male','Female','Other'].includes(row.gender)) errors.push('Gender must be Male/Female/Other');
+    if(row.caste_category && !['General','OBC','SC','ST','EWS',''].includes(row.caste_category)) errors.push('Invalid category');
+
+    // Match class to allClasses
+    let matchedClassId = null;
+    if(row.class_name||row.section){
+      const cn=(row.class_name||'').trim();
+      const sec=(row.section||'').trim();
+      const found=allClasses.find(cls=>
+        cls.name.toLowerCase()===cn.toLowerCase()&&
+        cls.section.toLowerCase()===sec.toLowerCase()
+      );
+      if(found) matchedClassId=found.id;
+      else if(cn||sec) errors.push(`Class "${cn}-${sec}" not found`);
+    }
+    row._classId = matchedClassId;
+    row._errors = errors;
+    if(errors.length) errCount++;
+    csvParsedRows.push(row);
+
+    const tr=document.createElement('tr');
+    const statusHtml = errors.length
+      ? `<span class="bdg b-red" title="${errors.join(', ')}">⚠ ${errors.length} issue${errors.length>1?'s':''}</span>`
+      : `<span class="bdg b-green">✓ Ready</span>`;
+    const clsLabel = matchedClassId ? allClasses.find(x=>x.id===matchedClassId)?.name+'-'+(allClasses.find(x=>x.id===matchedClassId)?.section||'') : (row.class_name||'—');
+    tr.innerHTML=`<td style="color:var(--muted);font-size:11px">${i}</td><td style="font-family:monospace;font-size:11.5px">${row.admission_number||'—'}</td><td style="font-weight:600">${row.full_name||'—'}</td><td>${clsLabel}</td><td>${row.guardian_phone||'—'}</td><td>${statusHtml}</td>`;
+    tbody.appendChild(tr);
+  }
+
+  const validCount = csvParsedRows.filter(r=>r._errors.length===0).length;
+  document.getElementById('csv-preview-count').textContent=`${csvParsedRows.length} rows found · ${validCount} ready to import`;
+  document.getElementById('csv-error-count').textContent=errCount>0?`${errCount} row${errCount>1?'s':''} with issues (will be skipped)`:'';
+  document.getElementById('csv-preview').style.display='block';
+  document.getElementById('csv-import-btn').disabled = validCount===0;
+  document.getElementById('csv-import-btn').textContent = `Import ${validCount} Student${validCount!==1?'s':''}`;
+}
+
+async function importStudentsFromCSV(){
+  const validRows = csvParsedRows.filter(r=>r._errors.length===0);
+  if(!validRows.length){toast('No valid rows to import.','error');return;}
+  const btn=document.getElementById('csv-import-btn');
+  btn.disabled=true;btn.textContent='Importing…';
+
+  let success=0,skipped=0;
+  for(const row of validRows){
+    const{error}=await DB.from('students').insert({
+      school_id:currentSchoolId,
+      admission_number:row.admission_number,
+      full_name:row.full_name,
+      date_of_birth:row.date_of_birth||null,
+      gender:row.gender||null,
+      class_id:row._classId||null,
+      academic_year_id:academicYearId,
+      board:row._classId?allClasses.find(x=>x.id===row._classId)?.board||null:null,
+      father_name:row.father_name||null,
+      mother_name:row.mother_name||null,
+      guardian_phone:row.guardian_phone,
+      guardian_email:row.guardian_email||null,
+      address:row.address||null,
+      caste_category:row.caste_category||null,
+      blood_group:row.blood_group||null,
+      status:'active'
+    });
+    if(error){
+      // duplicate admission number — skip
+      skipped++;
+    } else {
+      success++;
+    }
+  }
+
+  btn.textContent=`Import ${validRows.length} Students`;
+  closeModal('m-import-st');
+  resetCSVImport();
+  await loadStudents();renderStudents(allStudents);renderOverview();
+  toast(`${success} student${success!==1?'s':''} imported${skipped>0?`, ${skipped} skipped (duplicate adm. no.)`:''}.`,'success');
+}
+
+function resetCSVImport(){
+  csvParsedRows=[];
+  document.getElementById('csv-preview').style.display='none';
+  document.getElementById('csv-file-input').value='';
+  document.getElementById('csv-import-btn').disabled=true;
+  document.getElementById('csv-import-btn').textContent='Import Students';
+  document.getElementById('csv-preview-tbody').innerHTML='';
+}
 
 /* ═══════════ INIT ═══════════ */
 async function init(){
