@@ -5,265 +5,311 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>UniLearn — Start Your Free Trial</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=DM+Sans:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=DM+Sans:opsz,wght@9..40,200;9..40,300;9..40,400;9..40,500&display=swap" rel="stylesheet">
 <style>
 :root{
-  --seafoam:#6ED3C7;
-  --seafoam-deep:#2fb7aa;
-  --seafoam-light:#e4f9f7;
-  --seafoam-mid:#a8e8e3;
-  --dark:#0a1628;
-  --slate:#475569;
-  --soft:#f2fbfa;
-  --radius:22px;
-  --radius-sm:12px;
-  --error:#ef4444;
+  --ink:#09090a;--ink2:#111113;
+  --acc:#00e87a;--acc2:#00c4ff;
+  --glass:rgba(255,255,255,.035);--gb:rgba(255,255,255,.07);
+  --muted:rgba(255,255,255,.38);--mid:rgba(255,255,255,.6);
+  --ease:cubic-bezier(.22,1,.36,1);--nav:64px;
+  --err:#f87171;--err-bg:rgba(248,113,113,.07);
 }
-*{ box-sizing:border-box; margin:0; padding:0; scroll-behavior:smooth; }
-body{ font-family:'DM Sans',sans-serif; background:var(--soft); color:var(--dark); min-height:100vh; overflow-x:hidden; }
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{-webkit-font-smoothing:antialiased}
+body{font-family:'DM Sans',sans-serif;background:var(--ink);color:#fff;min-height:100vh;overflow-x:hidden;cursor:none}
+
+/* CURSOR */
+#cd,#cr{position:fixed;pointer-events:none;z-index:9999;border-radius:50%;top:0;left:0}
+#cd{width:6px;height:6px;background:#fff;transform:translate(-50%,-50%)}
+#cr{width:36px;height:36px;border:1px solid rgba(255,255,255,.3);transform:translate(-50%,-50%);transition:width .35s var(--ease),height .35s var(--ease),border-color .3s,background .3s;mix-blend-mode:difference}
+#cr.g{width:56px;height:56px;border-color:var(--acc);background:rgba(0,232,122,.06)}
+#cr.s{width:18px;height:18px;background:rgba(255,255,255,.1)}
+
+/* CANVAS */
+#cv{position:fixed;inset:0;width:100%;height:100%;opacity:.45;pointer-events:none;z-index:0}
 
 /* NAV */
-header{
-  position:sticky; top:0; z-index:100;
-  display:flex; justify-content:space-between; align-items:center;
-  padding:18px 60px;
-  background:rgba(255,255,255,.92); backdrop-filter:blur(12px);
-  border-bottom:1px solid #edf2f2;
+#nav{position:fixed;top:0;left:0;right:0;z-index:500;height:var(--nav);display:flex;align-items:center;padding:0 max(48px,4vw);background:rgba(9,9,10,.85);backdrop-filter:blur(20px) saturate(180%);border-bottom:1px solid rgba(255,255,255,.06)}
+.nv{width:100%;max-width:1400px;margin:0 auto;display:flex;align-items:center;justify-content:space-between}
+.logo{font-family:'Playfair Display',serif;font-size:19px;font-weight:700;letter-spacing:-.4px;color:#fff;text-decoration:none;display:flex;align-items:center;gap:10px}
+.logo-g{width:26px;height:26px;border-radius:7px;background:var(--acc);display:grid;place-items:center;flex-shrink:0}
+.logo-g svg{width:14px;height:14px;fill:#000}
+.nav-back{display:flex;align-items:center;gap:7px;text-decoration:none;color:var(--muted);font-size:13px;font-weight:400;transition:.25s}
+.nav-back:hover{color:#fff}
+.nav-back svg{transition:transform .25s var(--ease)}
+.nav-back:hover svg{transform:translateX(-3px)}
+
+/* PAGE LAYOUT */
+.page{display:grid;grid-template-columns:1fr 520px;min-height:100vh;padding-top:var(--nav)}
+
+/* LEFT PANEL */
+.left{
+  background:linear-gradient(160deg,#0d1410 0%,#080a0d 60%,var(--ink) 100%);
+  padding:64px max(48px,4vw);
+  display:flex;flex-direction:column;justify-content:space-between;
+  position:relative;overflow:hidden;z-index:1;
 }
-.logo{ font-family:'Sora',sans-serif; font-size:22px; font-weight:800; color:var(--seafoam-deep); text-decoration:none; }
-.nav-back{ display:flex; align-items:center; gap:7px; text-decoration:none; color:var(--slate); font-size:14px; font-weight:500; transition:.2s; }
-.nav-back:hover{ color:var(--seafoam-deep); }
-.nav-back svg{ transition:.2s; }
-.nav-back:hover svg{ transform:translateX(-3px); }
+.left-glow{position:absolute;top:-10%;right:-10%;width:600px;height:600px;border-radius:50%;background:radial-gradient(circle,rgba(0,232,122,.06) 0%,transparent 65%);filter:blur(60px);pointer-events:none;animation:breathe 9s ease-in-out infinite alternate}
+.left-glow2{position:absolute;bottom:-15%;left:-10%;width:400px;height:400px;border-radius:50%;background:radial-gradient(circle,rgba(0,196,255,.04) 0%,transparent 70%);filter:blur(60px);pointer-events:none;animation:breathe 12s ease-in-out infinite alternate-reverse}
+@keyframes breathe{0%{transform:scale(1)}100%{transform:scale(1.12)}}
 
-/* LAYOUT */
-.page{ display:grid; grid-template-columns:1fr 500px; min-height:calc(100vh - 65px); }
+.left-content{position:relative;z-index:1}
 
-/* LEFT */
-.left-panel{
-  background:var(--dark); padding:60px 64px;
-  display:flex; flex-direction:column; justify-content:space-between;
-  position:relative; overflow:hidden;
+.epill{display:inline-flex;align-items:center;gap:8px;padding:7px 16px;border-radius:100px;background:rgba(0,232,122,.07);border:1px solid rgba(0,232,122,.18);font-size:11px;letter-spacing:2.5px;text-transform:uppercase;color:var(--acc);font-weight:500;margin-bottom:32px}
+.pulse{width:6px;height:6px;border-radius:50%;background:var(--acc);animation:blink 2s infinite;box-shadow:0 0 8px var(--acc)}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.2}}
+
+.left h2{font-family:'Playfair Display',serif;font-size:clamp(2rem,3.5vw,3.2rem);font-weight:900;line-height:.96;letter-spacing:-.04em;color:#fff;margin-bottom:16px}
+.left h2 em{font-style:italic;background:linear-gradient(110deg,var(--acc) 20%,var(--acc2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.left>div>p{font-size:15px;color:var(--muted);line-height:1.7;font-weight:300;margin-bottom:36px;max-width:380px}
+
+/* selected plan box */
+.plan-box{
+  background:rgba(255,255,255,.035);
+  border:1px solid rgba(0,232,122,.18);
+  border-radius:16px;padding:20px 22px;
+  margin-bottom:36px;
+  display:flex;align-items:center;justify-content:space-between;
+  transition:border-color .3s;
 }
-.left-panel::before{
-  content:''; position:absolute; width:600px; height:600px; border-radius:50%;
-  background:radial-gradient(circle,rgba(110,211,199,.1) 0%,transparent 70%);
-  top:-200px; right:-200px; pointer-events:none;
+.plan-box:hover{border-color:rgba(0,232,122,.3)}
+.pb-tier{font-size:10px;font-weight:500;letter-spacing:2.5px;text-transform:uppercase;color:var(--acc);margin-bottom:5px}
+.pb-name{font-family:'Playfair Display',serif;font-size:20px;font-weight:700;color:#fff;margin-bottom:3px}
+.pb-price{font-size:12px;color:rgba(255,255,255,.3);font-weight:300}
+.pb-price strong{color:rgba(255,255,255,.5)}
+.change-plan{font-size:12px;color:var(--acc);font-weight:500;text-decoration:none;border-bottom:1px solid rgba(0,232,122,.3);padding-bottom:1px;transition:.2s;flex-shrink:0;margin-left:12px}
+.change-plan:hover{border-color:var(--acc)}
+
+/* perks */
+.perks{display:flex;flex-direction:column;gap:18px}
+.perk{display:flex;align-items:flex-start;gap:14px}
+.perk-icon{width:38px;height:38px;border-radius:10px;background:rgba(0,232,122,.07);border:1px solid rgba(0,232,122,.12);display:grid;place-items:center;flex-shrink:0}
+.perk-icon svg{width:17px;height:17px;stroke:var(--acc);fill:none;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
+.perk-text h5{font-size:13px;font-weight:500;color:#fff;margin-bottom:3px}
+.perk-text p{font-size:12px;color:rgba(255,255,255,.32);line-height:1.55;font-weight:300}
+
+/* trust row */
+.trust-row{position:relative;z-index:1;display:flex;align-items:center;gap:14px;padding-top:32px;border-top:1px solid rgba(255,255,255,.06)}
+.trust-avs{display:flex}
+.tav{width:32px;height:32px;border-radius:50%;border:2px solid var(--ink);background:linear-gradient(135deg,rgba(0,232,122,.3),rgba(0,196,255,.3));display:grid;place-items:center;font-size:10px;font-weight:600;color:#fff;margin-right:-7px}
+.trust-txt{font-size:12px;color:rgba(255,255,255,.3);line-height:1.55;margin-left:14px;font-weight:300}
+.trust-txt strong{color:rgba(255,255,255,.55);display:block;font-weight:500}
+
+/* RIGHT PANEL */
+.right{
+  background:var(--ink2);
+  border-left:1px solid rgba(255,255,255,.06);
+  padding:48px 44px;
+  display:flex;flex-direction:column;
+  overflow-y:auto;position:relative;z-index:1;
 }
-.left-panel::after{
-  content:''; position:absolute; width:400px; height:400px; border-radius:50%;
-  background:radial-gradient(circle,rgba(47,183,170,.08) 0%,transparent 70%);
-  bottom:-100px; left:-100px; pointer-events:none;
-}
-.panel-content{ position:relative; z-index:1; }
 
-.trial-badge{
-  display:inline-flex; align-items:center; gap:8px;
-  background:rgba(110,211,199,.12); border:1px solid rgba(110,211,199,.25);
-  border-radius:999px; padding:7px 16px;
-  font-size:13px; font-weight:600; color:var(--seafoam); margin-bottom:36px;
-}
-.trial-badge .dot{ width:7px; height:7px; border-radius:50%; background:var(--seafoam); animation:pulse 1.8s infinite; }
-@keyframes pulse{ 0%,100%{opacity:1;box-shadow:0 0 0 0 rgba(110,211,199,.4)} 50%{opacity:.6;box-shadow:0 0 0 5px rgba(110,211,199,0)} }
-
-.panel-content h2{
-  font-family:'Sora',sans-serif; font-size:38px; font-weight:800;
-  color:white; line-height:1.1; letter-spacing:-1px; margin-bottom:16px;
-}
-.panel-content h2 span{ color:var(--seafoam); }
-.panel-content > p{ font-size:16px; color:#94a3b8; line-height:1.65; margin-bottom:40px; max-width:380px; }
-
-.selected-plan{
-  background:rgba(255,255,255,.06); border:1.5px solid rgba(110,211,199,.2);
-  border-radius:var(--radius-sm); padding:20px 22px;
-  margin-bottom:40px; display:flex; align-items:center; justify-content:space-between;
-}
-.plan-label-tag{ font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:1.5px; color:var(--seafoam); margin-bottom:4px; }
-.plan-name-display{ font-family:'Sora',sans-serif; font-size:20px; font-weight:800; color:white; margin-bottom:2px; }
-.plan-price-display{ font-size:13px; color:#64748b; }
-.plan-price-display strong{ color:#94a3b8; }
-.change-plan{ font-size:13px; color:var(--seafoam-deep); font-weight:600; text-decoration:none; border-bottom:1px solid rgba(47,183,170,.3); padding-bottom:1px; transition:.2s; flex-shrink:0; margin-left:12px; }
-.change-plan:hover{ border-color:var(--seafoam-deep); }
-
-.perks{ display:flex; flex-direction:column; gap:16px; }
-.perk{ display:flex; align-items:flex-start; gap:14px; }
-.perk-icon{ width:38px; height:38px; border-radius:10px; background:rgba(110,211,199,.1); border:1px solid rgba(110,211,199,.15); display:flex; align-items:center; justify-content:center; font-size:17px; flex-shrink:0; }
-.perk-text h5{ font-family:'Sora',sans-serif; font-size:14px; font-weight:700; color:white; margin-bottom:2px; }
-.perk-text p{ font-size:13px; color:#64748b; line-height:1.5; }
-
-.trust-row{ position:relative; z-index:1; display:flex; align-items:center; gap:14px; padding-top:36px; border-top:1px solid rgba(255,255,255,.07); }
-.trust-avatars{ display:flex; }
-.trust-avatars .av{ width:34px; height:34px; border-radius:50%; border:2px solid var(--dark); background:linear-gradient(135deg,var(--seafoam-mid),var(--seafoam-deep)); display:flex; align-items:center; justify-content:center; font-family:'Sora',sans-serif; font-size:11px; font-weight:700; color:white; margin-right:-8px; }
-.trust-text{ font-size:13px; color:#64748b; line-height:1.5; margin-left:16px; }
-.trust-text strong{ color:#94a3b8; display:block; }
-
-/* RIGHT */
-.right-panel{ background:white; padding:50px 48px; display:flex; flex-direction:column; overflow-y:auto; }
-
-/* PROGRESS */
-.step-progress{ display:flex; align-items:center; margin-bottom:40px; }
-.pip{ width:32px; height:32px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-family:'Sora',sans-serif; font-size:13px; font-weight:700; transition:.3s; flex-shrink:0; border:2px solid #e2e8f0; color:#94a3b8; background:white; }
-.pip.active{ background:var(--seafoam-deep); border-color:var(--seafoam-deep); color:white; }
-.pip.done{ background:var(--seafoam-light); border-color:var(--seafoam-mid); color:var(--seafoam-deep); }
-.pip-label{ font-size:11px; font-weight:600; color:#94a3b8; white-space:nowrap; margin-left:7px; transition:.3s; }
-.pip.active ~ .pip-label-active{ color:var(--seafoam-deep); }
-.pip-line{ flex:1; height:2px; background:#e2e8f0; margin:0 10px; position:relative; overflow:hidden; }
-.pip-line::after{ content:''; position:absolute; inset:0; background:var(--seafoam-deep); transform:scaleX(0); transform-origin:left; transition:.4s ease; }
-.pip-line.filled::after{ transform:scaleX(1); }
+/* STEP PROGRESS */
+.step-prog{display:flex;align-items:center;margin-bottom:40px}
+.pip{width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:500;transition:.3s;flex-shrink:0;border:1px solid rgba(255,255,255,.12);color:rgba(255,255,255,.3);background:transparent}
+.pip.active{background:var(--acc);border-color:var(--acc);color:#000;font-weight:600}
+.pip.done{background:rgba(0,232,122,.1);border-color:rgba(0,232,122,.3);color:var(--acc)}
+.pl{font-size:11px;color:rgba(255,255,255,.3);white-space:nowrap;margin-left:7px;letter-spacing:.2px;transition:color .3s}
+.pl.on{color:var(--acc)}
+.pip-line{flex:1;height:1px;background:rgba(255,255,255,.07);margin:0 10px;position:relative;overflow:hidden}
+.pip-line::after{content:'';position:absolute;inset:0;background:var(--acc);transform:scaleX(0);transform-origin:left;transition:.5s var(--ease)}
+.pip-line.filled::after{transform:scaleX(1)}
 
 /* STEP PANELS */
-.step-panel{ display:none; }
-.step-panel.active{ display:block; animation:stepIn .35s ease both; }
-@keyframes stepIn{ from{opacity:0;transform:translateX(14px)} to{opacity:1;transform:translateX(0)} }
+.sp{display:none}
+.sp.active{display:block;animation:stepIn .35s var(--ease) both}
+@keyframes stepIn{from{opacity:0;transform:translateX(12px)}to{opacity:1;transform:none}}
 
-.step-heading{ font-family:'Sora',sans-serif; font-size:24px; font-weight:800; margin-bottom:6px; letter-spacing:-.4px; }
-.step-sub{ font-size:14px; color:var(--slate); margin-bottom:28px; line-height:1.5; }
+.step-h{font-family:'Playfair Display',serif;font-size:22px;font-weight:700;letter-spacing:-.3px;margin-bottom:6px}
+.step-sub{font-size:13px;color:var(--muted);font-weight:300;margin-bottom:28px;line-height:1.55}
 
 /* FIELDS */
-.field-row{ display:grid; grid-template-columns:1fr 1fr; gap:16px; }
-.field{ margin-bottom:18px; }
-.field label{ display:block; font-size:13px; font-weight:600; color:var(--dark); margin-bottom:6px; }
-.field label .req{ color:var(--seafoam-deep); margin-left:2px; }
-.field input, .field select, .field textarea{
-  width:100%; padding:12px 14px; border:1.5px solid #e2eeec; border-radius:var(--radius-sm);
-  font-family:'DM Sans',sans-serif; font-size:14px; color:var(--dark);
-  background:white; transition:.2s; outline:none; appearance:none;
-}
-.field input:focus,.field select:focus{ border-color:var(--seafoam-deep); box-shadow:0 0 0 3px rgba(47,183,170,.1); }
-.field .err-msg{ font-size:12px; color:var(--error); margin-top:5px; display:none; }
-.field.has-error .err-msg{ display:block; }
-.field.has-error input,.field.has-error select{ border-color:var(--error); box-shadow:0 0 0 3px rgba(239,68,68,.08); }
+.frow{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.field{margin-bottom:16px}
+.field label{display:block;font-size:12px;font-weight:500;color:rgba(255,255,255,.5);margin-bottom:7px;letter-spacing:.2px}
+.field label .req{color:var(--acc);margin-left:2px}
 
-.select-wrap{ position:relative; }
-.select-wrap::after{ content:'▾'; position:absolute; right:14px; top:50%; transform:translateY(-50%); color:#94a3b8; pointer-events:none; font-size:13px; }
-.select-wrap select{ padding-right:36px; cursor:pointer; }
+.field input,.field select,.field textarea{
+  width:100%;padding:11px 14px;
+  border:1px solid rgba(255,255,255,.09);
+  border-radius:12px;
+  font-family:'DM Sans',sans-serif;font-size:13px;color:#fff;
+  background:rgba(255,255,255,.04);
+  transition:border-color .25s,box-shadow .25s,background .25s;
+  outline:none;appearance:none;
+}
+.field input::placeholder,.field textarea::placeholder{color:rgba(255,255,255,.2)}
+.field input:focus,.field select:focus,.field textarea:focus{
+  border-color:rgba(0,232,122,.4);
+  background:rgba(0,232,122,.03);
+  box-shadow:0 0 0 3px rgba(0,232,122,.08);
+}
+.field select option{background:#1a1a1c;color:#fff}
+.field .err-msg{font-size:11px;color:var(--err);margin-top:5px;display:none}
+.field.has-error .err-msg{display:block}
+.field.has-error input,.field.has-error select{border-color:var(--err);box-shadow:0 0 0 3px var(--err-bg)}
+
+.sel-wrap{position:relative}
+.sel-wrap::after{content:'▾';position:absolute;right:13px;top:50%;transform:translateY(-50%);color:rgba(255,255,255,.25);pointer-events:none;font-size:11px}
+.sel-wrap select{padding-right:32px;cursor:none}
 
 /* PASSWORD */
-.pw-wrap{ position:relative; }
-.pw-wrap input{ padding-right:44px; }
-.pw-toggle{ position:absolute; right:12px; top:50%; transform:translateY(-50%); background:none; border:none; cursor:pointer; color:#94a3b8; font-size:17px; line-height:1; padding:4px; transition:.2s; }
-.pw-toggle:hover{ color:var(--seafoam-deep); }
-.pw-strength{ margin-top:8px; }
-.pw-bars{ display:flex; gap:4px; margin-bottom:4px; }
-.pw-bar{ flex:1; height:3px; border-radius:2px; background:#e2e8f0; transition:.3s; }
-.pw-bar.weak{ background:#ef4444; }
-.pw-bar.fair{ background:#f59e0b; }
-.pw-bar.strong{ background:#22c55e; }
-.pw-label{ font-size:11px; }
+.pw-wrap{position:relative}
+.pw-wrap input{padding-right:44px}
+.pw-toggle{position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:none;color:rgba(255,255,255,.25);display:flex;align-items:center;padding:4px;transition:color .2s}
+.pw-toggle:hover{color:var(--acc)}
+.pw-toggle svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.pw-strength{margin-top:8px}
+.pw-bars{display:flex;gap:4px;margin-bottom:5px}
+.pw-bar{flex:1;height:2px;border-radius:2px;background:rgba(255,255,255,.07);transition:.3s}
+.pw-bar.weak{background:#f87171}
+.pw-bar.fair{background:#fbbf24}
+.pw-bar.strong{background:var(--acc)}
+.pw-lbl{font-size:11px;color:rgba(255,255,255,.35)}
 
-/* FILE UPLOAD */
+/* FILE DROP */
 .file-drop{
-  border:2px dashed #cce9e6; border-radius:var(--radius-sm);
-  padding:26px 20px; text-align:center; cursor:pointer; transition:.25s;
-  position:relative; overflow:hidden; background:var(--soft);
+  border:1px dashed rgba(0,232,122,.2);border-radius:12px;
+  padding:24px 20px;text-align:center;cursor:none;
+  transition:border-color .25s,background .25s;
+  position:relative;overflow:hidden;
+  background:rgba(0,232,122,.02);
 }
-.file-drop:hover,.file-drop.drag-over{ border-color:var(--seafoam-deep); background:var(--seafoam-light); }
-.file-drop input[type="file"]{ position:absolute; inset:0; opacity:0; cursor:pointer; width:100%; height:100%; }
-.upload-icon{ font-size:30px; margin-bottom:8px; }
-.upload-text{ font-size:14px; font-weight:600; color:var(--dark); margin-bottom:3px; }
-.upload-hint{ font-size:12px; color:#94a3b8; }
-.upload-hint span{ color:var(--seafoam-deep); font-weight:600; }
-.file-preview{ display:none; align-items:center; gap:10px; background:var(--seafoam-light); border-radius:var(--radius-sm); padding:11px 14px; margin-top:10px; border:1px solid var(--seafoam-mid); }
-.file-preview.show{ display:flex; }
-.file-preview .fname{ font-size:13px; font-weight:600; flex:1; color:var(--dark); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-.file-preview .fremove{ background:none; border:none; color:#ef4444; cursor:pointer; font-size:16px; line-height:1; flex-shrink:0; }
-.file-err-msg{ font-size:12px; color:var(--error); margin-top:6px; display:none; }
+.file-drop:hover,.file-drop.drag-over{border-color:rgba(0,232,122,.5);background:rgba(0,232,122,.04)}
+.file-drop input[type="file"]{position:absolute;inset:0;opacity:0;cursor:none;width:100%;height:100%}
+.upload-icon{display:flex;justify-content:center;margin-bottom:10px}
+.upload-icon svg{width:28px;height:28px;stroke:rgba(255,255,255,.2);fill:none;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round}
+.upload-text{font-size:13px;font-weight:500;color:rgba(255,255,255,.5);margin-bottom:4px}
+.upload-hint{font-size:11px;color:rgba(255,255,255,.2)}
+.upload-hint span{color:var(--acc)}
+.file-preview{display:none;align-items:center;gap:10px;background:rgba(0,232,122,.06);border-radius:10px;padding:10px 14px;margin-top:10px;border:1px solid rgba(0,232,122,.15)}
+.file-preview.show{display:flex}
+.fname{font-size:12px;font-weight:500;flex:1;color:rgba(255,255,255,.6);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.fremove{background:none;border:none;color:var(--err);cursor:none;font-size:14px;line-height:1;flex-shrink:0;display:flex;align-items:center;padding:2px;transition:opacity .2s}
+.fremove:hover{opacity:.7}
+.file-err{font-size:11px;color:var(--err);margin-top:6px;display:none}
 
 /* CHECKBOX */
-.checkbox-field{ display:flex; align-items:flex-start; gap:10px; margin-bottom:20px; }
-.checkbox-field input[type=checkbox]{ width:18px; height:18px; accent-color:var(--seafoam-deep); cursor:pointer; flex-shrink:0; margin-top:2px; }
-.checkbox-field label{ font-size:13px; color:var(--slate); line-height:1.55; cursor:pointer; }
-.checkbox-field label a{ color:var(--seafoam-deep); text-decoration:none; }
-.checkbox-field label a:hover{ text-decoration:underline; }
+.cb-field{display:flex;align-items:flex-start;gap:10px;margin-bottom:18px}
+.cb-field input[type=checkbox]{width:16px;height:16px;accent-color:var(--acc);cursor:none;flex-shrink:0;margin-top:2px}
+.cb-field label{font-size:12px;color:rgba(255,255,255,.35);line-height:1.6;cursor:none;font-weight:300}
+.cb-field label a{color:var(--acc);text-decoration:none}
+.cb-field label a:hover{text-decoration:underline}
+
+/* DIVIDER */
+.fdiv{border:none;height:1px;background:rgba(255,255,255,.06);margin:20px 0}
 
 /* BUTTONS */
-.btn-row{ display:flex; gap:12px; margin-top:6px; }
+.btn-row{display:flex;gap:10px;margin-top:8px}
 .btn-next,.btn-submit{
-  flex:1; padding:14px 22px; border-radius:var(--radius-sm);
-  background:var(--seafoam-deep); color:white;
-  font-family:'Sora',sans-serif; font-size:15px; font-weight:700;
-  border:none; cursor:pointer; transition:.22s;
-  display:flex; align-items:center; justify-content:center; gap:8px;
+  flex:1;padding:13px 22px;border-radius:100px;
+  background:var(--acc);color:#000;
+  font-family:'DM Sans',sans-serif;font-size:14px;font-weight:500;
+  border:none;cursor:none;
+  display:flex;align-items:center;justify-content:center;gap:8px;
+  transition:background .25s,transform .2s var(--ease),box-shadow .3s;
+  will-change:transform;position:relative;overflow:hidden;
 }
-.btn-next:hover,.btn-submit:hover{ background:#27a396; transform:translateY(-1px); box-shadow:0 8px 24px rgba(47,183,170,.3); }
-.btn-back{ padding:14px 20px; border-radius:var(--radius-sm); background:var(--soft); color:var(--slate); font-family:'Sora',sans-serif; font-size:15px; font-weight:600; border:1.5px solid #e2eeec; cursor:pointer; transition:.2s; }
-.btn-back:hover{ background:#e8f5f3; border-color:var(--seafoam-mid); }
-.spinner{ width:18px; height:18px; border:2px solid rgba(255,255,255,.3); border-top-color:white; border-radius:50%; animation:spin .7s linear infinite; display:none; }
-@keyframes spin{ to{transform:rotate(360deg)} }
-.btn-submit.loading .btn-label{ display:none; }
-.btn-submit.loading .spinner{ display:block; }
-.btn-submit:disabled{ opacity:.7; cursor:not-allowed; transform:none !important; }
+.btn-next:hover,.btn-submit:hover{background:#00ffaa;transform:translateY(-2px);box-shadow:0 12px 32px rgba(0,232,122,.3)}
+.btn-next svg,.btn-submit svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
+.btn-back{padding:13px 20px;border-radius:100px;background:transparent;color:var(--muted);font-family:'DM Sans',sans-serif;font-size:14px;font-weight:400;border:1px solid rgba(255,255,255,.1);cursor:none;transition:.25s}
+.btn-back:hover{border-color:rgba(255,255,255,.25);color:#fff}
+.spinner{width:16px;height:16px;border:2px solid rgba(0,0,0,.2);border-top-color:#000;border-radius:50%;animation:spin .7s linear infinite;display:none}
+@keyframes spin{to{transform:rotate(360deg)}}
+.btn-submit.loading .btn-label{display:none}
+.btn-submit.loading .spinner{display:block}
+.btn-submit:disabled{opacity:.7;cursor:not-allowed;transform:none!important}
+.ripple{position:absolute;border-radius:50%;background:rgba(0,0,0,.1);pointer-events:none;transform:scale(0);animation:rip .5s linear}
+@keyframes rip{to{transform:scale(4);opacity:0}}
 
 /* REVIEW */
-.review-block{ margin-bottom:22px; }
-.review-block-header{ display:flex; align-items:center; justify-content:space-between; margin-bottom:10px; }
-.review-block-header h5{ font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:1.5px; color:var(--seafoam-deep); }
-.review-edit{ font-size:12px; color:var(--seafoam-deep); font-weight:600; background:none; border:none; cursor:pointer; padding:0; }
-.review-edit:hover{ text-decoration:underline; }
-.review-row{ display:flex; justify-content:space-between; align-items:center; padding:9px 0; border-bottom:1px solid #f0f7f6; font-size:14px; gap:12px; }
-.review-row:last-child{ border:none; }
-.rk{ color:var(--slate); flex-shrink:0; }
-.rv{ font-weight:600; color:var(--dark); text-align:right; }
+.rev-block{margin-bottom:22px}
+.rev-bh{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.rev-bh h5{font-size:10px;font-weight:500;letter-spacing:2px;text-transform:uppercase;color:var(--acc)}
+.rev-edit{font-size:11px;color:var(--acc);font-weight:500;background:none;border:none;cursor:none;padding:0;transition:opacity .2s}
+.rev-edit:hover{opacity:.7;text-decoration:underline}
+.rev-row{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid rgba(255,255,255,.05);font-size:13px;gap:12px}
+.rev-row:last-child{border:none}
+.rk{color:rgba(255,255,255,.32);flex-shrink:0;font-weight:300}
+.rv{font-weight:400;color:rgba(255,255,255,.75);text-align:right}
 
-/* RESPONSIVE */
+/* TERMS ERR */
+#terms-err{font-size:11px;color:var(--err);margin-top:-10px;margin-bottom:14px;display:none}
+
+/* SUBMIT ERR */
+.submit-err{color:var(--err);font-size:12px;margin-top:10px;padding:10px 14px;background:var(--err-bg);border:1px solid rgba(248,113,113,.2);border-radius:10px;display:none}
+
 @media(max-width:920px){
-  header{ padding:16px 20px; }
-  .page{ grid-template-columns:1fr; }
-  .left-panel{ padding:40px 24px; }
-  .right-panel{ padding:36px 24px; }
-  .field-row{ grid-template-columns:1fr; }
+  #nav{padding:0 20px}
+  .page{grid-template-columns:1fr}
+  .left{padding:40px 24px;border-right:none}
+  .right{padding:36px 24px;border-left:none;border-top:1px solid rgba(255,255,255,.06)}
+  .frow{grid-template-columns:1fr}
 }
 </style>
 </head>
 <body>
 
-<header>
-  <a class="logo" href="index.html">UniLearn</a>
-  <a class="nav-back" href="pricing_plan.html">
-    <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M10 12L6 8L10 4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-    Back to pricing
-  </a>
-</header>
+<div id="cd"></div>
+<div id="cr"></div>
+<canvas id="cv"></canvas>
+
+<!-- NAV -->
+<nav id="nav">
+  <div class="nv">
+    <a class="logo" href="index.html">
+      <div class="logo-g"><svg viewBox="0 0 14 14"><path d="M7 1L1 4v6l6 3 6-3V4z"/></svg></div>
+      UniLearn
+    </a>
+    <a class="nav-back" href="pricing_plan.html">
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M10 12L6 8L10 4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      Back to pricing
+    </a>
+  </div>
+</nav>
 
 <div class="page">
 
   <!-- LEFT PANEL -->
-  <div class="left-panel">
-    <div class="panel-content">
-      <div class="trial-badge"><span class="dot"></span> 30-day free trial · No credit card</div>
-      <h2>Start your<br><span>free trial</span><br>today.</h2>
+  <div class="left">
+    <div class="left-glow"></div>
+    <div class="left-glow2"></div>
+    <div class="left-content">
+      <div class="epill"><span class="pulse"></span>30-day free trial · No credit card</div>
+      <h2>Start your<br><em>free trial</em><br>today.</h2>
       <p>Get full platform access for 30 days. Set up your school, invite your staff, and go live — completely free.</p>
 
-      <div class="selected-plan">
+      <div class="plan-box">
         <div>
-          <div class="plan-label-tag" id="pd-tier">Growth</div>
-          <div class="plan-name-display" id="pd-name">Campus</div>
-          <div class="plan-price-display"><strong id="pd-price">$50</strong>/month after trial</div>
+          <div class="pb-tier" id="pd-tier">Growth</div>
+          <div class="pb-name" id="pd-name">Campus</div>
+          <div class="pb-price"><strong id="pd-price">$50</strong>/month after trial</div>
         </div>
         <a class="change-plan" href="pricing_plan.html">Change plan</a>
       </div>
 
       <div class="perks">
         <div class="perk">
-          <div class="perk-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg></div>
+          <div class="perk-icon"><svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg></div>
           <div class="perk-text"><h5>No credit card needed</h5><p>Start free. Add billing only when you're ready to continue.</p></div>
         </div>
         <div class="perk">
-          <div class="perk-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg></div>
+          <div class="perk-icon"><svg viewBox="0 0 24 24"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg></div>
           <div class="perk-text"><h5>Live in under an hour</h5><p>Most schools onboard fully within a single school day.</p></div>
         </div>
         <div class="perk">
-          <div class="perk-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c0 1.657 2.686 3 6 3s6-1.343 6-3v-5"/></svg></div>
+          <div class="perk-icon"><svg viewBox="0 0 24 24"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c0 1.657 2.686 3 6 3s6-1.343 6-3v-5"/></svg></div>
           <div class="perk-text"><h5>Dedicated onboarding support</h5><p>A UniLearn specialist reaches out within 24 hours to help you set up.</p></div>
         </div>
       </div>
     </div>
 
     <div class="trust-row">
-      <div class="trust-avatars">
-        <div class="av">RK</div><div class="av">MO</div><div class="av">SL</div><div class="av">+</div>
+      <div class="trust-avs">
+        <div class="tav">RK</div><div class="tav">MO</div><div class="tav">SL</div><div class="tav">+</div>
       </div>
-      <div class="trust-text">
+      <div class="trust-txt">
         <strong>400+ schools onboarded</strong>
         Trusted by principals, teachers &amp; admins worldwide.
       </div>
@@ -271,35 +317,35 @@ header{
   </div>
 
   <!-- RIGHT PANEL -->
-  <div class="right-panel">
+  <div class="right">
 
-    <!-- Step progress -->
-    <div class="step-progress" id="step-progress">
+    <!-- Step Progress -->
+    <div class="step-prog">
       <div class="pip active" id="pip-1">1</div>
-      <span class="pip-label" id="pl-1" style="color:var(--seafoam-deep)">School Info</span>
+      <span class="pl on" id="pl-1">School info</span>
       <div class="pip-line" id="line-1"></div>
       <div class="pip" id="pip-2">2</div>
-      <span class="pip-label" id="pl-2">Your Account</span>
+      <span class="pl" id="pl-2">Your account</span>
       <div class="pip-line" id="line-2"></div>
       <div class="pip" id="pip-3">3</div>
-      <span class="pip-label" id="pl-3">Review</span>
+      <span class="pl" id="pl-3">Review</span>
     </div>
 
     <!-- STEP 1 -->
-    <div class="step-panel active" id="step-1">
-      <div class="step-heading">Tell us about your school</div>
+    <div class="sp active" id="step-1">
+      <div class="step-h">Tell us about your school</div>
       <p class="step-sub">Basic details to personalise your campus setup.</p>
 
-      <div class="field" id="f-school-name">
+      <div class="field" id="f-sname">
         <label>School name <span class="req">*</span></label>
         <input type="text" id="school-name" placeholder="e.g. Greenfield Academy" autocomplete="organization">
         <div class="err-msg">Please enter your school name.</div>
       </div>
 
-      <div class="field-row">
-        <div class="field" id="f-school-type">
+      <div class="frow">
+        <div class="field" id="f-stype">
           <label>School type <span class="req">*</span></label>
-          <div class="select-wrap">
+          <div class="sel-wrap">
             <select id="school-type">
               <option value="">Select type</option>
               <option>Primary School</option>
@@ -311,11 +357,11 @@ header{
               <option>Other</option>
             </select>
           </div>
-          <div class="err-msg">Please select a school type.</div>
+          <div class="err-msg">Please select a type.</div>
         </div>
-        <div class="field" id="f-student-count">
+        <div class="field" id="f-scount">
           <label>Number of students <span class="req">*</span></label>
-          <div class="select-wrap">
+          <div class="sel-wrap">
             <select id="student-count">
               <option value="">Select range</option>
               <option>Under 100</option>
@@ -326,7 +372,7 @@ header{
               <option>3,000+</option>
             </select>
           </div>
-          <div class="err-msg">Please select a student range.</div>
+          <div class="err-msg">Please select a range.</div>
         </div>
       </div>
 
@@ -334,32 +380,36 @@ header{
         <label>School registration proof <span class="req">*</span></label>
         <div class="file-drop" id="file-drop">
           <input type="file" id="reg-file" accept=".pdf,.jpg,.jpeg,.png">
-          <div class="upload-icon" style="display:flex;justify-content:center;margin-bottom:12px"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="color:#94a3b8"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><line x1="9" y1="15" x2="15" y2="15"/></svg></div>
+          <div class="upload-icon">
+            <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><line x1="9" y1="15" x2="15" y2="15"/></svg>
+          </div>
           <div class="upload-text">Drop your file here</div>
           <div class="upload-hint">or <span>browse to upload</span> · PDF, JPG, PNG · max 10 MB</div>
         </div>
         <div class="file-preview" id="file-preview">
-          <span style="display:flex;align-items:center;color:var(--seafoam-deep)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.44 11.05l-9.19 9.19a6 6 0 01-8.49-8.49l9.19-9.19a4 4 0 015.66 5.66l-9.2 9.19a2 2 0 01-2.83-2.83l8.49-8.48"/></svg></span>
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:var(--acc);flex-shrink:0"><path d="M21.44 11.05l-9.19 9.19a6 6 0 01-8.49-8.49l9.19-9.19a4 4 0 015.66 5.66l-9.2 9.19a2 2 0 01-2.83-2.83l8.49-8.48"/></svg>
           <span class="fname" id="file-name-display"></span>
-          <button class="fremove" id="file-remove" type="button"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+          <button class="fremove" id="file-remove" type="button">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+          </button>
         </div>
-        <div class="file-err-msg" id="file-err">Please upload your school registration document.</div>
+        <div class="file-err" id="file-err">Please upload your school registration document.</div>
       </div>
 
       <div class="btn-row">
         <button class="btn-next" onclick="goStep(2)">
           <span>Continue</span>
-          <svg width="15" height="15" viewBox="0 0 16 16" fill="none"><path d="M6 4L10 8L6 12" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          <svg viewBox="0 0 16 16"><path d="M6 4L10 8L6 12"/></svg>
         </button>
       </div>
     </div>
 
     <!-- STEP 2 -->
-    <div class="step-panel" id="step-2">
-      <div class="step-heading">Create your admin account</div>
+    <div class="sp" id="step-2">
+      <div class="step-h">Create your admin account</div>
       <p class="step-sub">You'll manage the school campus. More staff can be added after signup.</p>
 
-      <div class="field-row">
+      <div class="frow">
         <div class="field" id="f-fname">
           <label>First name <span class="req">*</span></label>
           <input type="text" id="fname" placeholder="Rachel" autocomplete="given-name">
@@ -388,543 +438,326 @@ header{
         <label>Password <span class="req">*</span></label>
         <div class="pw-wrap">
           <input type="password" id="password" placeholder="At least 8 characters" autocomplete="new-password" oninput="checkStrength(this.value)">
-          <button class="pw-toggle" type="button" onclick="togglePw('password')" style="line-height:0;display:flex;align-items:center"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button>
+          <button class="pw-toggle" type="button" onclick="togglePw('password')">
+            <svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+          </button>
         </div>
         <div class="pw-strength" id="pw-strength" style="display:none">
           <div class="pw-bars">
             <div class="pw-bar" id="b1"></div><div class="pw-bar" id="b2"></div>
             <div class="pw-bar" id="b3"></div><div class="pw-bar" id="b4"></div>
           </div>
-          <div class="pw-label" id="pw-label"></div>
+          <div class="pw-lbl" id="pw-lbl"></div>
         </div>
         <div class="err-msg">Password must be at least 8 characters.</div>
       </div>
 
-      <div class="field" id="f-confirm-pw">
+      <div class="field" id="f-cpw">
         <label>Confirm password <span class="req">*</span></label>
         <div class="pw-wrap">
           <input type="password" id="confirm-pw" placeholder="Re-enter your password" autocomplete="new-password">
-          <button class="pw-toggle" type="button" onclick="togglePw('confirm-pw')" style="line-height:0;display:flex;align-items:center"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button>
+          <button class="pw-toggle" type="button" onclick="togglePw('confirm-pw')">
+            <svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+          </button>
         </div>
         <div class="err-msg">Passwords do not match.</div>
       </div>
 
-      <div class="checkbox-field">
+      <div class="cb-field">
         <input type="checkbox" id="terms" checked>
         <label for="terms">I agree to UniLearn's <a href="#">Terms of Service</a> and <a href="#">Privacy Policy</a></label>
       </div>
-      <div id="terms-err" style="display:none;font-size:12px;color:var(--error);margin-top:-12px;margin-bottom:16px;">You must agree to the Terms of Service to continue.</div>
+      <div id="terms-err">You must agree to the Terms of Service to continue.</div>
 
       <div class="btn-row">
         <button class="btn-back" onclick="goStep(1)">Back</button>
         <button class="btn-next" onclick="goStep(3)">
-          <span>Review & confirm</span>
-          <svg width="15" height="15" viewBox="0 0 16 16" fill="none"><path d="M6 4L10 8L6 12" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          <span>Review &amp; confirm</span>
+          <svg viewBox="0 0 16 16"><path d="M6 4L10 8L6 12"/></svg>
         </button>
       </div>
     </div>
 
     <!-- STEP 3 REVIEW -->
-    <div class="step-panel" id="step-3">
-      <div class="step-heading">Review your details</div>
+    <div class="sp" id="step-3">
+      <div class="step-h">Review your details</div>
       <p class="step-sub">Double-check everything before we create your campus.</p>
 
-      <div class="review-block">
-        <div class="review-block-header"><h5>Selected plan</h5></div>
-        <div class="review-row"><span class="rk">Plan</span><span class="rv" id="rv-plan">—</span></div>
-        <div class="review-row"><span class="rk">Trial period</span><span class="rv">30 days free, then monthly</span></div>
+      <div class="rev-block">
+        <div class="rev-bh"><h5>Selected plan</h5></div>
+        <div class="rev-row"><span class="rk">Plan</span><span class="rv" id="rv-plan">—</span></div>
+        <div class="rev-row"><span class="rk">Trial period</span><span class="rv">30 days free, then monthly</span></div>
       </div>
+      <div class="fdiv"></div>
 
-      <div class="review-block">
-        <div class="review-block-header">
+      <div class="rev-block">
+        <div class="rev-bh">
           <h5>School information</h5>
-          <button class="review-edit" onclick="goStep(1)">Edit</button>
+          <button class="rev-edit" onclick="goStep(1)">Edit</button>
         </div>
-        <div class="review-row"><span class="rk">School name</span><span class="rv" id="rv-school">—</span></div>
-        <div class="review-row"><span class="rk">Type</span><span class="rv" id="rv-type">—</span></div>
-        <div class="review-row"><span class="rk">Students</span><span class="rv" id="rv-students">—</span></div>
-        <div class="review-row"><span class="rk">Registration doc</span><span class="rv" id="rv-doc">—</span></div>
+        <div class="rev-row"><span class="rk">School name</span><span class="rv" id="rv-school">—</span></div>
+        <div class="rev-row"><span class="rk">Type</span><span class="rv" id="rv-type">—</span></div>
+        <div class="rev-row"><span class="rk">Students</span><span class="rv" id="rv-students">—</span></div>
+        <div class="rev-row"><span class="rk">Registration doc</span><span class="rv" id="rv-doc">—</span></div>
       </div>
+      <div class="fdiv"></div>
 
-      <div class="review-block">
-        <div class="review-block-header">
+      <div class="rev-block">
+        <div class="rev-bh">
           <h5>Admin account</h5>
-          <button class="review-edit" onclick="goStep(2)">Edit</button>
+          <button class="rev-edit" onclick="goStep(2)">Edit</button>
         </div>
-        <div class="review-row"><span class="rk">Name</span><span class="rv" id="rv-name">—</span></div>
-        <div class="review-row"><span class="rk">Email</span><span class="rv" id="rv-email">—</span></div>
-        <div class="review-row"><span class="rk">Phone</span><span class="rv" id="rv-phone">—</span></div>
+        <div class="rev-row"><span class="rk">Name</span><span class="rv" id="rv-name">—</span></div>
+        <div class="rev-row"><span class="rk">Email</span><span class="rv" id="rv-email">—</span></div>
+        <div class="rev-row"><span class="rk">Phone</span><span class="rv" id="rv-phone">—</span></div>
       </div>
 
       <div class="btn-row">
         <button class="btn-back" onclick="goStep(2)">Back</button>
         <button class="btn-submit" id="submit-btn" onclick="submitForm()">
-          <span class="btn-label" style="display:flex;align-items:center;gap:8px"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 00-2.91-.09z"/><path d="M12 15l-3-3a22 22 0 012-3.95A12.88 12.88 0 0122 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 01-4 2z"/></svg> Start my free trial</span>
+          <span class="btn-label" style="display:flex;align-items:center;gap:8px">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 00-2.91-.09z"/><path d="M12 15l-3-3a22 22 0 012-3.95A12.88 12.88 0 0122 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 01-4 2z"/></svg>
+            Start my free trial
+          </span>
           <div class="spinner"></div>
         </button>
       </div>
+      <div class="submit-err" id="submit-error"></div>
     </div>
 
-  </div><!-- /right-panel -->
-</div><!-- /page -->
+  </div>
+</div>
 
 <script>
-// ── Plan data ──
-const PLANS = {
-  seed:    { tier:'Starter',    name:'Seed',     price:'$20' },
-  campus:  { tier:'Growth',     name:'Campus',   price:'$50' },
-  district:{ tier:'Enterprise', name:'District', price:'$150' }
-};
+/* CURSOR */
+const cd=document.getElementById('cd'),cr=document.getElementById('cr');
+let mx=0,my=0,rx=0,ry=0;
+document.addEventListener('mousemove',e=>{mx=e.clientX;my=e.clientY;cd.style.left=mx+'px';cd.style.top=my+'px'});
+(function raf(){rx+=(mx-rx)*.11;ry+=(my-ry)*.11;cr.style.left=rx+'px';cr.style.top=ry+'px';requestAnimationFrame(raf)})();
+document.querySelectorAll('a,button,.plan-box,.perk,.file-drop').forEach(el=>{
+  el.addEventListener('mouseenter',()=>cr.classList.add('g'));
+  el.addEventListener('mouseleave',()=>cr.classList.remove('g'));
+});
+document.addEventListener('mousedown',()=>{cr.classList.remove('g');cr.classList.add('s')});
+document.addEventListener('mouseup',()=>cr.classList.remove('s'));
 
-function getPlanKey(){
-  return (new URLSearchParams(window.location.search).get('plan') || 'campus').toLowerCase();
-}
-
-(function initPlan(){
-  const p = PLANS[getPlanKey()] || PLANS.campus;
-  document.getElementById('pd-tier').textContent  = p.tier;
-  document.getElementById('pd-name').textContent  = p.name;
-  document.getElementById('pd-price').textContent = p.price;
+/* PARTICLE CANVAS */
+(function(){
+  const canvas=document.getElementById('cv'),ctx=canvas.getContext('2d');
+  let W,H,pts=[];
+  function resize(){W=canvas.width=innerWidth;H=canvas.height=innerHeight}
+  resize();window.addEventListener('resize',resize);
+  for(let i=0;i<60;i++)pts.push({x:Math.random()*W,y:Math.random()*H,r:Math.random()*1.3+.3,vx:(Math.random()-.5)*.14,vy:(Math.random()-.5)*.14,o:Math.random()*.3+.05});
+  function draw(){
+    ctx.clearRect(0,0,W,H);
+    for(let i=0;i<pts.length;i++)for(let j=i+1;j<pts.length;j++){
+      const dx=pts[i].x-pts[j].x,dy=pts[i].y-pts[j].y,d=Math.sqrt(dx*dx+dy*dy);
+      if(d<120){ctx.beginPath();ctx.strokeStyle=`rgba(0,232,122,${(1-d/120)*.06})`;ctx.lineWidth=.5;ctx.moveTo(pts[i].x,pts[i].y);ctx.lineTo(pts[j].x,pts[j].y);ctx.stroke()}
+    }
+    pts.forEach(p=>{
+      ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,Math.PI*2);ctx.fillStyle=`rgba(0,232,122,${p.o})`;ctx.fill();
+      p.x+=p.vx;p.y+=p.vy;
+      if(p.x<0)p.x=W;if(p.x>W)p.x=0;if(p.y<0)p.y=H;if(p.y>H)p.y=0;
+    });
+    requestAnimationFrame(draw);
+  }
+  draw();
 })();
 
-// ── Step navigation ──
-let currentStep = 1;
 
+
+/* PLAN DATA */
+const PLANS={
+  seed:    {tier:'Starter',   name:'Seed',     price:'$20'},
+  campus:  {tier:'Growth',    name:'Campus',   price:'$50'},
+  district:{tier:'Enterprise',name:'District', price:'$150'}
+};
+function getPlanKey(){return(new URLSearchParams(location.search).get('plan')||'campus').toLowerCase()}
+(function initPlan(){
+  const p=PLANS[getPlanKey()]||PLANS.campus;
+  document.getElementById('pd-tier').textContent=p.tier;
+  document.getElementById('pd-name').textContent=p.name;
+  document.getElementById('pd-price').textContent=p.price;
+})();
+
+/* STEPS */
+let currentStep=1;
 function goStep(n){
-  // Only validate when moving forward
-  if(n > currentStep && !validateStep(currentStep)) return;
-
-  document.querySelectorAll('.step-panel').forEach(p => p.classList.remove('active'));
-  document.getElementById('step-' + n).classList.add('active');
-
-  [1,2,3].forEach(i => {
-    const pip   = document.getElementById('pip-' + i);
-    const label = document.getElementById('pl-' + i);
+  if(n>currentStep&&!validateStep(currentStep))return;
+  document.querySelectorAll('.sp').forEach(p=>p.classList.remove('active'));
+  document.getElementById('step-'+n).classList.add('active');
+  [1,2,3].forEach(i=>{
+    const pip=document.getElementById('pip-'+i);
+    const lbl=document.getElementById('pl-'+i);
     pip.classList.remove('active','done');
-    if(i < n){
-      pip.classList.add('done');
-      pip.textContent = '✓';
-      label.style.color = 'var(--slate)';
-    } else if(i === n){
-      pip.classList.add('active');
-      pip.textContent = i;
-      label.style.color = 'var(--seafoam-deep)';
-    } else {
-      pip.textContent = i;
-      label.style.color = '#94a3b8';
-    }
+    lbl.classList.remove('on');
+    if(i<n){pip.classList.add('done');pip.textContent='✓'}
+    else if(i===n){pip.classList.add('active');pip.textContent=i;lbl.classList.add('on')}
+    else{pip.textContent=i}
   });
-
-  document.getElementById('line-1').classList.toggle('filled', n > 1);
-  document.getElementById('line-2').classList.toggle('filled', n > 2);
-
-  currentStep = n;
-  if(n === 3) fillReview();
-  document.querySelector('.right-panel').scrollTo({top:0, behavior:'smooth'});
+  document.getElementById('line-1').classList.toggle('filled',n>1);
+  document.getElementById('line-2').classList.toggle('filled',n>2);
+  currentStep=n;
+  if(n===3)fillReview();
+  document.querySelector('.right').scrollTo({top:0,behavior:'smooth'});
 }
 
-// ── Validation ──
-function setErr(fieldId, hasError){
-  document.getElementById(fieldId).classList.toggle('has-error', hasError);
-}
-
+/* VALIDATION */
+function setErr(id,has){document.getElementById(id).classList.toggle('has-error',has)}
 function validateStep(step){
-  let ok = true;
-
-  if(step === 1){
-    const sn = document.getElementById('school-name').value.trim();
-    setErr('f-school-name', !sn); if(!sn) ok=false;
-
-    const st = document.getElementById('school-type').value;
-    setErr('f-school-type', !st); if(!st) ok=false;
-
-    const sc = document.getElementById('student-count').value;
-    setErr('f-student-count', !sc); if(!sc) ok=false;
-
-    // Use droppedFile if set (drag-drop), otherwise fileInput.files
-    const hasFile = (window._droppedFile != null) || document.getElementById('reg-file').files.length > 0;
-    document.getElementById('file-err').style.display = hasFile ? 'none' : 'block';
-    if(!hasFile) ok=false;
+  let ok=true;
+  if(step===1){
+    const sn=document.getElementById('school-name').value.trim();
+    setErr('f-sname',!sn);if(!sn)ok=false;
+    const st=document.getElementById('school-type').value;
+    setErr('f-stype',!st);if(!st)ok=false;
+    const sc=document.getElementById('student-count').value;
+    setErr('f-scount',!sc);if(!sc)ok=false;
+    const hasFile=(window._droppedFile!=null)||document.getElementById('reg-file').files.length>0;
+    document.getElementById('file-err').style.display=hasFile?'none':'block';
+    if(!hasFile)ok=false;
   }
-
-  if(step === 2){
-    const fn = document.getElementById('fname').value.trim();
-    setErr('f-fname', !fn); if(!fn) ok=false;
-
-    const ln = document.getElementById('lname').value.trim();
-    setErr('f-lname', !ln); if(!ln) ok=false;
-
-    const em = document.getElementById('email').value.trim();
-    const validEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(em);
-    setErr('f-email', !validEmail); if(!validEmail) ok=false;
-
-    const ph = document.getElementById('phone').value.trim();
-    setErr('f-phone', ph.length < 7); if(ph.length < 7) ok=false;
-
-    const pw = document.getElementById('password').value;
-    setErr('f-password', pw.length < 8); if(pw.length < 8) ok=false;
-
-    const cpw = document.getElementById('confirm-pw').value;
-    const pwMismatch = cpw !== pw || !cpw;
-    setErr('f-confirm-pw', pwMismatch); if(pwMismatch) ok=false;
-
-    // Inline terms error instead of alert()
-    const termsOk = document.getElementById('terms').checked;
-    document.getElementById('terms-err').style.display = termsOk ? 'none' : 'block';
-    if(!termsOk) ok=false;
+  if(step===2){
+    const fn=document.getElementById('fname').value.trim();
+    setErr('f-fname',!fn);if(!fn)ok=false;
+    const ln=document.getElementById('lname').value.trim();
+    setErr('f-lname',!ln);if(!ln)ok=false;
+    const em=document.getElementById('email').value.trim();
+    const ve=/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(em);
+    setErr('f-email',!ve);if(!ve)ok=false;
+    const ph=document.getElementById('phone').value.trim();
+    setErr('f-phone',ph.length<7);if(ph.length<7)ok=false;
+    const pw=document.getElementById('password').value;
+    setErr('f-password',pw.length<8);if(pw.length<8)ok=false;
+    const cpw=document.getElementById('confirm-pw').value;
+    const mm=cpw!==pw||!cpw;
+    setErr('f-cpw',mm);if(mm)ok=false;
+    const tok=document.getElementById('terms').checked;
+    document.getElementById('terms-err').style.display=tok?'none':'block';
+    if(!tok)ok=false;
   }
-
   return ok;
 }
 
-// ── Review ──
+/* REVIEW */
 function fillReview(){
-  const p = PLANS[getPlanKey()] || PLANS.campus;
-  document.getElementById('rv-plan').textContent     = p.name + ' (' + p.tier + ') — ' + p.price + '/mo';
-  document.getElementById('rv-school').textContent   = document.getElementById('school-name').value;
-  document.getElementById('rv-type').textContent     = document.getElementById('school-type').value;
-  document.getElementById('rv-students').textContent = document.getElementById('student-count').value;
-  // Use droppedFile name if available, else fileInput
-  const droppedFile = window._droppedFile;
-  const inputFile   = document.getElementById('reg-file').files[0];
-  const f = droppedFile || inputFile;
-  document.getElementById('rv-doc').textContent      = f ? f.name : '—';
-  document.getElementById('rv-name').textContent     = document.getElementById('fname').value + ' ' + document.getElementById('lname').value;
-  document.getElementById('rv-email').textContent    = document.getElementById('email').value;
-  document.getElementById('rv-phone').textContent    = document.getElementById('phone').value;
+  const p=PLANS[getPlanKey()]||PLANS.campus;
+  document.getElementById('rv-plan').textContent=p.name+' ('+p.tier+') — '+p.price+'/mo';
+  document.getElementById('rv-school').textContent=document.getElementById('school-name').value;
+  document.getElementById('rv-type').textContent=document.getElementById('school-type').value;
+  document.getElementById('rv-students').textContent=document.getElementById('student-count').value;
+  const f=window._droppedFile||document.getElementById('reg-file').files[0];
+  document.getElementById('rv-doc').textContent=f?f.name:'—';
+  document.getElementById('rv-name').textContent=document.getElementById('fname').value+' '+document.getElementById('lname').value;
+  document.getElementById('rv-email').textContent=document.getElementById('email').value;
+  document.getElementById('rv-phone').textContent=document.getElementById('phone').value;
 }
 
-// ── Show error helper ──
-function showError(btn, msg) {
-  // Reuse existing element or create once
-  let errEl = document.getElementById('submit-error');
-  if (!errEl) {
-    errEl = document.createElement('div');
-    errEl.id = 'submit-error';
-    errEl.style.cssText = 'color:#ef4444;font-size:13px;margin-top:10px;padding:10px 14px;background:#fef2f2;border:1px solid #fecaca;border-radius:10px;';
-    btn.parentNode.appendChild(errEl);
-  }
-  errEl.textContent = '⚠️ ' + msg;
-  errEl.style.display = 'block';
-  btn.classList.remove('loading');
-  btn.disabled = false;
+/* SUBMIT ERROR */
+function showError(btn,msg){
+  const el=document.getElementById('submit-error');
+  el.textContent='⚠ '+msg;el.style.display='block';
+  btn.classList.remove('loading');btn.disabled=false;
 }
+function hideSubmitError(){document.getElementById('submit-error').style.display='none'}
 
-function hideSubmitError(){
-  const el = document.getElementById('submit-error');
-  if(el) el.style.display = 'none';
-}
-
-// ── Config ──
-const CFG = {
-  supabaseUrl:        'https://twhajohjcrlxqlvbvddi.supabase.co',
-  supabaseServiceKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InR3aGFqb2hqY3JseHFsdmJ2ZGRpIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3MzY2NDUyMiwiZXhwIjoyMDg5MjQwNTIyfQ.w1KFI4DTBrAXTrhKYy6KShQSuaI9qmZl7yD560rVUXI',
-  resendKey:          're_d4nhj1JA_GWnU3nW1DWmgHiFXfNmy3Q4n',
-  resendFrom:         'UniLearn <onboarding@resend.dev>',
-  siteUrl:            'https://unilearn.pages.dev',
+/* CONFIG */
+const CFG={
+  supabaseUrl:'https://twhajohjcrlxqlvbvddi.supabase.co',
+  supabaseServiceKey:'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InR3aGFqb2hqY3JseHFsdmJ2ZGRpIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3MzY2NDUyMiwiZXhwIjoyMDg5MjQwNTIyfQ.w1KFI4DTBrAXTrhKYy6KShQSuaI9qmZl7yD560rVUXI',
+  resendKey:'re_d4nhj1JA_GWnU3nW1DWmgHiFXfNmy3Q4n',
+  resendFrom:'UniLearn <onboarding@resend.dev>',
+  siteUrl:'https://unilearn.pages.dev',
 };
 
-// ── Submit ──
+/* SUBMIT */
 async function submitForm(){
   hideSubmitError();
-  const btn = document.getElementById('submit-btn');
-  btn.classList.add('loading'); btn.disabled = true;
-
-  const plan      = getPlanKey();
-  const p         = PLANS[plan] || PLANS.campus;
-  const firstName = document.getElementById('fname').value.trim();
-  const lastName  = document.getElementById('lname').value.trim();
-  const email     = document.getElementById('email').value.trim();
-  const phone     = document.getElementById('phone').value.trim();
-  const password  = document.getElementById('password').value;
-  const schoolName = document.getElementById('school-name').value.trim();
-  const schoolType = document.getElementById('school-type').value;
-  const students   = document.getElementById('student-count').value;
-  const regFile    = window._droppedFile || document.getElementById('reg-file').files[0];
-
-  try {
-
-    // ── 1. Upload registration doc to Supabase Storage ──
-    let regFileUrl = null;
-    if (regFile) {
-      const ext      = regFile.name.split('.').pop().toLowerCase();
-      const mimeMap  = { pdf:'application/pdf', jpg:'image/jpeg', jpeg:'image/jpeg', png:'image/png' };
-      const mimeType = mimeMap[ext] || 'application/octet-stream';
-      const fileName = `${Date.now()}_${schoolName.replace(/\s+/g,'_')}.${ext}`;
-
-      const uploadRes = await fetch(
-        `${CFG.supabaseUrl}/storage/v1/object/registration-docs/${fileName}`,
-        {
-          method:  'POST',
-          headers: {
-            'Authorization': `Bearer ${CFG.supabaseServiceKey}`,
-            'Content-Type':  mimeType,
-            'Cache-Control': '3600',
-          },
-          body: regFile,
-        }
-      );
-
-      if (uploadRes.ok) {
-        regFileUrl = `${CFG.supabaseUrl}/storage/v1/object/public/registration-docs/${fileName}`;
-      } else {
-        console.warn('Upload failed (non-fatal):', await uploadRes.text());
-      }
+  const btn=document.getElementById('submit-btn');
+  btn.classList.add('loading');btn.disabled=true;
+  const plan=getPlanKey(),p=PLANS[plan]||PLANS.campus;
+  const firstName=document.getElementById('fname').value.trim();
+  const lastName=document.getElementById('lname').value.trim();
+  const email=document.getElementById('email').value.trim();
+  const phone=document.getElementById('phone').value.trim();
+  const password=document.getElementById('password').value;
+  const schoolName=document.getElementById('school-name').value.trim();
+  const schoolType=document.getElementById('school-type').value;
+  const students=document.getElementById('student-count').value;
+  const regFile=window._droppedFile||document.getElementById('reg-file').files[0];
+  try{
+    let regFileUrl=null;
+    if(regFile){
+      const ext=regFile.name.split('.').pop().toLowerCase();
+      const mimeMap={pdf:'application/pdf',jpg:'image/jpeg',jpeg:'image/jpeg',png:'image/png'};
+      const mimeType=mimeMap[ext]||'application/octet-stream';
+      const fileName=`${Date.now()}_${schoolName.replace(/\s+/g,'_')}.${ext}`;
+      const uploadRes=await fetch(`${CFG.supabaseUrl}/storage/v1/object/registration-docs/${fileName}`,{method:'POST',headers:{'Authorization':`Bearer ${CFG.supabaseServiceKey}`,'Content-Type':mimeType,'Cache-Control':'3600'},body:regFile});
+      if(uploadRes.ok)regFileUrl=`${CFG.supabaseUrl}/storage/v1/object/public/registration-docs/${fileName}`;
+      else console.warn('Upload failed:',await uploadRes.text());
     }
-
-    // ── 2. Create Supabase auth user via admin API ──
-    // service_role key + email_confirm:true → no confirmation email, no rate limit
-    const authRes  = await fetch(`${CFG.supabaseUrl}/auth/v1/admin/users`, {
-      method:  'POST',
-      headers: {
-        'Authorization': `Bearer ${CFG.supabaseServiceKey}`,
-        'apikey':        CFG.supabaseServiceKey,
-        'Content-Type':  'application/json',
-      },
-      body: JSON.stringify({
-        email,
-        password,
-        email_confirm: true,
-        user_metadata: {
-          full_name:   `${firstName} ${lastName}`,
-          phone,
-          school_name: schoolName,
-          role:        'school_admin',
-        },
-      }),
-    });
-
-    const authData = await authRes.json();
-
-    if (!authRes.ok) {
-      const msg = authData?.msg || authData?.message || 'Could not create account.';
-      if (/already registered|already exists/i.test(msg)) {
-        showError(btn, 'An account with this email already exists. Try logging in instead.');
-        return;
-      }
-      showError(btn, msg);
-      return;
+    const authRes=await fetch(`${CFG.supabaseUrl}/auth/v1/admin/users`,{method:'POST',headers:{'Authorization':`Bearer ${CFG.supabaseServiceKey}`,'apikey':CFG.supabaseServiceKey,'Content-Type':'application/json'},body:JSON.stringify({email,password,email_confirm:true,user_metadata:{full_name:`${firstName} ${lastName}`,phone,school_name:schoolName,role:'school_admin'}})});
+    const authData=await authRes.json();
+    if(!authRes.ok){
+      const msg=authData?.msg||authData?.message||'Could not create account.';
+      if(/already registered|already exists/i.test(msg)){showError(btn,'An account with this email already exists. Try logging in instead.');return;}
+      showError(btn,msg);return;
     }
-
-    const userId = authData.id;
-
-    // ── 3. Insert into admins table ──
-    // This is what lets the dashboard RLS work — get_my_school_id() reads from here.
-    // school_id is null at this point — it gets filled when they complete the setup wizard.
-    const adminInsertRes = await fetch(`${CFG.supabaseUrl}/rest/v1/admins`, {
-      method:  'POST',
-      headers: {
-        'Authorization': `Bearer ${CFG.supabaseServiceKey}`,
-        'apikey':        CFG.supabaseServiceKey,
-        'Content-Type':  'application/json',
-        'Prefer':        'return=minimal',
-      },
-      body: JSON.stringify({
-        auth_user_id: userId,
-        full_name:    `${firstName} ${lastName}`,
-        email,
-        phone,
-        role:         'super_admin',
-        is_active:    true,
-      }),
-    });
-    if (!adminInsertRes.ok) {
-      console.warn('Admin insert failed (non-fatal):', await adminInsertRes.text());
-    }
-
-    // ── 4. Save to school_signups table ──
-    // phone omitted — DB column has a unique constraint that causes 409s
-    const dbRes = await fetch(`${CFG.supabaseUrl}/rest/v1/school_signups`, {
-      method:  'POST',
-      headers: {
-        'Authorization': `Bearer ${CFG.supabaseServiceKey}`,
-        'apikey':        CFG.supabaseServiceKey,
-        'Content-Type':  'application/json',
-        'Prefer':        'return=minimal',
-      },
-      body: JSON.stringify({
-        school_name:   schoolName,
-        admin_name:    `${firstName} ${lastName}`,
-        email,
-        school_type:   schoolType,
-        student_count: students,
-        plan:          p.name,
-        plan_tier:     p.tier,
-        reg_doc_url:   regFileUrl,
-        auth_user_id:  userId,
-        created_at:    new Date().toISOString(),
-      }),
-    });
-
-    if (!dbRes.ok) {
-      const dbErr = await dbRes.json().catch(() => ({}));
-      console.warn('DB insert failed (non-fatal):', JSON.stringify(dbErr));
-      if (dbErr?.code === '23505') {
-        showError(btn, 'An account with this email already exists. Try logging in instead.');
-        return;
-      }
-      // Other DB errors are non-fatal — auth account exists, still send welcome email
-    }
-
-    // ── 5. Send welcome email via Resend ──
-    await fetch('https://api.resend.com/emails', {
-      method:  'POST',
-      headers: {
-        'Authorization': `Bearer ${CFG.resendKey}`,
-        'Content-Type':  'application/json',
-      },
-      body: JSON.stringify({
-        from:    CFG.resendFrom,
-        to:      [email],
-        subject: `Welcome to UniLearn, ${firstName}! Your trial has started 🎉`,
-        html:    buildWelcomeEmail(firstName, schoolName, p.name, p.price),
-      }),
-    }).catch(err => console.warn('Email failed (non-fatal):', err));
-
-    // ── All done — redirect ──
-    window.location.href =
-      'confirmation.html?name='  + encodeURIComponent(firstName) +
-      '&school=' + encodeURIComponent(schoolName) +
-      '&plan='   + plan +
-      '&email='  + encodeURIComponent(email);
-
-  } catch(err) {
-    console.error('Unexpected error:', err);
-    showError(btn, 'Something went wrong. Please check your connection and try again.');
-  }
+    const userId=authData.id;
+    await fetch(`${CFG.supabaseUrl}/rest/v1/admins`,{method:'POST',headers:{'Authorization':`Bearer ${CFG.supabaseServiceKey}`,'apikey':CFG.supabaseServiceKey,'Content-Type':'application/json','Prefer':'return=minimal'},body:JSON.stringify({auth_user_id:userId,full_name:`${firstName} ${lastName}`,email,phone,role:'super_admin',is_active:true})}).catch(e=>console.warn('Admin insert:',e));
+    const dbRes=await fetch(`${CFG.supabaseUrl}/rest/v1/school_signups`,{method:'POST',headers:{'Authorization':`Bearer ${CFG.supabaseServiceKey}`,'apikey':CFG.supabaseServiceKey,'Content-Type':'application/json','Prefer':'return=minimal'},body:JSON.stringify({school_name:schoolName,admin_name:`${firstName} ${lastName}`,email,school_type:schoolType,student_count:students,plan:p.name,plan_tier:p.tier,reg_doc_url:regFileUrl,auth_user_id:userId,created_at:new Date().toISOString()})});
+    if(!dbRes.ok){const dbErr=await dbRes.json().catch(()=>({}));if(dbErr?.code==='23505'){showError(btn,'An account with this email already exists.');return;}}
+    await fetch('https://api.resend.com/emails',{method:'POST',headers:{'Authorization':`Bearer ${CFG.resendKey}`,'Content-Type':'application/json'},body:JSON.stringify({from:CFG.resendFrom,to:[email],subject:`Welcome to UniLearn, ${firstName}! Your trial has started 🎉`,html:buildWelcomeEmail(firstName,schoolName,p.name,p.price)})}).catch(e=>console.warn('Email:',e));
+    window.location.href='confirmation.html?name='+encodeURIComponent(firstName)+'&school='+encodeURIComponent(schoolName)+'&plan='+plan+'&email='+encodeURIComponent(email);
+  }catch(err){console.error(err);showError(btn,'Something went wrong. Please check your connection and try again.');}
 }
 
-// ── Welcome email template ──
-function buildWelcomeEmail(firstName, schoolName, planName, planPrice) {
-  const url = CFG.siteUrl || 'https://unilearn.pages.dev';
-  return `<!DOCTYPE html>
-<html><head><meta charset="UTF-8"><style>
-body{margin:0;padding:0;background:#f2fbfa;font-family:'Helvetica Neue',Arial,sans-serif;}
-.wrap{max-width:560px;margin:40px auto;background:white;border-radius:16px;overflow:hidden;box-shadow:0 4px 24px rgba(47,183,170,.1);}
-.header{background:linear-gradient(135deg,#2fb7aa,#1da99d);padding:40px 48px 32px;text-align:center;}
-.logo{font-size:26px;font-weight:800;color:white;letter-spacing:-1px;}
-.tagline{color:rgba(255,255,255,.7);font-size:14px;margin-top:4px;}
-.body{padding:40px 48px;}
-h1{font-size:22px;font-weight:700;color:#0a1628;margin:0 0 12px;}
-p{font-size:15px;color:#475569;line-height:1.65;margin:0 0 16px;}
-.plan-box{background:#f2fbfa;border:1.5px solid #a8e8e3;border-radius:12px;padding:18px 22px;margin:24px 0;}
-.plan-name{font-size:18px;font-weight:700;color:#0a1628;}
-.plan-detail{font-size:13px;color:#64748b;margin-top:4px;}
-.step{display:flex;align-items:flex-start;gap:14px;margin-bottom:16px;}
-.snum{min-width:28px;height:28px;border-radius:50%;background:#2fb7aa;color:white;font-size:13px;font-weight:700;display:flex;align-items:center;justify-content:center;margin-top:2px;}
-.stxt{font-size:14px;color:#334155;line-height:1.5;}
-.stxt strong{color:#0a1628;display:block;margin-bottom:2px;}
-.cta{display:block;text-align:center;background:#2fb7aa;color:white;font-size:15px;font-weight:700;padding:15px 32px;border-radius:10px;text-decoration:none;margin:28px 0 8px;}
-.footer{background:#f8fffe;border-top:1px solid #e4f9f7;padding:22px 48px;text-align:center;font-size:12px;color:#94a3b8;}
-</style></head><body>
-<div class="wrap">
-  <div class="header">
-    <div class="logo">UniLearn</div>
-    <div class="tagline">Modern infrastructure for education</div>
-  </div>
-  <div class="body">
-    <h1>Welcome, ${firstName}! 🎉</h1>
-    <p>Your 30-day free trial for <strong>${schoolName}</strong> is now active. We're verifying your registration document and will have your campus ready within 24 hours.</p>
-    <div class="plan-box">
-      <div class="plan-name">${planName} Plan</div>
-      <div class="plan-detail">30 days free · then ${planPrice}/month · cancel anytime</div>
-    </div>
-    <p><strong style="color:#0a1628">What happens next:</strong></p>
-    <div class="step">
-      <div class="snum">1</div>
-      <div class="stxt"><strong>Document verification</strong>Our team reviews your school registration proof — usually under 24 hours.</div>
-    </div>
-    <div class="step">
-      <div class="snum">2</div>
-      <div class="stxt"><strong>Campus activation</strong>You'll receive a login link once your school is verified.</div>
-    </div>
-    <div class="step">
-      <div class="snum">3</div>
-      <div class="stxt"><strong>Invite staff & students</strong>Start building your campus — teachers, classes, and parents.</div>
-    </div>
-    <a class="cta" href="${url}">Go to UniLearn →</a>
-    <p style="font-size:13px;color:#94a3b8;text-align:center;margin-top:16px">Questions? Reply to this email — we're here to help.</p>
-  </div>
-  <div class="footer">© ${new Date().getFullYear()} UniLearn &nbsp;·&nbsp; <a href="${url}" style="color:#2fb7aa;text-decoration:none">Visit site</a></div>
-</div>
-</body></html>`;
+/* WELCOME EMAIL */
+function buildWelcomeEmail(firstName,schoolName,planName,planPrice){
+  const url=CFG.siteUrl||'https://unilearn.pages.dev';
+  return`<!DOCTYPE html><html><head><meta charset="UTF-8"><style>body{margin:0;padding:0;background:#0d0d0e;font-family:'Helvetica Neue',Arial,sans-serif;}.wrap{max-width:560px;margin:40px auto;background:#111113;border-radius:16px;overflow:hidden;border:1px solid rgba(255,255,255,.08);}.header{background:linear-gradient(135deg,#0d1a12,#081210);padding:40px 48px 32px;text-align:center;border-bottom:1px solid rgba(0,232,122,.12);}.logo{font-size:24px;font-weight:700;color:#fff;letter-spacing:-1px;}.tag{color:rgba(255,255,255,.3);font-size:13px;margin-top:5px;}.body{padding:40px 48px;}.body h1{font-size:22px;font-weight:700;color:#fff;margin:0 0 12px;}.body p{font-size:15px;color:rgba(255,255,255,.45);line-height:1.7;margin:0 0 16px;}.plan-box{background:rgba(0,232,122,.05);border:1px solid rgba(0,232,122,.15);border-radius:12px;padding:18px 22px;margin:24px 0;}.plan-name{font-size:17px;font-weight:600;color:#fff;}.plan-detail{font-size:13px;color:rgba(255,255,255,.3);margin-top:4px;}.step{display:flex;align-items:flex-start;gap:14px;margin-bottom:16px;}.snum{min-width:26px;height:26px;border-radius:50%;background:#00e87a;color:#000;font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;margin-top:2px;flex-shrink:0;}.stxt{font-size:14px;color:rgba(255,255,255,.45);line-height:1.5;}.stxt strong{color:rgba(255,255,255,.7);display:block;margin-bottom:2px;}.cta{display:block;text-align:center;background:#00e87a;color:#000;font-size:14px;font-weight:600;padding:14px 32px;border-radius:100px;text-decoration:none;margin:28px 0 8px;}.footer{background:rgba(255,255,255,.02);border-top:1px solid rgba(255,255,255,.06);padding:20px 48px;text-align:center;font-size:12px;color:rgba(255,255,255,.2);}</style></head><body><div class="wrap"><div class="header"><div class="logo">UniLearn</div><div class="tag">Modern infrastructure for education</div></div><div class="body"><h1>Welcome, ${firstName}! 🎉</h1><p>Your 30-day free trial for <strong style="color:rgba(255,255,255,.7)">${schoolName}</strong> is now active. We're verifying your registration document and will have your campus ready within 24 hours.</p><div class="plan-box"><div class="plan-name">${planName} Plan</div><div class="plan-detail">30 days free · then ${planPrice}/month · cancel anytime</div></div><p><strong style="color:rgba(255,255,255,.7)">What happens next:</strong></p><div class="step"><div class="snum">1</div><div class="stxt"><strong>Document verification</strong>Our team reviews your school registration proof — usually under 24 hours.</div></div><div class="step"><div class="snum">2</div><div class="stxt"><strong>Campus activation</strong>You'll receive a login link once your school is verified.</div></div><div class="step"><div class="snum">3</div><div class="stxt"><strong>Invite staff & students</strong>Start building your campus — teachers, classes, and parents.</div></div><a class="cta" href="${url}">Go to UniLearn →</a></div><div class="footer">© ${new Date().getFullYear()} UniLearn · <a href="${url}" style="color:#00e87a;text-decoration:none">Visit site</a></div></div></body></html>`;
 }
 
-// ── Password strength ──
+/* PASSWORD STRENGTH */
 function checkStrength(v){
-  const el = document.getElementById('pw-strength');
-  if(!v){ el.style.display='none'; return; }
+  const el=document.getElementById('pw-strength');
+  if(!v){el.style.display='none';return;}
   el.style.display='block';
-  let score=0;
-  if(v.length>=8) score++;
-  if(/[A-Z]/.test(v)) score++;
-  if(/[0-9]/.test(v)) score++;
-  if(/[^A-Za-z0-9]/.test(v)) score++;
-  const cls = score<=1?'weak':score===2?'fair':'strong';
-  const labels = {1:'Weak',2:'Fair',3:'Good',4:'Strong'};
-  const colours = {1:'#ef4444',2:'#f59e0b',3:'#22c55e',4:'#22c55e'};
-  [1,2,3,4].forEach(i=>{
-    const b = document.getElementById('b'+i);
-    b.className = 'pw-bar' + (i<=score?' '+cls:'');
-  });
-  const lbl = document.getElementById('pw-label');
-  lbl.textContent = labels[score]||'Too short';
-  lbl.style.color = colours[score]||'#94a3b8';
+  let s=0;
+  if(v.length>=8)s++;if(/[A-Z]/.test(v))s++;if(/[0-9]/.test(v))s++;if(/[^A-Za-z0-9]/.test(v))s++;
+  const cls=s<=1?'weak':s===2?'fair':'strong';
+  const labels={1:'Weak',2:'Fair',3:'Good',4:'Strong'};
+  const colours={1:'#f87171',2:'#fbbf24',3:'#00e87a',4:'#00e87a'};
+  [1,2,3,4].forEach(i=>{const b=document.getElementById('b'+i);b.className='pw-bar'+(i<=s?' '+cls:'')});
+  const lbl=document.getElementById('pw-lbl');lbl.textContent=labels[s]||'Too short';lbl.style.color=colours[s]||'rgba(255,255,255,.3)';
 }
 
-// ── Toggle PW visibility ──
-function togglePw(id){
-  const el=document.getElementById(id);
-  el.type = el.type==='password'?'text':'password';
-}
+/* TOGGLE PASSWORD */
+function togglePw(id){const el=document.getElementById(id);el.type=el.type==='password'?'text':'password'}
 
-// ── File upload ──
-// _droppedFile holds File from drag-drop (since DataTransfer can't be assigned to input.files)
-window._droppedFile = null;
-
-const fileDrop  = document.getElementById('file-drop');
-const fileInput = document.getElementById('reg-file');
-
+/* FILE UPLOAD */
+window._droppedFile=null;
+const fileDrop=document.getElementById('file-drop');
+const fileInput=document.getElementById('reg-file');
 function showFile(file){
-  window._droppedFile = (file instanceof File) ? file : null;
-  const name = file instanceof File ? file.name : file;
-  document.getElementById('file-name-display').textContent = name;
+  window._droppedFile=(file instanceof File)?file:null;
+  const name=file instanceof File?file.name:file;
+  document.getElementById('file-name-display').textContent=name;
   document.getElementById('file-preview').classList.add('show');
-  document.getElementById('file-err').style.display = 'none';
+  document.getElementById('file-err').style.display='none';
 }
+fileInput.addEventListener('change',()=>{if(fileInput.files[0]){window._droppedFile=null;showFile(fileInput.files[0].name)}});
+document.getElementById('file-remove').addEventListener('click',()=>{fileInput.value='';window._droppedFile=null;document.getElementById('file-preview').classList.remove('show')});
+fileDrop.addEventListener('dragover',e=>{e.preventDefault();fileDrop.classList.add('drag-over')});
+fileDrop.addEventListener('dragleave',()=>fileDrop.classList.remove('drag-over'));
+fileDrop.addEventListener('drop',e=>{e.preventDefault();fileDrop.classList.remove('drag-over');const f=e.dataTransfer.files[0];if(f)showFile(f)});
 
-fileInput.addEventListener('change', () => {
-  if(fileInput.files[0]){
-    window._droppedFile = null; // use fileInput.files directly
-    showFile(fileInput.files[0].name);
-  }
+/* CLEAR ERRORS */
+document.querySelectorAll('input,select').forEach(el=>{
+  el.addEventListener('input',()=>el.closest('.field')?.classList.remove('has-error'));
+  el.addEventListener('change',()=>el.closest('.field')?.classList.remove('has-error'));
 });
-
-document.getElementById('file-remove').addEventListener('click', () => {
-  fileInput.value = '';
-  window._droppedFile = null;
-  document.getElementById('file-preview').classList.remove('show');
-});
-
-fileDrop.addEventListener('dragover',  e => { e.preventDefault(); fileDrop.classList.add('drag-over'); });
-fileDrop.addEventListener('dragleave', () => fileDrop.classList.remove('drag-over'));
-fileDrop.addEventListener('drop', e => {
-  e.preventDefault();
-  fileDrop.classList.remove('drag-over');
-  const file = e.dataTransfer.files[0];
-  if(file) showFile(file); // stores actual File object in _droppedFile
-});
-
-// ── Clear errors on input/change ──
-document.querySelectorAll('input,select').forEach(el => {
-  el.addEventListener('input',  () => el.closest('.field')?.classList.remove('has-error'));
-  el.addEventListener('change', () => el.closest('.field')?.classList.remove('has-error'));
-});
-
-// Clear terms error when checkbox is ticked
-document.getElementById('terms').addEventListener('change', function(){
-  if(this.checked) document.getElementById('terms-err').style.display = 'none';
-});
+document.getElementById('terms').addEventListener('change',function(){if(this.checked)document.getElementById('terms-err').style.display='none'});
 </script>
 </body>
 </html>
