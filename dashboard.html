@@ -1267,11 +1267,7 @@ async function submitInvite() {
 
 async function inviteAdmin(fullName, email, role) {
   try {
-    if (!SIGNUP) {
-      return { ok:false, error:'School setup not complete. Cannot invite admins yet.' };
-    }
-    const endpoint = SB_URL + '/auth/v1/invite';
-    const res = await fetch(endpoint, {
+    const res = await fetch(SB_URL+'/auth/v1/invite', {
       method: 'POST',
       headers: {
         'Authorization': 'Bearer ' + SB_SERVICE,
@@ -1279,36 +1275,37 @@ async function inviteAdmin(fullName, email, role) {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        email: email,
-        data: { full_name: fullName, role: role, school_name: SIGNUP.school_name || '' },
+        email,
+        data: {
+          full_name: fullName,
+          role,
+          school_name: schoolName() || '',
+        },
         redirect_to: location.origin + '/dashboard.html',
       }),
     });
     const data = await res.json();
     if (!res.ok) {
-      // Supabase returns error info under different keys depending on version
       const msg = data.error_description || data.msg || data.message || data.error || 'Failed to send invite.';
-      if (/already registered|already exists|already been invited/i.test(msg)) {
+      if (/already registered|already exists|already been invited/i.test(msg))
         return { ok:false, error:'An account with this email already exists.' };
-      }
       return { ok:false, error: msg };
     }
-    // Record the invite in school_admins
-    const { error: aiErr } = await _db.from('school_admins').insert({
-      signup_id:  SIGNUP.id,
-      full_name:  fullName,
-      email:      email,
-      role:       role,
-      invited_at: new Date().toISOString(),
-    });
-    // 23505 = unique violation (already invited) — not a hard error
-    if (aiErr && aiErr.code !== '23505') {
-      console.warn('Admin insert warning:', aiErr.message);
+    // Record in school_admins if we have a signup_id; skip silently if not
+    if (SIGNUP?.id) {
+      const { error: aiErr } = await _db.from('school_admins').insert({
+        signup_id:  SIGNUP.id,
+        full_name:  fullName,
+        email,
+        role,
+        invited_at: new Date().toISOString(),
+      });
+      if (aiErr && aiErr.code !== '23505') console.warn('Admin insert warning:', aiErr.message);
     }
     return { ok: true };
   } catch(e) {
     console.error('Invite error:', e);
-    return { ok:false, error:'Network error. Please try again.' };
+    return { ok:false, error: 'Network error. Please try again.' };
   }
 }
 </script>
