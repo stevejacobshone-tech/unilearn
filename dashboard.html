@@ -716,16 +716,20 @@ const TOTAL = 4;
   await Promise.all([fetchConfig(), fetchAdmins()]);
 
   initUI();
-  if (!CFG || CFG.setup_complete === false) setTimeout(openWizard, 500);
+  if (!CFG || !CFG.setup_complete) setTimeout(openWizard, 500);
 })();
 
 /* ── FETCH ── */
 async function fetchSignup() {
-  const { data } = await _db.from('school_signups').select('*').eq('auth_user_id', S.user.id).single();
-  SIGNUP = data;
+  const { data, error } = await _db.from('school_signups').select('*').eq('auth_user_id', S.user.id).maybeSingle();
+  if (error) console.warn('fetchSignup:', error.message);
+  SIGNUP = data || null;
 }
 async function fetchConfig() {
-  const { data } = await _db.from('school_config').select('*').eq('auth_user_id', S.user.id).single();
+  // Use maybeSingle() instead of single() — single() throws a PostgREST error
+  // when no row exists, which silently sets CFG=null even after a successful save.
+  const { data, error } = await _db.from('school_config').select('*').eq('auth_user_id', S.user.id).maybeSingle();
+  if (error) console.warn('fetchConfig:', error.message);
   CFG = data || null;
 }
 async function fetchAdmins() {
