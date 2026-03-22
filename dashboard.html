@@ -1081,8 +1081,9 @@ async function save(complete) {
       }
     }
 
+    // Re-fetch config always; only re-fetch admins when relevant
     await fetchConfig();
-    await fetchAdmins();
+    if (complete || wStep >= 4) await fetchAdmins();
 
     if (complete) {
       renderBadge();
