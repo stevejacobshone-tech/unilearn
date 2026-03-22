@@ -661,6 +661,43 @@ body{font-family:'DM Sans',sans-serif;background:var(--ink);color:#fff;min-heigh
   <span id="toast-txt"></span>
 </div>
 
+<!-- INVITE MODAL -->
+<div id="invite-overlay" onclick="closeInviteModal()" style="position:fixed;inset:0;z-index:900;background:rgba(0,0,0,.72);backdrop-filter:blur(8px);display:none;align-items:center;justify-content:center;opacity:0;transition:opacity .3s">
+  <div onclick="event.stopPropagation()" style="background:var(--ink2);border:1px solid rgba(0,232,122,.14);border-radius:20px;width:100%;max-width:420px;padding:28px;box-shadow:0 40px 80px rgba(0,0,0,.6);animation:modalIn .3s var(--ease) both;margin:16px">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:18px">
+      <div>
+        <div style="font-family:'Playfair Display',serif;font-size:18px;font-weight:900;letter-spacing:-.03em;margin-bottom:2px">Invite an <em style="font-style:italic;background:linear-gradient(110deg,var(--acc),var(--acc2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">admin.</em></div>
+        <div style="font-size:12px;color:var(--muted);font-weight:300">They'll receive an email to set their password.</div>
+      </div>
+      <button onclick="closeInviteModal()" style="background:none;border:none;cursor:pointer;color:var(--muted);display:flex;align-items:center;padding:4px;transition:.18s" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='var(--muted)'">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div class="wf" id="inv-wf-name">
+      <label>Full name <span class="req">*</span></label>
+      <input type="text" id="inv-name" placeholder="e.g. Priya Sharma">
+      <div class="emsg">Required.</div>
+    </div>
+    <div class="wf" id="inv-wf-email">
+      <label>Email address <span class="req">*</span></label>
+      <input type="email" id="inv-email" placeholder="priya@yourschool.edu.in">
+      <div class="emsg">Enter a valid email.</div>
+    </div>
+    <div class="wf">
+      <label>Role</label>
+      <div class="sel-w"><select id="inv-role">
+        <option value="admin">Admin</option>
+        <option value="staff">Staff</option>
+      </select></div>
+    </div>
+    <div id="inv-err" style="font-size:12px;color:var(--err);padding:9px 12px;background:var(--err-bg);border:1px solid rgba(248,113,113,.18);border-radius:9px;margin-bottom:12px;display:none"></div>
+    <button id="inv-btn" onclick="submitInvite()" class="btn-primary" style="width:100%;justify-content:center;margin-top:4px">
+      <span id="inv-btn-lbl">Send invite</span>
+      <div id="inv-spin" style="width:14px;height:14px;border:2px solid rgba(0,0,0,.18);border-top-color:#000;border-radius:50%;animation:spin .7s linear infinite;display:none"></div>
+    </button>
+  </div>
+</div>
+
 <script>
 /* ── STATE ── */
 let S = null, SIGNUP = null, CFG = null, ADMINS = [];
@@ -672,9 +709,13 @@ const TOTAL = 4;
   const { data:{ session } } = await _db.auth.getSession();
   if (!session) { location.href = 'login.html'; return; }
   S = session;
-  await Promise.all([fetchSignup(), fetchConfig(), fetchAdmins()]);
+
+  // FIX 1: fetchSignup must complete before fetchAdmins runs,
+  // because fetchAdmins depends on SIGNUP being populated.
+  await fetchSignup();
+  await Promise.all([fetchConfig(), fetchAdmins()]);
+
   initUI();
-  // show wizard if setup not complete OR no config yet
   if (!CFG || CFG.setup_complete === false) setTimeout(openWizard, 500);
 })();
 
@@ -696,19 +737,15 @@ async function fetchAdmins() {
 
 /* ── INIT UI ── */
 function initUI() {
-  // topbar
   document.getElementById('tb-school').textContent = SIGNUP?.school_name || S.user.user_metadata?.school_name || '—';
-  // sidebar user
   const meta = S.user.user_metadata || {};
   const full = meta.full_name || S.user.email;
   document.getElementById('sb-av').textContent = full.split(' ').map(w=>w[0]).join('').toUpperCase().slice(0,2);
   document.getElementById('sb-name').textContent = full;
   document.getElementById('sb-email').textContent = S.user.email;
-  // greeting
   const h = new Date().getHours();
   document.getElementById('gtime').textContent = h<12?'morning':h<17?'afternoon':'evening';
   document.getElementById('gname').textContent = full.split(' ')[0] || 'there';
-
   renderBadge();
   renderSetupBanner();
   renderDashCards();
@@ -724,7 +761,6 @@ function renderBadge() {
   const now   = Date.now();
   const end   = SIGNUP.trial_end ? new Date(SIGNUP.trial_end).getTime() : null;
   const status = SIGNUP.status || 'trial';
-
   if (status === 'active') {
     badge.className = 'plan-badge active';
     txt.textContent = SIGNUP.plan || 'Campus';
@@ -755,7 +791,6 @@ function renderSetupBanner() {
 
 /* ── DASH CARDS ── */
 function renderDashCards() {
-  // school info
   const si = document.getElementById('dash-school-info');
   if (CFG?.setup_complete) {
     si.innerHTML = infoRows([
@@ -765,7 +800,6 @@ function renderDashCards() {
       ['Academic year', fmtAY(CFG.academic_year_start, CFG.academic_year_end)],
     ]);
   }
-  // admins
   const al = document.getElementById('dash-admins');
   if (ADMINS.length) {
     al.innerHTML = ADMINS.slice(0,4).map(adminRow).join('');
@@ -823,7 +857,7 @@ function adminRow(a){
     <span class="role-tag">${a.role}</span>
   </div>`;
 }
-function fmtCls(f,t){return !f&&!t?'—':f===t?`Class ${f}`:`Class ${f} – ${t}`}
+function fmtCls(f,t){return (!f&&!t)?'—':f===t?`Class ${f}`:`Class ${f} – ${t}`}
 function fmtAY(s,e){
   const f=d=>d?new Date(d).toLocaleDateString('en-IN',{month:'short',year:'numeric'}):'—';
   return (!s&&!e)?'—':`${f(s)} → ${f(e)}`;
@@ -838,7 +872,8 @@ function openWizard(startStep) {
   renderWStep();
   const ov = document.getElementById('overlay');
   ov.style.display = 'flex';
-  requestAnimationFrame(() => ov.classList.add('show'));
+  // FIX 2: Double rAF ensures display:flex is painted before opacity transition starts
+  requestAnimationFrame(() => requestAnimationFrame(() => ov.classList.add('show')));
 }
 
 function closeWizard() {
@@ -853,9 +888,11 @@ function overlayClick(e) {
 
 function prefill() {
   if (!CFG) { initAiRows(); return; }
-  const m = { 'w-addr':CFG.address,'w-city':CFG.city,'w-state':CFG.state,'w-pin':CFG.pincode,
-               'w-web':CFG.website,'w-cem':CFG.contact_email,'w-cph':CFG.contact_phone,
-               'w-ys':CFG.academic_year_start,'w-ye':CFG.academic_year_end };
+  const m = {
+    'w-addr':CFG.address,'w-city':CFG.city,'w-state':CFG.state,'w-pin':CFG.pincode,
+    'w-web':CFG.website,'w-cem':CFG.contact_email,'w-cph':CFG.contact_phone,
+    'w-ys':CFG.academic_year_start,'w-ye':CFG.academic_year_end
+  };
   Object.entries(m).forEach(([id,val]) => { if(val) document.getElementById(id).value = val; });
   if (CFG.country) document.getElementById('w-country').value = CFG.country;
   if (CFG.timezone) document.getElementById('w-tz').value = CFG.timezone;
@@ -865,8 +902,9 @@ function prefill() {
       c.classList.toggle('sel', c.querySelector('h5').textContent.trim().startsWith(CFG.board.split('/')[0]))
     );
   }
-  if (CFG.classes_from && CFG.classes_to) {
-    for (let i=CFG.classes_from; i<=CFG.classes_to; i++) classes.add(i);
+  // FIX 3: Guard against null classes_from / classes_to to prevent infinite loop
+  if (CFG.classes_from != null && CFG.classes_to != null) {
+    for (let i = CFG.classes_from; i <= CFG.classes_to; i++) classes.add(i);
     syncChips();
   }
   initAiRows();
@@ -878,21 +916,31 @@ function renderWStep() {
     const t = document.getElementById('wtab-'+i);
     t.className = 'wiz-tab' + (i<wStep?' done':i===wStep?' active':'');
   }
-  document.getElementById('wiz-back').style.display = wStep>1&&wStep<5?'block':'none';
+  // FIX 4: Back button hidden on step 1, step 5, and when loading done screen
+  const backBtn = document.getElementById('wiz-back');
+  backBtn.style.display = (wStep > 1 && wStep < 5) ? 'block' : 'none';
+
   const lbl = document.getElementById('wnxt-lbl');
   const arr = document.querySelector('.warr');
-  if (wStep===5) { lbl.textContent='Go to dashboard'; if(arr)arr.style.display='none'; document.getElementById('wiz-back').style.display='none'; }
-  else if (wStep===TOTAL) { lbl.textContent='Save & finish'; if(arr)arr.style.display='block'; }
-  else { lbl.textContent='Next'; if(arr)arr.style.display='block'; }
+  if (wStep===5) {
+    lbl.textContent = 'Go to dashboard';
+    if (arr) arr.style.display = 'none';
+  } else if (wStep===TOTAL) {
+    lbl.textContent = 'Save & finish';
+    if (arr) arr.style.display = 'block';
+  } else {
+    lbl.textContent = 'Next';
+    if (arr) arr.style.display = 'block';
+  }
 }
 
 async function wNext() {
   if (wStep===5) { closeWizard(); return; }
   if (!validate()) return;
   if (wStep===TOTAL) { await save(true); return; }
-  await save(false);
-  wStep++;
-  renderWStep();
+  const ok = await save(false);
+  // Only advance if save succeeded (save returns true on success)
+  if (ok) { wStep++; renderWStep(); }
 }
 
 function wBack() { if(wStep>1){wStep--;renderWStep();} }
@@ -928,41 +976,55 @@ async function save(complete) {
   const btn = document.getElementById('wiz-next');
   btn.classList.add('loading'); btn.disabled=true;
   try {
-    // upload logo
-    let logoUrl = CFG?.logo_url || null;
-    if (logoFile) {
-      const ext = logoFile.name.split('.').pop();
-      const path = `logos/${S.user.id}_${Date.now()}.${ext}`;
-      const { error:ue } = await _db.storage.from('school-assets').upload(path, logoFile, {upsert:true});
-      if (!ue) {
-        const { data:ud } = _db.storage.from('school-assets').getPublicUrl(path);
-        logoUrl = ud.publicUrl;
+    // Only include fields belonging to the current step (and earlier ones).
+    // Sending all fields every time would overwrite previously-saved data from
+    // later steps with empty strings when the user goes back and re-saves an
+    // earlier step.
+    const payload = {
+      auth_user_id:   S.user.id,
+      signup_id:      SIGNUP?.id || null,
+      setup_step:     complete ? TOTAL+1 : wStep+1,
+      setup_complete: complete,
+      updated_at:     new Date().toISOString(),
+    };
+
+    // Step 1: address / location
+    if (wStep >= 1) {
+      let logoUrl = CFG?.logo_url || null;
+      if (logoFile) {
+        const ext = logoFile.name.split('.').pop();
+        const path = `logos/${S.user.id}_${Date.now()}.${ext}`;
+        const { error:ue } = await _db.storage.from('school-assets').upload(path, logoFile, {upsert:true});
+        if (!ue) {
+          const { data:ud } = _db.storage.from('school-assets').getPublicUrl(path);
+          logoUrl = ud.publicUrl;
+        }
       }
+      payload.logo_url = logoUrl;
+      payload.address  = gv('w-addr');
+      payload.city     = gv('w-city');
+      payload.state    = gv('w-state');
+      payload.pincode  = gv('w-pin');
+      payload.country  = document.getElementById('w-country').value;
     }
 
-    const carr = [...classes].sort((a,b)=>a-b);
-    const payload = {
-      auth_user_id: S.user.id,
-      signup_id:    SIGNUP?.id || null,
-      logo_url:     logoUrl,
-      address:      gv('w-addr'),
-      city:         gv('w-city'),
-      state:        gv('w-state'),
-      pincode:      gv('w-pin'),
-      country:      document.getElementById('w-country').value,
-      website:      gv('w-web'),
-      contact_email:gv('w-cem'),
-      contact_phone:gv('w-cph'),
-      timezone:     document.getElementById('w-tz').value,
-      academic_year_start: document.getElementById('w-ys').value||null,
-      academic_year_end:   document.getElementById('w-ye').value||null,
-      board,
-      classes_from: carr[0]||null,
-      classes_to:   carr[carr.length-1]||null,
-      setup_step:   complete ? TOTAL+1 : wStep+1,
-      setup_complete: complete,
-      updated_at: new Date().toISOString(),
-    };
+    // Step 2: academic config
+    if (wStep >= 2) {
+      const carr = [...classes].sort((a,b)=>a-b);
+      payload.board               = board;
+      payload.classes_from        = carr[0] || null;
+      payload.classes_to          = carr[carr.length-1] || null;
+      payload.timezone            = document.getElementById('w-tz').value;
+      payload.academic_year_start = document.getElementById('w-ys').value || null;
+      payload.academic_year_end   = document.getElementById('w-ye').value || null;
+    }
+
+    // Step 3: contact details
+    if (wStep >= 3) {
+      payload.website       = gv('w-web');
+      payload.contact_email = gv('w-cem');
+      payload.contact_phone = gv('w-cph');
+    }
 
     let err;
     if (CFG) {
@@ -972,25 +1034,32 @@ async function save(complete) {
     }
     if (err) throw err;
 
-    // invite admins via Supabase auth + save to school_admins
-    const rows = document.querySelectorAll('.ai-row');
-    const toInvite = [];
-    rows.forEach(row => {
-      const nm = row.querySelector('.ai-nm')?.value?.trim();
-      const em = row.querySelector('.ai-em')?.value?.trim();
-      const rl = row.querySelector('.ai-rl')?.value || 'admin';
-      if (nm && em && SIGNUP) toInvite.push({ full_name:nm, email:em, role:rl });
-    });
-    const inviteResults = [];
-    for (const admin of toInvite) {
-      const r = await inviteAdmin(admin.full_name, admin.email, admin.role);
-      inviteResults.push({ ...admin, ...r });
-    }
-    const failed = inviteResults.filter(r => !r.ok);
-    if (failed.length) {
-      toast('error', failed[0].error || 'Some invites failed.');
-    } else if (inviteResults.length) {
-      toast('success', inviteResults.length + ' invite(s) sent.');
+    // After first insert CFG is still null; re-fetch so subsequent saves use update()
+    if (!CFG) await fetchConfig();
+
+    // Step 4: process admin invites (only when on that step)
+    if (wStep >= 4) {
+      const aiList = document.getElementById('ai-list');
+      const rows = aiList ? aiList.querySelectorAll('.ai-row') : [];
+      const toInvite = [];
+      rows.forEach(row => {
+        const nm = row.querySelector('.ai-nm')?.value?.trim();
+        const em = row.querySelector('.ai-em')?.value?.trim();
+        const rl = row.querySelector('.ai-rl')?.value || 'admin';
+        if (nm && em && SIGNUP) toInvite.push({ full_name:nm, email:em, role:rl });
+      });
+
+      const inviteResults = [];
+      for (const admin of toInvite) {
+        const r = await inviteAdmin(admin.full_name, admin.email, admin.role);
+        inviteResults.push({ ...admin, ...r });
+      }
+      const failed = inviteResults.filter(r => !r.ok);
+      if (failed.length) {
+        toast('error', failed[0].error || 'Some invites failed.');
+      } else if (inviteResults.length) {
+        toast('success', inviteResults.length + ' invite(s) sent.');
+      }
     }
 
     await fetchConfig();
@@ -1006,9 +1075,11 @@ async function save(complete) {
       renderWStep();
       toast('success','Setup complete! Your campus is ready.');
     }
+    return true;
   } catch(e) {
     console.error(e);
     toast('error','Failed to save. Please try again.');
+    return false;
   } finally {
     btn.classList.remove('loading'); btn.disabled=false;
   }
@@ -1106,26 +1177,31 @@ function toast(type, msg) {
 function openInviteModal() {
   document.getElementById('inv-name').value = '';
   document.getElementById('inv-email').value = '';
+  // FIX 6: Reset role select to default on every open
   document.getElementById('inv-role').value = 'admin';
   document.getElementById('inv-err').style.display = 'none';
-  document.querySelectorAll('#inv-wf-name,#inv-wf-email').forEach(e=>e.classList.remove('err'));
+  document.getElementById('inv-wf-name').classList.remove('err');
+  document.getElementById('inv-wf-email').classList.remove('err');
   const ov = document.getElementById('invite-overlay');
   ov.style.display = 'flex';
-  requestAnimationFrame(()=> ov.style.opacity = '1');
-  setTimeout(()=> document.getElementById('inv-name').focus(), 100);
+  // FIX 7: Double rAF so display:flex is painted before opacity transition fires
+  requestAnimationFrame(() => requestAnimationFrame(() => { ov.style.opacity = '1'; }));
+  setTimeout(() => document.getElementById('inv-name').focus(), 120);
 }
 
 function closeInviteModal() {
   const ov = document.getElementById('invite-overlay');
   ov.style.opacity = '0';
-  setTimeout(()=>{ ov.style.display='none'; }, 300);
+  // FIX 8: Wait for opacity transition to finish before hiding element
+  setTimeout(() => { ov.style.display = 'none'; }, 300);
 }
 
 async function submitInvite() {
   const nm = document.getElementById('inv-name').value.trim();
   const em = document.getElementById('inv-email').value.trim();
   const rl = document.getElementById('inv-role').value;
-  document.querySelectorAll('#inv-wf-name,#inv-wf-email').forEach(e=>e.classList.remove('err'));
+  document.getElementById('inv-wf-name').classList.remove('err');
+  document.getElementById('inv-wf-email').classList.remove('err');
   document.getElementById('inv-err').style.display = 'none';
   let ok = true;
   if (!nm) { document.getElementById('inv-wf-name').classList.add('err'); ok=false; }
@@ -1155,6 +1231,9 @@ async function submitInvite() {
 
 async function inviteAdmin(fullName, email, role) {
   try {
+    if (!SIGNUP) {
+      return { ok:false, error:'School setup not complete. Cannot invite admins yet.' };
+    }
     const endpoint = SB_URL + '/auth/v1/invite';
     const res = await fetch(endpoint, {
       method: 'POST',
@@ -1165,30 +1244,30 @@ async function inviteAdmin(fullName, email, role) {
       },
       body: JSON.stringify({
         email: email,
-        data: { full_name: fullName, role: role, school_name: SIGNUP ? SIGNUP.school_name : '' },
+        data: { full_name: fullName, role: role, school_name: SIGNUP.school_name || '' },
         redirect_to: location.origin + '/dashboard.html',
       }),
     });
     const data = await res.json();
     if (!res.ok) {
-      const msg = data.msg || data.message || data.error_description || 'Failed to send invite.';
-      if (/already registered|already exists/i.test(msg)) {
+      // Supabase returns error info under different keys depending on version
+      const msg = data.error_description || data.msg || data.message || data.error || 'Failed to send invite.';
+      if (/already registered|already exists|already been invited/i.test(msg)) {
         return { ok:false, error:'An account with this email already exists.' };
       }
       return { ok:false, error: msg };
     }
-    if (SIGNUP) {
-      // insert admin row — ignore if already exists with same email+signup
-      const { error: aiErr } = await _db.from('school_admins').insert({
-        signup_id: SIGNUP.id,
-        full_name: fullName,
-        email: email,
-        role: role,
-        invited_at: new Date().toISOString(),
-      });
-      if (aiErr && aiErr.code !== '23505') {
-        console.warn('Admin insert warning:', aiErr.message);
-      }
+    // Record the invite in school_admins
+    const { error: aiErr } = await _db.from('school_admins').insert({
+      signup_id:  SIGNUP.id,
+      full_name:  fullName,
+      email:      email,
+      role:       role,
+      invited_at: new Date().toISOString(),
+    });
+    // 23505 = unique violation (already invited) — not a hard error
+    if (aiErr && aiErr.code !== '23505') {
+      console.warn('Admin insert warning:', aiErr.message);
     }
     return { ok: true };
   } catch(e) {
@@ -1197,42 +1276,5 @@ async function inviteAdmin(fullName, email, role) {
   }
 }
 </script>
-
-<!-- INVITE MODAL -->
-<div id="invite-overlay" onclick="closeInviteModal()" style="position:fixed;inset:0;z-index:900;background:rgba(0,0,0,.72);backdrop-filter:blur(8px);display:none;align-items:center;justify-content:center;opacity:0;transition:opacity .3s">
-  <div onclick="event.stopPropagation()" style="background:var(--ink2);border:1px solid rgba(0,232,122,.14);border-radius:20px;width:100%;max-width:420px;padding:28px;box-shadow:0 40px 80px rgba(0,0,0,.6);animation:modalIn .3s var(--ease) both;margin:16px">
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:18px">
-      <div>
-        <div style="font-family:'Playfair Display',serif;font-size:18px;font-weight:900;letter-spacing:-.03em;margin-bottom:2px">Invite an <em style="font-style:italic;background:linear-gradient(110deg,var(--acc),var(--acc2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">admin.</em></div>
-        <div style="font-size:12px;color:var(--muted);font-weight:300">They'll receive an email to set their password.</div>
-      </div>
-      <button onclick="closeInviteModal()" style="background:none;border:none;cursor:pointer;color:var(--muted);display:flex;align-items:center;padding:4px;transition:.18s" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='var(--muted)'">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-      </button>
-    </div>
-    <div class="wf" id="inv-wf-name">
-      <label>Full name <span class="req">*</span></label>
-      <input type="text" id="inv-name" placeholder="e.g. Priya Sharma">
-      <div class="emsg">Required.</div>
-    </div>
-    <div class="wf" id="inv-wf-email">
-      <label>Email address <span class="req">*</span></label>
-      <input type="email" id="inv-email" placeholder="priya@yourschool.edu.in">
-      <div class="emsg">Enter a valid email.</div>
-    </div>
-    <div class="wf">
-      <label>Role</label>
-      <div class="sel-w"><select id="inv-role">
-        <option value="admin">Admin</option>
-        <option value="staff">Staff</option>
-      </select></div>
-    </div>
-    <div id="inv-err" style="font-size:12px;color:var(--err);padding:9px 12px;background:var(--err-bg);border:1px solid rgba(248,113,113,.18);border-radius:9px;margin-bottom:12px;display:none"></div>
-    <button id="inv-btn" onclick="submitInvite()" class="btn-primary" style="width:100%;justify-content:center;margin-top:4px">
-      <span id="inv-btn-lbl">Send invite</span>
-      <div id="inv-spin" style="width:14px;height:14px;border:2px solid rgba(0,0,0,.18);border-top-color:#000;border-radius:50%;animation:spin .7s linear infinite;display:none"></div>
-    </button>
-  </div>
-</div>
 </body>
 </html>
