@@ -726,9 +726,15 @@ async function fetchSignup() {
   SIGNUP = data || null;
 }
 async function fetchConfig() {
-  // Use maybeSingle() instead of single() — single() throws a PostgREST error
-  // when no row exists, which silently sets CFG=null even after a successful save.
-  const { data, error } = await _db.from('school_config').select('*').eq('auth_user_id', S.user.id).maybeSingle();
+  // Order by setup_complete desc then updated_at desc, limit 1.
+  // This tolerates duplicate rows (picks the best one) until the
+  // unique constraint is added and the dupes are cleaned up via cleanup.sql.
+  const { data, error } = await _db.from('school_config').select('*')
+    .eq('auth_user_id', S.user.id)
+    .order('setup_complete', { ascending: false })
+    .order('updated_at',     { ascending: false })
+    .limit(1)
+    .maybeSingle();
   if (error) console.warn('fetchConfig:', error.message);
   CFG = data || null;
 }
@@ -1030,11 +1036,23 @@ async function save(complete) {
       payload.contact_phone = gv('w-cph');
     }
 
-    // KEY FIX: upsert replaces insert/update conditional entirely.
-    // Works whether a row exists or not — no CFG state dependency,
-    // no risk of double-insert, no risk of wrong branch on re-entry.
-    const { error:err } = await _db.from('school_config')
-      .upsert(payload, { onConflict: 'auth_user_id' });
+    // Smart save: if we already have a known row (CFG.id), UPDATE that specific
+    // row by id — avoids unique constraint requirement and works with duplicate
+    // rows. If no row exists yet, INSERT a fresh one.
+    let err;
+    if (CFG?.id) {
+      ({ error: err } = await _db.from('school_config')
+        .update(payload)
+        .eq('id', CFG.id));
+    } else {
+      const { data: inserted, error: ie } = await _db.from('school_config')
+        .insert(payload)
+        .select()
+        .single();
+      err = ie;
+      // Immediately cache the new row so subsequent saves use the UPDATE path
+      if (!ie && inserted) CFG = inserted;
+    }
     if (err) throw err;
 
     // Step 4: process admin invites
