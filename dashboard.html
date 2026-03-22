@@ -372,7 +372,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--ink);color:#fff;min-heigh
     <div class="page active" id="page-dashboard">
       <div class="page-hdr">
         <h1>Good <span id="gtime">morning</span>, <span id="gname">—</span></h1>
-        <p>Here's your campus overview.</p>
+        <p><span id="gschool" style="font-weight:500;color:#fff"></span>Here's your campus overview.</p>
       </div>
 
       <div class="setup-banner" id="setup-banner" style="display:none">
@@ -721,9 +721,19 @@ const TOTAL = 4;
 
 /* ── FETCH ── */
 async function fetchSignup() {
-  const { data, error } = await _db.from('school_signups').select('*').eq('auth_user_id', S.user.id).maybeSingle();
+  const { data, error } = await _db.from('school_signups').select('*')
+    .eq('auth_user_id', S.user.id)
+    .order('created_at', { ascending: false })
+    .limit(1)
+    .maybeSingle();
   if (error) console.warn('fetchSignup:', error.message);
   SIGNUP = data || null;
+}
+function schoolName() {
+  return SIGNUP?.school_name
+    || S?.user?.user_metadata?.school_name
+    || S?.user?.user_metadata?.organization
+    || null;
 }
 async function fetchConfig() {
   // Order by setup_complete desc then updated_at desc, limit 1.
@@ -747,7 +757,9 @@ async function fetchAdmins() {
 
 /* ── INIT UI ── */
 function initUI() {
-  document.getElementById('tb-school').textContent = SIGNUP?.school_name || S.user.user_metadata?.school_name || '—';
+  const sn = schoolName();
+  document.getElementById('tb-school').textContent = sn || '—';
+  document.title = sn ? sn + ' — UniLearn' : 'UniLearn';
   const meta = S.user.user_metadata || {};
   const full = meta.full_name || S.user.email;
   document.getElementById('sb-av').textContent = full.split(' ').map(w=>w[0]).join('').toUpperCase().slice(0,2);
@@ -756,6 +768,9 @@ function initUI() {
   const h = new Date().getHours();
   document.getElementById('gtime').textContent = h<12?'morning':h<17?'afternoon':'evening';
   document.getElementById('gname').textContent = full.split(' ')[0] || 'there';
+  // School name in greeting subtitle
+  const gschool = document.getElementById('gschool');
+  if (gschool) gschool.textContent = sn ? sn + ' · ' : '';
   renderBadge();
   renderSetupBanner();
   renderDashCards();
@@ -823,7 +838,7 @@ function renderProfile() {
   if (!CFG?.setup_complete) { lbl.textContent = 'Complete setup'; return; }
   lbl.textContent = 'Edit profile';
   el.innerHTML = infoRows([
-    ['School name', SIGNUP?.school_name || '—'],
+    ['School name', schoolName() || '—'],
     ['Board', CFG.board || '—'],
     ['Classes', fmtCls(CFG.classes_from, CFG.classes_to)],
     ['Address', CFG.address || '—'],
