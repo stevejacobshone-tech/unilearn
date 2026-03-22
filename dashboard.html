@@ -1036,13 +1036,15 @@ async function save(complete) {
       payload.contact_phone = gv('w-cph');
     }
 
-    // Smart save: if we already have a known row (CFG.id), UPDATE that specific
-    // row by id — avoids unique constraint requirement and works with duplicate
-    // rows. If no row exists yet, INSERT a fresh one.
+    // Smart save: UPDATE the specific row by id if we have it,
+    // INSERT only if no row exists yet.
     let err;
     if (CFG?.id) {
+      // Don't include identity/ownership fields in the update —
+      // RLS policies typically reject changes to auth_user_id
+      const { auth_user_id: _a, signup_id: _s, ...updatePayload } = payload;
       ({ error: err } = await _db.from('school_config')
-        .update(payload)
+        .update(updatePayload)
         .eq('id', CFG.id));
     } else {
       const { data: inserted, error: ie } = await _db.from('school_config')
@@ -1050,7 +1052,6 @@ async function save(complete) {
         .select()
         .single();
       err = ie;
-      // Immediately cache the new row so subsequent saves use the UPDATE path
       if (!ie && inserted) CFG = inserted;
     }
     if (err) throw err;
@@ -1095,8 +1096,9 @@ async function save(complete) {
     }
     return true;
   } catch(e) {
-    console.error(e);
-    toast('error','Failed to save. Please try again.');
+    console.error('Save error:', e);
+    const msg = e?.message || e?.details || e?.hint || (typeof e === 'string' ? e : JSON.stringify(e));
+    toast('error', 'Save failed: ' + (msg || 'unknown error — check console'));
     return false;
   } finally {
     btn.classList.remove('loading'); btn.disabled=false;
