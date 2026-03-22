@@ -12,6 +12,8 @@ window._db = window.supabase.createClient(
   "https://twhajohjcrlxqlvbvddi.supabase.co",
   "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InR3aGFqb2hqY3JseHFsdmJ2ZGRpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM2NjQ1MjIsImV4cCI6MjA4OTI0MDUyMn0.vsTT2eErCB3xpLiQvUPQW8Us6lphGHEKSyO3eE0VcfA"
 );
+const SB_URL = "https://twhajohjcrlxqlvbvddi.supabase.co";
+const SB_SERVICE = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InR3aGFqb2hqY3JseHFsdmJ2ZGRpIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3MzY2NDUyMiwiZXhwIjoyMDg5MjQwNTIyfQ.w1KFI4DTBrAXTrhKYy6KShQSuaI9qmZl7yD560rVUXI";
 </script>
 <style>
 :root{
@@ -468,7 +470,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--ink);color:#fff;min-heigh
       <div class="card" style="max-width:580px">
         <div id="admins-full"></div>
         <div style="margin-top:14px;padding-top:14px;border-top:1px solid var(--border)">
-          <button class="btn-primary" onclick="openWizard(4)">
+          <button class="btn-primary" onclick="openInviteModal()">
             <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
             Invite admin
           </button>
@@ -968,16 +970,18 @@ async function save(complete) {
     }
     if (err) throw err;
 
-    // save admin invites
+    // invite admins via Supabase auth + save to school_admins
     const rows = document.querySelectorAll('.ai-row');
-    const inserts = [];
+    const toInvite = [];
     rows.forEach(row => {
       const nm = row.querySelector('.ai-nm')?.value?.trim();
       const em = row.querySelector('.ai-em')?.value?.trim();
       const rl = row.querySelector('.ai-rl')?.value || 'admin';
-      if (nm && em && SIGNUP) inserts.push({ signup_id:SIGNUP.id, full_name:nm, email:em, role:rl });
+      if (nm && em && SIGNUP) toInvite.push({ full_name:nm, email:em, role:rl });
     });
-    if (inserts.length) await _db.from('school_admins').insert(inserts);
+    for (const admin of toInvite) {
+      await inviteAdmin(admin.full_name, admin.email, admin.role);
+    }
 
     await fetchConfig();
     await fetchAdmins();
@@ -1087,6 +1091,134 @@ function toast(type, msg) {
   clearTimeout(_tt);
   _tt=setTimeout(()=>{ t.className=''; },3500);
 }
+
+/* ── INVITE MODAL ── */
+function openInviteModal() {
+  document.getElementById('inv-name').value = '';
+  document.getElementById('inv-email').value = '';
+  document.getElementById('inv-role').value = 'admin';
+  document.getElementById('inv-err').style.display = 'none';
+  document.querySelectorAll('#inv-wf-name,#inv-wf-email').forEach(e=>e.classList.remove('err'));
+  const ov = document.getElementById('invite-overlay');
+  ov.style.display = 'flex';
+  requestAnimationFrame(()=> ov.style.opacity = '1');
+  setTimeout(()=> document.getElementById('inv-name').focus(), 100);
+}
+
+function closeInviteModal() {
+  const ov = document.getElementById('invite-overlay');
+  ov.style.opacity = '0';
+  setTimeout(()=>{ ov.style.display='none'; }, 300);
+}
+
+async function submitInvite() {
+  const nm = document.getElementById('inv-name').value.trim();
+  const em = document.getElementById('inv-email').value.trim();
+  const rl = document.getElementById('inv-role').value;
+  document.querySelectorAll('#inv-wf-name,#inv-wf-email').forEach(e=>e.classList.remove('err'));
+  document.getElementById('inv-err').style.display = 'none';
+  let ok = true;
+  if (!nm) { document.getElementById('inv-wf-name').classList.add('err'); ok=false; }
+  if (!em || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(em)) { document.getElementById('inv-wf-email').classList.add('err'); ok=false; }
+  if (!ok) return;
+
+  const btn  = document.getElementById('inv-btn');
+  const lbl  = document.getElementById('inv-btn-lbl');
+  const spin = document.getElementById('inv-spin');
+  btn.disabled=true; lbl.style.display='none'; spin.style.display='block';
+
+  const result = await inviteAdmin(nm, em, rl);
+
+  lbl.style.display='block'; spin.style.display='none'; btn.disabled=false;
+
+  if (result.ok) {
+    closeInviteModal();
+    await fetchAdmins();
+    renderAdminsPage();
+    renderDashCards();
+    toast('success', 'Invite sent to ' + em);
+  } else {
+    document.getElementById('inv-err').textContent = result.error;
+    document.getElementById('inv-err').style.display = 'block';
+  }
+}
+
+async function inviteAdmin(fullName, email, role) {
+  try {
+    const endpoint = SB_URL + '/auth/v1/invite';
+    const res = await fetch(endpoint, {
+      method: 'POST',
+      headers: {
+        'Authorization': 'Bearer ' + SB_SERVICE,
+        'apikey': SB_SERVICE,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        email: email,
+        data: { full_name: fullName, role: role, school_name: SIGNUP ? SIGNUP.school_name : '' },
+        redirect_to: location.origin + '/dashboard.html',
+      }),
+    });
+    const data = await res.json();
+    if (!res.ok) {
+      const msg = data.msg || data.message || data.error_description || 'Failed to send invite.';
+      if (/already registered|already exists/i.test(msg)) {
+        return { ok:false, error:'An account with this email already exists.' };
+      }
+      return { ok:false, error: msg };
+    }
+    if (SIGNUP) {
+      await _db.from('school_admins').upsert({
+        signup_id: SIGNUP.id,
+        full_name: fullName,
+        email: email,
+        role: role,
+        invited_at: new Date().toISOString(),
+      }, { onConflict: 'email,signup_id' });
+    }
+    return { ok: true };
+  } catch(e) {
+    console.error('Invite error:', e);
+    return { ok:false, error:'Network error. Please try again.' };
+  }
+}
 </script>
+
+<!-- INVITE MODAL -->
+<div id="invite-overlay" onclick="closeInviteModal()" style="position:fixed;inset:0;z-index:900;background:rgba(0,0,0,.72);backdrop-filter:blur(8px);display:none;align-items:center;justify-content:center;opacity:0;transition:opacity .3s">
+  <div onclick="event.stopPropagation()" style="background:var(--ink2);border:1px solid rgba(0,232,122,.14);border-radius:20px;width:100%;max-width:420px;padding:28px;box-shadow:0 40px 80px rgba(0,0,0,.6);animation:modalIn .3s var(--ease) both;margin:16px">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:18px">
+      <div>
+        <div style="font-family:'Playfair Display',serif;font-size:18px;font-weight:900;letter-spacing:-.03em;margin-bottom:2px">Invite an <em style="font-style:italic;background:linear-gradient(110deg,var(--acc),var(--acc2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">admin.</em></div>
+        <div style="font-size:12px;color:var(--muted);font-weight:300">They'll receive an email to set their password.</div>
+      </div>
+      <button onclick="closeInviteModal()" style="background:none;border:none;cursor:pointer;color:var(--muted);display:flex;align-items:center;padding:4px;transition:.18s" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='var(--muted)'">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div class="wf" id="inv-wf-name">
+      <label>Full name <span class="req">*</span></label>
+      <input type="text" id="inv-name" placeholder="e.g. Priya Sharma">
+      <div class="emsg">Required.</div>
+    </div>
+    <div class="wf" id="inv-wf-email">
+      <label>Email address <span class="req">*</span></label>
+      <input type="email" id="inv-email" placeholder="priya@yourschool.edu.in">
+      <div class="emsg">Enter a valid email.</div>
+    </div>
+    <div class="wf">
+      <label>Role</label>
+      <div class="sel-w"><select id="inv-role">
+        <option value="admin">Admin</option>
+        <option value="staff">Staff</option>
+      </select></div>
+    </div>
+    <div id="inv-err" style="font-size:12px;color:var(--err);padding:9px 12px;background:var(--err-bg);border:1px solid rgba(248,113,113,.18);border-radius:9px;margin-bottom:12px;display:none"></div>
+    <button id="inv-btn" onclick="submitInvite()" class="btn-primary" style="width:100%;justify-content:center;margin-top:4px">
+      <span id="inv-btn-lbl">Send invite</span>
+      <div id="inv-spin" style="width:14px;height:14px;border:2px solid rgba(0,0,0,.18);border-top-color:#000;border-radius:50%;animation:spin .7s linear infinite;display:none"></div>
+    </button>
+  </div>
+</div>
 </body>
 </html>
