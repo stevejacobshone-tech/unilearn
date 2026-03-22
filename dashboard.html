@@ -674,7 +674,8 @@ const TOTAL = 4;
   S = session;
   await Promise.all([fetchSignup(), fetchConfig(), fetchAdmins()]);
   initUI();
-  if (!CFG || !CFG.setup_complete) setTimeout(openWizard, 500);
+  // show wizard if setup not complete OR no config yet
+  if (!CFG || CFG.setup_complete === false) setTimeout(openWizard, 500);
 })();
 
 /* ── FETCH ── */
@@ -688,7 +689,8 @@ async function fetchConfig() {
 }
 async function fetchAdmins() {
   if (!SIGNUP) return;
-  const { data } = await _db.from('school_admins').select('*').eq('signup_id', SIGNUP.id);
+  const { data, error } = await _db.from('school_admins').select('*').eq('signup_id', SIGNUP.id).order('invited_at', { ascending: true });
+  if (error) console.warn('fetchAdmins:', error.message);
   ADMINS = data || [];
 }
 
@@ -979,8 +981,16 @@ async function save(complete) {
       const rl = row.querySelector('.ai-rl')?.value || 'admin';
       if (nm && em && SIGNUP) toInvite.push({ full_name:nm, email:em, role:rl });
     });
+    const inviteResults = [];
     for (const admin of toInvite) {
-      await inviteAdmin(admin.full_name, admin.email, admin.role);
+      const r = await inviteAdmin(admin.full_name, admin.email, admin.role);
+      inviteResults.push({ ...admin, ...r });
+    }
+    const failed = inviteResults.filter(r => !r.ok);
+    if (failed.length) {
+      toast('error', failed[0].error || 'Some invites failed.');
+    } else if (inviteResults.length) {
+      toast('success', inviteResults.length + ' invite(s) sent.');
     }
 
     await fetchConfig();
@@ -1168,13 +1178,17 @@ async function inviteAdmin(fullName, email, role) {
       return { ok:false, error: msg };
     }
     if (SIGNUP) {
-      await _db.from('school_admins').upsert({
+      // insert admin row — ignore if already exists with same email+signup
+      const { error: aiErr } = await _db.from('school_admins').insert({
         signup_id: SIGNUP.id,
         full_name: fullName,
         email: email,
         role: role,
         invited_at: new Date().toISOString(),
-      }, { onConflict: 'email,signup_id' });
+      });
+      if (aiErr && aiErr.code !== '23505') {
+        console.warn('Admin insert warning:', aiErr.message);
+      }
     }
     return { ok: true };
   } catch(e) {
