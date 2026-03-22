@@ -1030,18 +1030,14 @@ async function save(complete) {
       payload.contact_phone = gv('w-cph');
     }
 
-    let err;
-    if (CFG) {
-      ({ error:err } = await _db.from('school_config').update(payload).eq('auth_user_id', S.user.id));
-    } else {
-      ({ error:err } = await _db.from('school_config').insert(payload));
-    }
+    // KEY FIX: upsert replaces insert/update conditional entirely.
+    // Works whether a row exists or not — no CFG state dependency,
+    // no risk of double-insert, no risk of wrong branch on re-entry.
+    const { error:err } = await _db.from('school_config')
+      .upsert(payload, { onConflict: 'auth_user_id' });
     if (err) throw err;
 
-    // After first insert CFG is still null; re-fetch so subsequent saves use update()
-    if (!CFG) await fetchConfig();
-
-    // Step 4: process admin invites (only when on that step)
+    // Step 4: process admin invites
     if (wStep >= 4) {
       const aiList = document.getElementById('ai-list');
       const rows = aiList ? aiList.querySelectorAll('.ai-row') : [];
