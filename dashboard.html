@@ -8,12 +8,16 @@
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=DM+Sans:opsz,wght@9..40,200;9..40,300;9..40,400;9..40,500&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
-window._db = window.supabase.createClient(
-  "https://twhajohjcrlxqlvbvddi.supabase.co",
-  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InR3aGFqb2hqY3JseHFsdmJ2ZGRpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM2NjQ1MjIsImV4cCI6MjA4OTI0MDUyMn0.vsTT2eErCB3xpLiQvUPQW8Us6lphGHEKSyO3eE0VcfA"
-);
-const SB_URL = "https://twhajohjcrlxqlvbvddi.supabase.co";
+// ── CONFIG ──────────────────────────────────────────────────────────────────
+// Replace these values with your actual Supabase project credentials.
+// The service role key is used ONLY for the admin invite API call.
+// In production, move the invite call to a server-side Edge Function to
+// keep the service key off the client.
+const SB_URL     = "https://twhajohjcrlxqlvbvddi.supabase.co";
+const SB_ANON    = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InR3aGFqb2hqY3JseHFsdmJ2ZGRpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM2NjQ1MjIsImV4cCI6MjA4OTI0MDUyMn0.vsTT2eErCB3xpLiQvUPQW8Us6lphGHEKSyO3eE0VcfA";
 const SB_SERVICE = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InR3aGFqb2hqY3JseHFsdmJ2ZGRpIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3MzY2NDUyMiwiZXhwIjoyMDg5MjQwNTIyfQ.w1KFI4DTBrAXTrhKYy6KShQSuaI9qmZl7yD560rVUXI";
+
+window._db = window.supabase.createClient(SB_URL, SB_ANON);
 </script>
 <style>
 :root{
@@ -33,7 +37,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--ink);color:#fff;min-heigh
 ::-webkit-scrollbar-track{background:transparent}
 ::-webkit-scrollbar-thumb{background:rgba(255,255,255,.1);border-radius:4px}
 
-/* TOPBAR */
+/* ── TOPBAR ── */
 #topbar{
   position:fixed;top:0;left:0;right:0;z-index:300;height:var(--nav);
   display:flex;align-items:center;
@@ -49,11 +53,11 @@ body{font-family:'DM Sans',sans-serif;background:var(--ink);color:#fff;min-heigh
 }
 .tb-logo-g{width:26px;height:26px;border-radius:7px;background:var(--acc);display:grid;place-items:center;flex-shrink:0}
 .tb-logo-g svg{width:13px;height:13px;fill:#000}
-.tb-right{flex:1;display:flex;align-items:center;justify-content:space-between;padding:0 20px}
+.tb-right{flex:1;display:flex;align-items:center;justify-content:space-between;padding:0 20px;overflow:hidden}
 .tb-school{font-size:13px;font-weight:500;color:var(--mid);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .tb-end{display:flex;align-items:center;gap:10px;flex-shrink:0}
 
-.plan-badge{display:inline-flex;align-items:center;gap:6px;padding:5px 12px;border-radius:100px;font-size:11px;font-weight:500}
+.plan-badge{display:inline-flex;align-items:center;gap:6px;padding:5px 12px;border-radius:100px;font-size:11px;font-weight:500;white-space:nowrap}
 .plan-badge .dot{width:5px;height:5px;border-radius:50%;background:currentColor;flex-shrink:0;animation:blink 2s infinite}
 .plan-badge.trial{background:rgba(251,191,36,.08);border:1px solid rgba(251,191,36,.22);color:#fbbf24}
 .plan-badge.active{background:var(--acc-dim);border:1px solid rgba(0,232,122,.18);color:var(--acc)}
@@ -65,7 +69,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--ink);color:#fff;min-heigh
 .icon-btn svg{width:15px;height:15px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
 #menu-toggle{display:none}
 
-/* SIDEBAR */
+/* ── SIDEBAR ── */
 #sidebar{
   position:fixed;top:var(--nav);left:0;bottom:0;width:var(--sidebar);z-index:200;
   background:var(--ink2);border-right:1px solid var(--border);
@@ -93,7 +97,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--ink);color:#fff;min-heigh
 .sb-logout:hover{background:var(--err-bg);color:var(--err)}
 .sb-logout svg{width:15px;height:15px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0}
 
-/* MAIN */
+/* ── MAIN ── */
 #main{margin-left:var(--sidebar);padding-top:var(--nav);min-height:100vh}
 .page-body{padding:28px 28px 64px;max-width:1100px}
 .page{display:none}
@@ -104,7 +108,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--ink);color:#fff;min-heigh
 .page-hdr h1{font-family:'Playfair Display',serif;font-size:22px;font-weight:900;letter-spacing:-.03em;margin-bottom:2px}
 .page-hdr p{font-size:13px;color:var(--muted);font-weight:300}
 
-/* STAT GRID */
+/* ── STAT GRID ── */
 .stat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px;margin-bottom:20px}
 .stat-card{background:var(--ink2);border:1px solid var(--border);border-radius:14px;padding:18px;position:relative;overflow:hidden;transition:border-color .2s}
 .stat-card:hover{border-color:rgba(255,255,255,.12)}
@@ -115,7 +119,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--ink);color:#fff;min-heigh
 .sc-val{font-family:'Playfair Display',serif;font-size:26px;font-weight:900;letter-spacing:-.03em;margin-bottom:3px}
 .sc-sub{font-size:11px;color:var(--muted);font-weight:300}
 
-/* SETUP BANNER */
+/* ── SETUP BANNER ── */
 .setup-banner{
   display:flex;align-items:center;justify-content:space-between;gap:16px;
   background:linear-gradient(120deg,rgba(0,232,122,.05),rgba(0,196,255,.03));
@@ -132,7 +136,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--ink);color:#fff;min-heigh
 .setup-bar{height:100%;background:var(--acc);border-radius:3px;transition:.5s var(--ease)}
 .setup-pct{font-size:11px;color:var(--acc);font-weight:500}
 
-/* CARD GRID */
+/* ── CARDS GRID ── */
 .cards-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
 .card{background:var(--ink2);border:1px solid var(--border);border-radius:14px;padding:18px;transition:border-color .2s}
 .card:hover{border-color:rgba(255,255,255,.1)}
@@ -145,6 +149,8 @@ body{font-family:'DM Sans',sans-serif;background:var(--ink);color:#fff;min-heigh
 .info-row:last-child{border:none}
 .ir-k{color:var(--muted);font-weight:300;flex-shrink:0}
 .ir-v{color:var(--mid);text-align:right;word-break:break-word}
+.ir-v a{color:var(--acc2);text-decoration:none}
+.ir-v a:hover{text-decoration:underline}
 
 .admin-item{display:flex;align-items:center;gap:9px;padding:8px 0;border-bottom:1px solid var(--border2)}
 .admin-item:last-child{border:none}
@@ -152,23 +158,31 @@ body{font-family:'DM Sans',sans-serif;background:var(--ink);color:#fff;min-heigh
 .admin-name{font-size:12px;font-weight:500;color:var(--mid);flex:1}
 .admin-email{font-size:11px;color:var(--muted);font-weight:300}
 .role-tag{font-size:10px;color:var(--muted);background:var(--ink3);padding:2px 8px;border-radius:100px;border:1px solid var(--border);white-space:nowrap}
+.status-tag{font-size:10px;padding:2px 8px;border-radius:100px;white-space:nowrap}
+.status-tag.pending{color:var(--warn);background:rgba(251,191,36,.06);border:1px solid rgba(251,191,36,.18)}
+.status-tag.accepted{color:var(--acc);background:var(--acc-dim);border:1px solid rgba(0,232,122,.18)}
 
 .empty-st{text-align:center;padding:20px 0}
 .empty-st svg{width:28px;height:28px;stroke:rgba(255,255,255,.1);fill:none;stroke-width:1.4;stroke-linecap:round;stroke-linejoin:round;margin-bottom:8px}
 .empty-st p{font-size:12px;color:rgba(255,255,255,.18);font-weight:300}
 
-/* BTN */
+/* ── BTN ── */
 .btn-primary{display:inline-flex;align-items:center;gap:7px;padding:10px 20px;border-radius:100px;background:var(--acc);color:#000;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;border:none;cursor:pointer;transition:background .2s,transform .15s,box-shadow .2s;min-height:40px}
 .btn-primary:hover{background:#00ffaa;transform:translateY(-1px);box-shadow:0 8px 20px rgba(0,232,122,.25)}
+.btn-primary:disabled{opacity:.5;cursor:not-allowed;transform:none;box-shadow:none}
 .btn-primary svg{width:13px;height:13px;stroke:currentColor;fill:none;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
 .btn-ghost{display:inline-flex;align-items:center;gap:7px;padding:10px 18px;border-radius:100px;background:none;color:var(--muted);font-family:'DM Sans',sans-serif;font-size:13px;font-weight:400;border:1px solid var(--border);cursor:pointer;transition:.18s;min-height:40px}
 .btn-ghost:hover{border-color:rgba(255,255,255,.18);color:#fff}
 
-/* OVERLAY */
+/* ── SPINNER ── */
+.spin{width:14px;height:14px;border:2px solid rgba(0,0,0,.2);border-top-color:#000;border-radius:50%;animation:spin .7s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* ── OVERLAY ── */
 #overlay{position:fixed;inset:0;z-index:800;background:rgba(0,0,0,.72);backdrop-filter:blur(8px);display:none;align-items:center;justify-content:center;opacity:0;transition:opacity .3s}
 #overlay.show{display:flex;opacity:1}
 
-/* WIZARD */
+/* ── WIZARD ── */
 #wizard{
   background:var(--ink2);border:1px solid rgba(0,232,122,.14);
   border-radius:22px;width:100%;max-width:560px;max-height:92vh;
@@ -195,7 +209,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--ink);color:#fff;min-heigh
 
 .wiz-body{padding:22px 30px 20px}
 
-/* WIZARD FIELDS */
+/* ── WIZARD FIELDS ── */
 .wf{margin-bottom:13px;position:relative}
 .wf label{display:block;font-size:11px;font-weight:500;color:rgba(255,255,255,.42);margin-bottom:5px;letter-spacing:.2px}
 .wf .req{color:var(--acc);margin-left:2px}
@@ -208,7 +222,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--ink);color:#fff;min-heigh
   outline:none;-webkit-appearance:none;
 }
 .wf input::placeholder,.wf textarea::placeholder{color:rgba(255,255,255,.16)}
-.wf input:focus,.wf select:focus{border-color:rgba(0,232,122,.38);background:rgba(0,232,122,.03);box-shadow:0 0 0 3px rgba(0,232,122,.07)}
+.wf input:focus,.wf select:focus,.wf textarea:focus{border-color:rgba(0,232,122,.38);background:rgba(0,232,122,.03);box-shadow:0 0 0 3px rgba(0,232,122,.07)}
 .wf select option{background:#1a1a1c;color:#fff}
 .wf.err input,.wf.err select{border-color:var(--err)!important;box-shadow:0 0 0 3px rgba(248,113,113,.07)!important}
 .wf .emsg{font-size:11px;color:var(--err);margin-top:4px;display:none}
@@ -220,7 +234,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--ink);color:#fff;min-heigh
 
 .wf-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 
-/* LOGO UPLOAD */
+/* ── LOGO UPLOAD ── */
 .logo-drop{border:1px dashed rgba(0,232,122,.2);border-radius:10px;padding:18px;text-align:center;cursor:pointer;transition:.2s;position:relative;background:rgba(0,232,122,.02)}
 .logo-drop:hover{border-color:rgba(0,232,122,.4);background:rgba(0,232,122,.04)}
 .logo-drop input{position:absolute;inset:0;opacity:0;width:100%;height:100%;cursor:pointer}
@@ -234,7 +248,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--ink);color:#fff;min-heigh
 .lp-rm{background:none;border:none;color:var(--err);cursor:pointer;display:flex;align-items:center;padding:2px;flex-shrink:0}
 .lp-rm svg{width:13px;height:13px;stroke:currentColor;fill:none;stroke-width:2.5;stroke-linecap:round}
 
-/* BOARD CARDS */
+/* ── BOARD CARDS ── */
 .board-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:4px}
 .board-card{padding:11px 13px;border-radius:10px;cursor:pointer;border:1px solid rgba(255,255,255,.07);background:rgba(255,255,255,.025);transition:.15s}
 .board-card:hover{border-color:rgba(0,232,122,.22)}
@@ -242,14 +256,14 @@ body{font-family:'DM Sans',sans-serif;background:var(--ink);color:#fff;min-heigh
 .board-card h5{font-size:13px;font-weight:500;color:#fff;margin-bottom:1px}
 .board-card p{font-size:11px;color:var(--muted);font-weight:300}
 
-/* CLASS CHIPS */
+/* ── CLASS CHIPS ── */
 .class-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:6px;margin-bottom:6px}
 .class-chip{padding:7px 4px;border-radius:8px;text-align:center;font-size:12px;cursor:pointer;border:1px solid rgba(255,255,255,.07);background:rgba(255,255,255,.025);color:var(--muted);transition:.15s;user-select:none}
 .class-chip:hover{border-color:rgba(0,232,122,.28);color:#fff}
 .class-chip.sel{background:var(--acc-dim);border-color:rgba(0,232,122,.3);color:var(--acc);font-weight:500}
 .class-hint{font-size:11px;color:var(--muted)}
 
-/* ADMIN INVITE ROWS */
+/* ── ADMIN INVITE ROWS ── */
 .ai-row{display:flex;align-items:center;gap:7px;background:rgba(255,255,255,.03);border:1px solid var(--border);border-radius:10px;padding:9px 11px;margin-bottom:7px}
 .ai-row input{flex:1;background:none;border:none;outline:none;font-family:'DM Sans',sans-serif;font-size:13px;color:#fff}
 .ai-row input::placeholder{color:rgba(255,255,255,.18)}
@@ -261,20 +275,17 @@ body{font-family:'DM Sans',sans-serif;background:var(--ink);color:#fff;min-heigh
 .add-ai-btn:hover{border-color:rgba(0,232,122,.28);color:var(--acc)}
 .add-ai-btn svg{width:13px;height:13px;stroke:currentColor;fill:none;stroke-width:2.2;stroke-linecap:round}
 
-/* WIZARD FOOTER */
+/* ── WIZARD FOOTER ── */
 .wiz-footer{display:flex;gap:8px;justify-content:flex-end;padding:14px 30px 22px;border-top:1px solid var(--border);position:sticky;bottom:0;background:var(--ink2);z-index:10}
 .wiz-back{padding:9px 18px;border-radius:100px;background:none;border:1px solid var(--border);color:var(--muted);font-family:'DM Sans',sans-serif;font-size:13px;cursor:pointer;transition:.18s;min-height:40px}
 .wiz-back:hover{border-color:rgba(255,255,255,.18);color:#fff}
 .wiz-next{padding:9px 22px;border-radius:100px;background:var(--acc);color:#000;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;border:none;cursor:pointer;display:flex;align-items:center;gap:6px;transition:background .2s,transform .15s,box-shadow .2s;min-height:40px}
-.wiz-next:hover{background:#00ffaa;transform:translateY(-1px);box-shadow:0 8px 22px rgba(0,232,122,.25)}
-.wiz-next:active{transform:scale(.98)}
+.wiz-next:hover:not(:disabled){background:#00ffaa;transform:translateY(-1px);box-shadow:0 8px 22px rgba(0,232,122,.25)}
+.wiz-next:active:not(:disabled){transform:scale(.98)}
+.wiz-next:disabled{opacity:.6;cursor:not-allowed}
 .wiz-next svg{width:13px;height:13px;stroke:currentColor;fill:none;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
-.wiz-spin{width:14px;height:14px;border:2px solid rgba(0,0,0,.18);border-top-color:#000;border-radius:50%;animation:spin .7s linear infinite;display:none}
-@keyframes spin{to{transform:rotate(360deg)}}
-.wiz-next.loading .wlbl,.wiz-next.loading .warr{display:none}
-.wiz-next.loading .wiz-spin{display:block}
 
-/* DONE */
+/* ── DONE ── */
 .wiz-done{text-align:center;padding:14px 0 6px}
 .done-ring{width:66px;height:66px;border-radius:50%;background:var(--acc-dim);border:1px solid rgba(0,232,122,.22);display:flex;align-items:center;justify-content:center;margin:0 auto 16px;animation:ringPop .45s var(--ease) both}
 @keyframes ringPop{from{opacity:0;transform:scale(.5)}to{opacity:1;transform:scale(1)}}
@@ -283,8 +294,8 @@ body{font-family:'DM Sans',sans-serif;background:var(--ink);color:#fff;min-heigh
 .wiz-done h3 em{font-style:italic;background:linear-gradient(110deg,var(--acc),var(--acc2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
 .wiz-done p{font-size:13px;color:var(--muted);font-weight:300;line-height:1.6;max-width:300px;margin:0 auto}
 
-/* TOAST */
-#toast{position:fixed;bottom:22px;right:22px;z-index:1000;background:var(--ink3);border:1px solid var(--border);border-radius:11px;padding:11px 14px;font-size:13px;color:#fff;display:flex;align-items:center;gap:9px;box-shadow:0 16px 40px rgba(0,0,0,.4);transform:translateY(16px);opacity:0;transition:.3s var(--ease);pointer-events:none}
+/* ── TOAST ── */
+#toast{position:fixed;bottom:22px;right:22px;z-index:1000;background:var(--ink3);border:1px solid var(--border);border-radius:11px;padding:11px 14px;font-size:13px;color:#fff;display:flex;align-items:center;gap:9px;box-shadow:0 16px 40px rgba(0,0,0,.4);transform:translateY(16px);opacity:0;transition:.3s var(--ease);pointer-events:none;max-width:320px}
 #toast.show{transform:none;opacity:1}
 #toast.success{border-color:rgba(0,232,122,.2)}
 #toast.error{border-color:rgba(248,113,113,.18)}
@@ -292,7 +303,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--ink);color:#fff;min-heigh
 #toast.success svg{stroke:var(--acc)}
 #toast.error svg{stroke:var(--err)}
 
-/* MOBILE */
+/* ── MOBILE ── */
 @media(max-width:860px){
   :root{--sidebar:0px}
   .tb-logo{width:auto;border-right:none;padding-right:10px}
@@ -325,8 +336,9 @@ body{font-family:'DM Sans',sans-serif;background:var(--ink);color:#fff;min-heigh
     <div class="tb-school" id="tb-school">—</div>
     <div class="tb-end">
       <div class="plan-badge trial" id="plan-badge"><span class="dot"></span><span id="badge-txt">Free Trial</span></div>
-      <button class="icon-btn" title="Notifications"><svg viewBox="0 0 24 24"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg></button>
-      <button class="icon-btn" id="menu-toggle" onclick="toggleSidebar()"><svg viewBox="0 0 24 24"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button>
+      <button class="icon-btn" id="menu-toggle" onclick="toggleSidebar()">
+        <svg viewBox="0 0 24 24"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+      </button>
     </div>
   </div>
 </header>
@@ -368,16 +380,18 @@ body{font-family:'DM Sans',sans-serif;background:var(--ink);color:#fff;min-heigh
 <main id="main">
   <div class="page-body">
 
-    <!-- DASHBOARD -->
+    <!-- DASHBOARD PAGE -->
     <div class="page active" id="page-dashboard">
       <div class="page-hdr">
         <h1>Good <span id="gtime">morning</span>, <span id="gname">—</span></h1>
-        <p><span id="gschool" style="font-weight:500;color:#fff"></span>Here's your campus overview.</p>
+        <p id="gsubtitle">Here's your campus overview.</p>
       </div>
 
       <div class="setup-banner" id="setup-banner" style="display:none">
         <div class="setup-banner-l">
-          <div class="setup-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93l-1.41 1.41M4.93 4.93l1.41 1.41M12 2v2M12 20v2M2 12h2M20 12h2M19.07 19.07l-1.41-1.41M4.93 19.07l1.41-1.41"/></svg></div>
+          <div class="setup-icon">
+            <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93l-1.41 1.41M4.93 4.93l1.41 1.41M12 2v2M12 20v2M2 12h2M20 12h2M19.07 19.07l-1.41-1.41M4.93 19.07l1.41-1.41"/></svg>
+          </div>
           <div>
             <h4>Complete your school setup</h4>
             <p>Add your school details to unlock all features.</p>
@@ -427,7 +441,10 @@ body{font-family:'DM Sans',sans-serif;background:var(--ink);color:#fff;min-heigh
             <div class="card-hdr-icon"><svg viewBox="0 0 24 24"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c0 1.657 2.686 3 6 3s6-1.343 6-3v-5"/></svg></div>
           </div>
           <div id="dash-school-info">
-            <div class="empty-st"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg><p>Complete setup to see info</p></div>
+            <div class="empty-st">
+              <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+              <p>Complete setup to see info</p>
+            </div>
           </div>
         </div>
         <div class="card">
@@ -436,13 +453,16 @@ body{font-family:'DM Sans',sans-serif;background:var(--ink);color:#fff;min-heigh
             <div class="card-hdr-icon"><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/></svg></div>
           </div>
           <div id="dash-admins">
-            <div class="empty-st"><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/></svg><p>No admins added yet</p></div>
+            <div class="empty-st">
+              <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+              <p>No admins added yet</p>
+            </div>
           </div>
         </div>
       </div>
     </div>
 
-    <!-- SCHOOL PROFILE -->
+    <!-- SCHOOL PROFILE PAGE -->
     <div class="page" id="page-school">
       <div class="page-hdr">
         <h1>School Profile</h1>
@@ -450,7 +470,10 @@ body{font-family:'DM Sans',sans-serif;background:var(--ink);color:#fff;min-heigh
       </div>
       <div class="card" style="max-width:580px">
         <div id="profile-rows">
-          <div class="empty-st" style="padding:24px 0"><svg viewBox="0 0 24 24"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c0 1.657 2.686 3 6 3s6-1.343 6-3v-5"/></svg><p>Complete setup to see school profile</p></div>
+          <div class="empty-st" style="padding:24px 0">
+            <svg viewBox="0 0 24 24"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c0 1.657 2.686 3 6 3s6-1.343 6-3v-5"/></svg>
+            <p>Complete setup to see school profile</p>
+          </div>
         </div>
         <div style="margin-top:14px;padding-top:14px;border-top:1px solid var(--border)">
           <button class="btn-primary" onclick="openWizard()">
@@ -461,7 +484,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--ink);color:#fff;min-heigh
       </div>
     </div>
 
-    <!-- ADMINS -->
+    <!-- ADMINS PAGE -->
     <div class="page" id="page-admins">
       <div class="page-hdr">
         <h1>Admins</h1>
@@ -481,14 +504,14 @@ body{font-family:'DM Sans',sans-serif;background:var(--ink);color:#fff;min-heigh
   </div>
 </main>
 
-<!-- OVERLAY + WIZARD MODAL -->
+<!-- SETUP WIZARD MODAL -->
 <div id="overlay" onclick="overlayClick(event)">
   <div id="wizard" onclick="event.stopPropagation()">
 
     <div class="wiz-top">
       <div class="wiz-pill">Setup wizard</div>
-      <h2 id="wiz-h">Set up your <em>campus.</em></h2>
-      <p id="wiz-sub">This takes just a few minutes. Everything can be edited later.</p>
+      <h2>Set up your <em>campus.</em></h2>
+      <p>This takes just a few minutes. Everything can be edited later.</p>
       <div class="wiz-tabs">
         <div class="wiz-tab active" id="wtab-1">School</div>
         <div class="wiz-tab" id="wtab-2">Academic</div>
@@ -500,65 +523,76 @@ body{font-family:'DM Sans',sans-serif;background:var(--ink);color:#fff;min-heigh
 
     <div class="wiz-body">
 
-      <!-- S1: School basics -->
+      <!-- STEP 1: School basics + address -->
       <div id="ws-1">
         <div class="wf">
-          <label>School logo</label>
+          <label>School name <span class="req">*</span></label>
+          <input type="text" id="w-sname" placeholder="e.g. Sunrise Public School">
+          <div class="emsg">School name is required.</div>
+        </div>
+        <div class="wf">
+          <label>School logo <span style="color:var(--muted);font-size:10px">(optional)</span></label>
           <div class="logo-drop">
             <input type="file" id="logo-input" accept="image/*" onchange="logoChange(this)">
             <svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
-            <p>Upload logo · <span>browse</span></p>
+            <p>Drag & drop or <span>browse</span></p>
           </div>
           <div class="logo-preview" id="logo-prev">
-            <img id="logo-img" src="" alt="">
+            <img id="logo-img" src="" alt="Logo preview">
             <span id="logo-fn">—</span>
-            <button class="lp-rm" onclick="removeLogo()"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+            <button class="lp-rm" onclick="removeLogo()" type="button">
+              <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            </button>
           </div>
         </div>
         <div class="wf" id="wf-addr">
           <label>Street address <span class="req">*</span></label>
           <input type="text" id="w-addr" placeholder="123 School Lane">
-          <div class="emsg">Required.</div>
+          <div class="emsg">Address is required.</div>
         </div>
         <div class="wf-row">
           <div class="wf" id="wf-city">
             <label>City <span class="req">*</span></label>
             <input type="text" id="w-city" placeholder="Mumbai">
-            <div class="emsg">Required.</div>
+            <div class="emsg">City is required.</div>
           </div>
           <div class="wf" id="wf-state">
             <label>State <span class="req">*</span></label>
             <input type="text" id="w-state" placeholder="Maharashtra">
-            <div class="emsg">Required.</div>
+            <div class="emsg">State is required.</div>
           </div>
         </div>
         <div class="wf-row">
           <div class="wf">
             <label>Pincode</label>
-            <input type="text" id="w-pin" placeholder="400001" maxlength="6">
+            <input type="text" id="w-pin" placeholder="400001" maxlength="10">
           </div>
           <div class="wf">
             <label>Country</label>
-            <div class="sel-w"><select id="w-country">
-              <option value="India" selected>India</option>
-              <option value="USA">USA</option>
-              <option value="UK">UK</option>
-              <option value="UAE">UAE</option>
-              <option value="Other">Other</option>
-            </select></div>
+            <div class="sel-w">
+              <select id="w-country">
+                <option value="India" selected>India</option>
+                <option value="USA">USA</option>
+                <option value="UK">UK</option>
+                <option value="UAE">UAE</option>
+                <option value="Australia">Australia</option>
+                <option value="Canada">Canada</option>
+                <option value="Other">Other</option>
+              </select>
+            </div>
           </div>
         </div>
       </div>
 
-      <!-- S2: Academic -->
+      <!-- STEP 2: Academic config -->
       <div id="ws-2" style="display:none">
         <div class="wf">
-          <label>Board <span class="req">*</span></label>
+          <label>Curriculum board <span class="req">*</span></label>
           <div class="board-grid">
             <div class="board-card" onclick="pickBoard('CBSE',this)"><h5>CBSE</h5><p>Central Board of Secondary Ed.</p></div>
             <div class="board-card" onclick="pickBoard('ICSE/ISC',this)"><h5>ICSE / ISC</h5><p>Council for Indian School Cert.</p></div>
             <div class="board-card" onclick="pickBoard('STATE',this)"><h5>State Board</h5><p>State government curriculum</p></div>
-            <div class="board-card" onclick="pickBoard('MIXED',this)"><h5>Mixed</h5><p>Multiple / international boards</p></div>
+            <div class="board-card" onclick="pickBoard('MIXED',this)"><h5>Mixed / Other</h5><p>Multiple or international boards</p></div>
           </div>
           <div class="emsg" id="board-err" style="display:none">Please select a board.</div>
         </div>
@@ -583,59 +617,66 @@ body{font-family:'DM Sans',sans-serif;background:var(--ink);color:#fff;min-heigh
         </div>
         <div class="wf">
           <label>Timezone</label>
-          <div class="sel-w"><select id="w-tz">
-            <option value="Asia/Kolkata" selected>Asia/Kolkata (IST +5:30)</option>
-            <option value="Asia/Dubai">Asia/Dubai (GST +4:00)</option>
-            <option value="America/New_York">America/New_York (EST)</option>
-            <option value="Europe/London">Europe/London (GMT)</option>
-            <option value="America/Los_Angeles">America/Los_Angeles (PST)</option>
-          </select></div>
+          <div class="sel-w">
+            <select id="w-tz">
+              <option value="Asia/Kolkata" selected>Asia/Kolkata (IST +5:30)</option>
+              <option value="Asia/Dubai">Asia/Dubai (GST +4:00)</option>
+              <option value="America/New_York">America/New_York (EST)</option>
+              <option value="Europe/London">Europe/London (GMT)</option>
+              <option value="America/Los_Angeles">America/Los_Angeles (PST)</option>
+              <option value="Asia/Singapore">Asia/Singapore (SGT +8:00)</option>
+            </select>
+          </div>
         </div>
         <div class="wf-row">
           <div class="wf" id="wf-ys">
             <label>Academic year start <span class="req">*</span></label>
             <input type="date" id="w-ys">
-            <div class="emsg">Required.</div>
+            <div class="emsg">Start date is required.</div>
           </div>
           <div class="wf" id="wf-ye">
             <label>Academic year end <span class="req">*</span></label>
             <input type="date" id="w-ye">
-            <div class="emsg">Required.</div>
+            <div class="emsg">End date is required.</div>
           </div>
         </div>
       </div>
 
-      <!-- S3: Contact -->
+      <!-- STEP 3: Contact details -->
       <div id="ws-3" style="display:none">
         <div class="wf">
-          <label>School website</label>
+          <label>School website <span style="color:var(--muted);font-size:10px">(optional)</span></label>
           <input type="url" id="w-web" placeholder="https://yourschool.edu.in">
         </div>
         <div class="wf" id="wf-cem">
           <label>Contact email <span class="req">*</span></label>
           <input type="email" id="w-cem" placeholder="info@yourschool.edu.in">
-          <div class="emsg">Enter a valid email.</div>
+          <div class="emsg">A valid email address is required.</div>
         </div>
         <div class="wf">
-          <label>Contact phone</label>
+          <label>Contact phone <span style="color:var(--muted);font-size:10px">(optional)</span></label>
           <input type="tel" id="w-cph" placeholder="+91 98765 43210">
         </div>
       </div>
 
-      <!-- S4: Admins -->
+      <!-- STEP 4: Invite admins -->
       <div id="ws-4" style="display:none">
-        <p style="font-size:12px;color:var(--muted);font-weight:300;margin-bottom:14px;line-height:1.65">Invite additional admins. You can skip this and add them later from the Admins page.</p>
+        <p style="font-size:12px;color:var(--muted);font-weight:300;margin-bottom:14px;line-height:1.65">
+          Invite additional admins. They'll receive an email to set their password. You can skip this step and add them later from the Admins page.
+        </p>
         <div id="ai-list"></div>
-        <button class="add-ai-btn" onclick="addAiRow()">
+        <button class="add-ai-btn" onclick="addAiRow()" type="button">
           <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
           Add another admin
         </button>
       </div>
 
-      <!-- S5: Done -->
+      <!-- STEP 5: Done -->
       <div id="ws-5" style="display:none">
         <div class="wiz-done">
-          <div class="done-ring"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>
+          <div class="done-ring">
+            <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+          </div>
           <h3>Your campus is <em>ready.</em></h3>
           <p>Setup complete. Explore your dashboard and start building out your school.</p>
         </div>
@@ -644,133 +685,251 @@ body{font-family:'DM Sans',sans-serif;background:var(--ink);color:#fff;min-heigh
     </div>
 
     <div class="wiz-footer">
-      <button class="wiz-back" id="wiz-back" onclick="wBack()" style="display:none">Back</button>
-      <button class="wiz-next" id="wiz-next" onclick="wNext()">
-        <span class="wlbl" id="wnxt-lbl">Next</span>
-        <div class="wiz-spin" id="wiz-spin"></div>
-        <svg class="warr" viewBox="0 0 16 16"><path d="M6 4L10 8L6 12"/></svg>
+      <button class="wiz-back" id="wiz-back" onclick="wBack()" style="display:none" type="button">Back</button>
+      <button class="wiz-next" id="wiz-next" onclick="wNext()" type="button">
+        <span id="wnxt-lbl">Next</span>
+        <svg id="wnxt-arr" viewBox="0 0 16 16"><path d="M6 4L10 8L6 12"/></svg>
       </button>
     </div>
 
   </div>
 </div>
 
-<!-- TOAST -->
-<div id="toast">
-  <svg id="toast-ico" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
-  <span id="toast-txt"></span>
-</div>
-
-<!-- INVITE MODAL -->
+<!-- INVITE ADMIN MODAL -->
 <div id="invite-overlay" onclick="closeInviteModal()" style="position:fixed;inset:0;z-index:900;background:rgba(0,0,0,.72);backdrop-filter:blur(8px);display:none;align-items:center;justify-content:center;opacity:0;transition:opacity .3s">
   <div onclick="event.stopPropagation()" style="background:var(--ink2);border:1px solid rgba(0,232,122,.14);border-radius:20px;width:100%;max-width:420px;padding:28px;box-shadow:0 40px 80px rgba(0,0,0,.6);animation:modalIn .3s var(--ease) both;margin:16px">
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:18px">
       <div>
         <div style="font-family:'Playfair Display',serif;font-size:18px;font-weight:900;letter-spacing:-.03em;margin-bottom:2px">Invite an <em style="font-style:italic;background:linear-gradient(110deg,var(--acc),var(--acc2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">admin.</em></div>
-        <div style="font-size:12px;color:var(--muted);font-weight:300">They'll receive an email to set their password.</div>
+        <div style="font-size:12px;color:var(--muted);font-weight:300">They'll get an email to set their password.</div>
       </div>
-      <button onclick="closeInviteModal()" style="background:none;border:none;cursor:pointer;color:var(--muted);display:flex;align-items:center;padding:4px;transition:.18s" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='var(--muted)'">
+      <button onclick="closeInviteModal()" type="button" style="background:none;border:none;cursor:pointer;color:var(--muted);padding:4px;transition:.18s;border-radius:6px" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='var(--muted)'">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
       </button>
     </div>
     <div class="wf" id="inv-wf-name">
       <label>Full name <span class="req">*</span></label>
       <input type="text" id="inv-name" placeholder="e.g. Priya Sharma">
-      <div class="emsg">Required.</div>
+      <div class="emsg">Name is required.</div>
     </div>
     <div class="wf" id="inv-wf-email">
       <label>Email address <span class="req">*</span></label>
       <input type="email" id="inv-email" placeholder="priya@yourschool.edu.in">
-      <div class="emsg">Enter a valid email.</div>
+      <div class="emsg">A valid email is required.</div>
     </div>
     <div class="wf">
       <label>Role</label>
-      <div class="sel-w"><select id="inv-role">
-        <option value="admin">Admin</option>
-        <option value="staff">Staff</option>
-      </select></div>
+      <div class="sel-w">
+        <select id="inv-role">
+          <option value="admin">Admin</option>
+          <option value="staff">Staff</option>
+        </select>
+      </div>
     </div>
     <div id="inv-err" style="font-size:12px;color:var(--err);padding:9px 12px;background:var(--err-bg);border:1px solid rgba(248,113,113,.18);border-radius:9px;margin-bottom:12px;display:none"></div>
-    <button id="inv-btn" onclick="submitInvite()" class="btn-primary" style="width:100%;justify-content:center;margin-top:4px">
+    <button id="inv-btn" onclick="submitInvite()" type="button" class="btn-primary" style="width:100%;justify-content:center;margin-top:4px">
       <span id="inv-btn-lbl">Send invite</span>
-      <div id="inv-spin" style="width:14px;height:14px;border:2px solid rgba(0,0,0,.18);border-top-color:#000;border-radius:50%;animation:spin .7s linear infinite;display:none"></div>
+      <div id="inv-spin" class="spin" style="display:none;border-color:rgba(0,0,0,.2);border-top-color:#000"></div>
     </button>
   </div>
 </div>
 
+<!-- TOAST -->
+<div id="toast">
+  <svg id="toast-ico" viewBox="0 0 24 24"></svg>
+  <span id="toast-txt"></span>
+</div>
+
 <script>
-/* ── STATE ── */
-let S = null, SIGNUP = null, CFG = null, ADMINS = [];
-let board = null, classes = new Set(), logoFile = null, wStep = 1;
-const TOTAL = 4;
+/* ═══════════════════════════════════════════════════════════
+   STATE
+═══════════════════════════════════════════════════════════ */
+let S      = null;   // Supabase session
+let SIGNUP = null;   // school_signups row
+let CFG    = null;   // school_config row
+let ADMINS = [];     // school_admins rows
 
-/* ── BOOT ── */
+// Wizard transient state
+let board   = null;
+let classes = new Set();
+let logoFile = null;
+let wStep   = 1;
+const TOTAL = 4;     // number of data-entry steps (step 5 = done screen)
+
+/* ═══════════════════════════════════════════════════════════
+   BOOT
+═══════════════════════════════════════════════════════════ */
 (async () => {
-  const { data:{ session } } = await _db.auth.getSession();
-  if (!session) { location.href = 'login.html'; return; }
-  S = session;
+  try {
+    const { data: { session } } = await _db.auth.getSession();
+    if (!session) { location.href = 'login.html'; return; }
+    S = session;
 
-  // FIX 1: fetchSignup must complete before fetchAdmins runs,
-  // because fetchAdmins depends on SIGNUP being populated.
-  await fetchSignup();
-  await Promise.all([fetchConfig(), fetchAdmins()]);
+    // Sequential: fetchAdmins depends on SIGNUP
+    await fetchSignup();
+    await Promise.all([fetchConfig(), fetchAdmins()]);
 
-  initUI();
-  if (!CFG || !CFG.setup_complete) setTimeout(openWizard, 500);
+    initUI();
+
+    // Auto-open wizard if setup not done
+    if (!CFG || !CFG.setup_complete) {
+      setTimeout(openWizard, 600);
+    }
+  } catch (err) {
+    console.error('Boot error:', err);
+    toast('error', 'Failed to load dashboard. Please refresh.');
+  }
 })();
 
-/* ── FETCH ── */
+/* ═══════════════════════════════════════════════════════════
+   DATA FETCHERS
+═══════════════════════════════════════════════════════════ */
 async function fetchSignup() {
-  const { data, error } = await _db.from('school_signups').select('*')
+  const { data, error } = await _db
+    .from('school_signups')
+    .select('*')
     .eq('auth_user_id', S.user.id)
     .order('created_at', { ascending: false })
     .limit(1)
     .maybeSingle();
-  if (error) console.warn('fetchSignup:', error.message);
-  SIGNUP = data || null;
+
+  if (error) console.warn('fetchSignup error:', error.message);
+
+  // If no signup row exists, create a minimal one so the rest of the app works.
+  // This handles users who registered without going through an onboarding flow.
+  if (!data) {
+    const meta = S.user.user_metadata || {};
+    const schoolName = meta.school_name || meta.organization || '';
+    const trialEnd   = new Date(Date.now() + 30 * 86400000).toISOString();
+    const { data: inserted, error: ie } = await _db
+      .from('school_signups')
+      .insert({
+        auth_user_id: S.user.id,
+        school_name:  schoolName,
+        email:        S.user.email,
+        status:       'trial',
+        plan:         'free',
+        trial_end:    trialEnd,
+      })
+      .select()
+      .single();
+    if (ie) console.warn('Auto-signup creation failed:', ie.message);
+    SIGNUP = inserted || null;
+  } else {
+    SIGNUP = data;
+  }
 }
-function schoolName() {
-  return SIGNUP?.school_name
-    || S?.user?.user_metadata?.school_name
-    || S?.user?.user_metadata?.organization
-    || null;
-}
+
 async function fetchConfig() {
-  // Order by setup_complete desc then updated_at desc, limit 1.
-  // This tolerates duplicate rows (picks the best one) until the
-  // unique constraint is added and the dupes are cleaned up via cleanup.sql.
-  const { data, error } = await _db.from('school_config').select('*')
+  const { data, error } = await _db
+    .from('school_config')
+    .select('*')
     .eq('auth_user_id', S.user.id)
     .order('setup_complete', { ascending: false })
     .order('updated_at',     { ascending: false })
     .limit(1)
     .maybeSingle();
-  if (error) console.warn('fetchConfig:', error.message);
+
+  if (error) console.warn('fetchConfig error:', error.message);
   CFG = data || null;
 }
+
 async function fetchAdmins() {
-  if (!SIGNUP) return;
-  const { data, error } = await _db.from('school_admins').select('*').eq('signup_id', SIGNUP.id).order('invited_at', { ascending: true });
-  if (error) console.warn('fetchAdmins:', error.message);
+  if (!SIGNUP?.id) return;
+  const { data, error } = await _db
+    .from('school_admins')
+    .select('*')
+    .eq('signup_id', SIGNUP.id)
+    .order('invited_at', { ascending: true });
+
+  if (error) console.warn('fetchAdmins error:', error.message);
   ADMINS = data || [];
 }
 
-/* ── INIT UI ── */
-function initUI() {
-  const sn = schoolName();
-  document.getElementById('tb-school').textContent = sn || '—';
-  document.title = sn ? sn + ' — UniLearn' : 'UniLearn';
+/* ═══════════════════════════════════════════════════════════
+   HELPERS
+═══════════════════════════════════════════════════════════ */
+function schoolName() {
+  // Prefer the config value (user may have updated it in wizard),
+  // then fall back to signup row, then user metadata.
+  return CFG?.school_name
+    || SIGNUP?.school_name
+    || S?.user?.user_metadata?.school_name
+    || S?.user?.user_metadata?.organization
+    || null;
+}
+
+function displayName() {
   const meta = S.user.user_metadata || {};
-  const full = meta.full_name || S.user.email;
-  document.getElementById('sb-av').textContent = full.split(' ').map(w=>w[0]).join('').toUpperCase().slice(0,2);
-  document.getElementById('sb-name').textContent = full;
+  return meta.full_name || meta.name || S.user.email;
+}
+
+function initials(name) {
+  return name.split(' ').map(w => w[0] || '').join('').toUpperCase().slice(0, 2) || '?';
+}
+
+const gv = id => document.getElementById(id)?.value?.trim() || '';
+
+function fmtCls(f, t) {
+  if (f == null && t == null) return '—';
+  if (f === t) return `Class ${f}`;
+  return `Class ${f} – ${t}`;
+}
+
+function fmtAY(s, e) {
+  const f = d => d ? new Date(d).toLocaleDateString('en-IN', { month: 'short', year: 'numeric' }) : '—';
+  if (!s && !e) return '—';
+  return `${f(s)} → ${f(e)}`;
+}
+
+function infoRows(arr) {
+  return arr.map(([k, v]) =>
+    `<div class="info-row"><span class="ir-k">${k}</span><span class="ir-v">${v}</span></div>`
+  ).join('');
+}
+
+function adminCard(a) {
+  const ini = initials(a.full_name || a.email || '?');
+  const status = a.status || 'pending';
+  return `
+    <div class="admin-item">
+      <div class="admin-av">${ini}</div>
+      <div style="flex:1;min-width:0">
+        <div class="admin-name">${esc(a.full_name || '—')}</div>
+        <div class="admin-email">${esc(a.email || '—')}</div>
+      </div>
+      <span class="status-tag ${status}">${status}</span>
+      <span class="role-tag" style="margin-left:4px">${esc(a.role || 'admin')}</span>
+    </div>`;
+}
+
+function esc(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+/* ═══════════════════════════════════════════════════════════
+   INIT UI
+═══════════════════════════════════════════════════════════ */
+function initUI() {
+  const sn   = schoolName();
+  const full = displayName();
+
+  // Topbar
+  document.getElementById('tb-school').textContent = sn || 'Your School';
+  document.title = sn ? `${sn} — UniLearn` : 'UniLearn';
+
+  // Sidebar user info
+  document.getElementById('sb-av').textContent    = initials(full);
+  document.getElementById('sb-name').textContent  = full;
   document.getElementById('sb-email').textContent = S.user.email;
+
+  // Greeting
   const h = new Date().getHours();
-  document.getElementById('gtime').textContent = h<12?'morning':h<17?'afternoon':'evening';
+  document.getElementById('gtime').textContent = h < 12 ? 'morning' : h < 17 ? 'afternoon' : 'evening';
   document.getElementById('gname').textContent = full.split(' ')[0] || 'there';
-  // School name in greeting subtitle
-  const gschool = document.getElementById('gschool');
-  if (gschool) gschool.textContent = sn ? sn + ' · ' : '';
+  const sub = document.getElementById('gsubtitle');
+  if (sub) sub.innerHTML = sn ? `<span style="font-weight:500;color:#fff">${esc(sn)}</span> · Here's your campus overview.` : "Here's your campus overview.";
+
   renderBadge();
   renderSetupBanner();
   renderDashCards();
@@ -778,7 +937,9 @@ function initUI() {
   renderAdminsPage();
 }
 
-/* ── BADGE ── */
+/* ═══════════════════════════════════════════════════════════
+   RENDER FUNCTIONS
+═══════════════════════════════════════════════════════════ */
 function renderBadge() {
   if (!SIGNUP) return;
   const badge = document.getElementById('plan-badge');
@@ -786,6 +947,7 @@ function renderBadge() {
   const now   = Date.now();
   const end   = SIGNUP.trial_end ? new Date(SIGNUP.trial_end).getTime() : null;
   const status = SIGNUP.status || 'trial';
+
   if (status === 'active') {
     badge.className = 'plan-badge active';
     txt.textContent = SIGNUP.plan || 'Campus';
@@ -803,266 +965,330 @@ function renderBadge() {
   }
 }
 
-/* ── SETUP BANNER ── */
 function renderSetupBanner() {
   const el = document.getElementById('setup-banner');
   if (CFG?.setup_complete) { el.style.display = 'none'; return; }
   el.style.display = 'flex';
   const step = CFG?.setup_step || 1;
-  const pct = Math.round(Math.min((step-1)/TOTAL,1)*100);
-  document.getElementById('setup-bar').style.width = pct + '%';
+  const pct  = Math.round(Math.min((step - 1) / TOTAL, 1) * 100);
+  document.getElementById('setup-bar').style.width  = pct + '%';
   document.getElementById('setup-pct').textContent  = pct + '%';
 }
 
-/* ── DASH CARDS ── */
 function renderDashCards() {
+  // School info card
   const si = document.getElementById('dash-school-info');
   if (CFG?.setup_complete) {
+    const sn = schoolName();
+    const web = CFG.website ? `<a href="${esc(CFG.website)}" target="_blank" rel="noopener">${esc(CFG.website)}</a>` : '—';
     si.innerHTML = infoRows([
-      ['Board', CFG.board || '—'],
+      ['Name',   esc(sn || '—')],
+      ['Board',  esc(CFG.board || '—')],
       ['Classes', fmtCls(CFG.classes_from, CFG.classes_to)],
-      ['Location', [CFG.city, CFG.state].filter(Boolean).join(', ') || '—'],
-      ['Academic year', fmtAY(CFG.academic_year_start, CFG.academic_year_end)],
+      ['Location', esc([CFG.city, CFG.state].filter(Boolean).join(', ') || '—')],
+      ['Year',   fmtAY(CFG.academic_year_start, CFG.academic_year_end)],
     ]);
+    // Replace the Website row with a linked version
+    si.innerHTML += `<div class="info-row"><span class="ir-k">Website</span><span class="ir-v">${web}</span></div>`;
+  } else {
+    si.innerHTML = `<div class="empty-st"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg><p>Complete setup to see info</p></div>`;
   }
+
+  // Admins card
   const al = document.getElementById('dash-admins');
   if (ADMINS.length) {
-    al.innerHTML = ADMINS.slice(0,4).map(adminRow).join('');
+    al.innerHTML = ADMINS.slice(0, 4).map(adminCard).join('');
+    if (ADMINS.length > 4) {
+      al.innerHTML += `<div style="text-align:center;padding:8px 0;font-size:11px;color:var(--muted)">+${ADMINS.length - 4} more</div>`;
+    }
+  } else {
+    al.innerHTML = `<div class="empty-st"><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/></svg><p>No admins added yet</p></div>`;
   }
 }
 
-/* ── PROFILE ── */
 function renderProfile() {
   const lbl = document.getElementById('profile-btn-lbl');
   const el  = document.getElementById('profile-rows');
-  if (!CFG?.setup_complete) { lbl.textContent = 'Complete setup'; return; }
+  if (!CFG?.setup_complete) {
+    lbl.textContent = 'Complete setup';
+    return;
+  }
   lbl.textContent = 'Edit profile';
-  el.innerHTML = infoRows([
-    ['School name', schoolName() || '—'],
-    ['Board', CFG.board || '—'],
-    ['Classes', fmtCls(CFG.classes_from, CFG.classes_to)],
-    ['Address', CFG.address || '—'],
-    ['City', CFG.city || '—'],
-    ['State', CFG.state || '—'],
-    ['Pincode', CFG.pincode || '—'],
-    ['Country', CFG.country || '—'],
-    ['Website', CFG.website || '—'],
-    ['Contact email', CFG.contact_email || '—'],
-    ['Contact phone', CFG.contact_phone || '—'],
-    ['Timezone', CFG.timezone || '—'],
-    ['Academic year', fmtAY(CFG.academic_year_start, CFG.academic_year_end)],
-  ]);
+  const sn  = schoolName();
+  const web = CFG.website ? `<a href="${esc(CFG.website)}" target="_blank" rel="noopener">${esc(CFG.website)}</a>` : '—';
+  el.innerHTML = `
+    ${infoRows([
+      ['School name',   esc(sn || '—')],
+      ['Board',         esc(CFG.board || '—')],
+      ['Classes',       fmtCls(CFG.classes_from, CFG.classes_to)],
+      ['Address',       esc(CFG.address || '—')],
+      ['City',          esc(CFG.city || '—')],
+      ['State',         esc(CFG.state || '—')],
+      ['Pincode',       esc(CFG.pincode || '—')],
+      ['Country',       esc(CFG.country || '—')],
+      ['Contact email', esc(CFG.contact_email || '—')],
+      ['Contact phone', esc(CFG.contact_phone || '—')],
+      ['Timezone',      esc(CFG.timezone || '—')],
+      ['Academic year', fmtAY(CFG.academic_year_start, CFG.academic_year_end)],
+    ])}
+    <div class="info-row"><span class="ir-k">Website</span><span class="ir-v">${web}</span></div>
+  `;
 }
 
-/* ── ADMINS PAGE ── */
 function renderAdminsPage() {
   const el = document.getElementById('admins-full');
   el.innerHTML = ADMINS.length
-    ? ADMINS.map(a => `
-        <div class="admin-item">
-          <div class="admin-av">${a.full_name.split(' ').map(w=>w[0]).join('').toUpperCase().slice(0,2)}</div>
-          <div style="flex:1;min-width:0">
-            <div class="admin-name">${a.full_name}</div>
-            <div class="admin-email">${a.email}</div>
-          </div>
-          <span class="role-tag">${a.role}</span>
-        </div>`).join('')
+    ? ADMINS.map(adminCard).join('')
     : `<div class="empty-st" style="padding:20px 0"><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/></svg><p>No additional admins yet</p></div>`;
 }
 
-/* ── HELPERS ── */
-function infoRows(arr){
-  return arr.map(([k,v])=>`<div class="info-row"><span class="ir-k">${k}</span><span class="ir-v">${v}</span></div>`).join('');
-}
-function adminRow(a){
-  const ini = a.full_name.split(' ').map(w=>w[0]).join('').toUpperCase().slice(0,2);
-  return `<div class="admin-item">
-    <div class="admin-av">${ini}</div>
-    <div style="flex:1;min-width:0"><div class="admin-name">${a.full_name}</div><div class="admin-email">${a.email}</div></div>
-    <span class="role-tag">${a.role}</span>
-  </div>`;
-}
-function fmtCls(f,t){return (!f&&!t)?'—':f===t?`Class ${f}`:`Class ${f} – ${t}`}
-function fmtAY(s,e){
-  const f=d=>d?new Date(d).toLocaleDateString('en-IN',{month:'short',year:'numeric'}):'—';
-  return (!s&&!e)?'—':`${f(s)} → ${f(e)}`;
-}
-const gv = id => document.getElementById(id)?.value?.trim()||'';
-
-/* ── WIZARD ── */
+/* ═══════════════════════════════════════════════════════════
+   WIZARD OPEN / CLOSE
+═══════════════════════════════════════════════════════════ */
 function openWizard(startStep) {
-  wStep = startStep || (CFG?.setup_complete ? 1 : CFG?.setup_step || 1);
+  wStep = startStep || (CFG?.setup_complete ? 1 : (CFG?.setup_step || 1));
   if (wStep > TOTAL) wStep = TOTAL;
-  prefill();
+  prefillWizard();
   renderWStep();
   const ov = document.getElementById('overlay');
   ov.style.display = 'flex';
-  // FIX 2: Double rAF ensures display:flex is painted before opacity transition starts
   requestAnimationFrame(() => requestAnimationFrame(() => ov.classList.add('show')));
 }
 
 function closeWizard() {
   const ov = document.getElementById('overlay');
   ov.classList.remove('show');
-  setTimeout(() => { ov.style.display='none'; }, 300);
+  setTimeout(() => { ov.style.display = 'none'; }, 320);
 }
 
 function overlayClick(e) {
-  if (e.target === document.getElementById('overlay') && CFG?.setup_complete) closeWizard();
+  // Only allow closing by clicking backdrop if setup is already complete
+  if (e.target === document.getElementById('overlay') && CFG?.setup_complete) {
+    closeWizard();
+  }
 }
 
-function prefill() {
-  if (!CFG) { initAiRows(); return; }
-  const m = {
-    'w-addr':CFG.address,'w-city':CFG.city,'w-state':CFG.state,'w-pin':CFG.pincode,
-    'w-web':CFG.website,'w-cem':CFG.contact_email,'w-cph':CFG.contact_phone,
-    'w-ys':CFG.academic_year_start,'w-ye':CFG.academic_year_end
-  };
-  Object.entries(m).forEach(([id,val]) => { if(val) document.getElementById(id).value = val; });
-  if (CFG.country) document.getElementById('w-country').value = CFG.country;
-  if (CFG.timezone) document.getElementById('w-tz').value = CFG.timezone;
-  if (CFG.board) {
-    board = CFG.board;
-    document.querySelectorAll('.board-card').forEach(c =>
-      c.classList.toggle('sel', c.querySelector('h5').textContent.trim().startsWith(CFG.board.split('/')[0]))
-    );
+/* ═══════════════════════════════════════════════════════════
+   WIZARD PREFILL
+═══════════════════════════════════════════════════════════ */
+function prefillWizard() {
+  // School name: prefer config, then signup, then metadata
+  const sn = CFG?.school_name || schoolName() || '';
+  if (sn) document.getElementById('w-sname').value = sn;
+
+  if (CFG) {
+    const map = {
+      'w-addr':  CFG.address,
+      'w-city':  CFG.city,
+      'w-state': CFG.state,
+      'w-pin':   CFG.pincode,
+      'w-web':   CFG.website,
+      'w-cem':   CFG.contact_email,
+      'w-cph':   CFG.contact_phone,
+      'w-ys':    CFG.academic_year_start,
+      'w-ye':    CFG.academic_year_end,
+    };
+    Object.entries(map).forEach(([id, val]) => {
+      const el = document.getElementById(id);
+      if (el && val != null) el.value = val;
+    });
+    if (CFG.country)  document.getElementById('w-country').value = CFG.country;
+    if (CFG.timezone) document.getElementById('w-tz').value      = CFG.timezone;
+
+    // Board selection
+    if (CFG.board) {
+      board = CFG.board;
+      document.querySelectorAll('.board-card').forEach(c => {
+        const h5txt = c.querySelector('h5')?.textContent?.trim() || '';
+        c.classList.toggle('sel', h5txt.startsWith(CFG.board.split('/')[0]));
+      });
+    }
+
+    // Class chips
+    if (CFG.classes_from != null && CFG.classes_to != null) {
+      classes = new Set();
+      for (let i = CFG.classes_from; i <= CFG.classes_to; i++) classes.add(i);
+      syncChips();
+    }
+
+    // Existing logo preview
+    if (CFG.logo_url) {
+      document.getElementById('logo-img').src = CFG.logo_url;
+      document.getElementById('logo-fn').textContent  = 'Current logo';
+      document.getElementById('logo-prev').classList.add('show');
+    }
   }
-  // FIX 3: Guard against null classes_from / classes_to to prevent infinite loop
-  if (CFG.classes_from != null && CFG.classes_to != null) {
-    for (let i = CFG.classes_from; i <= CFG.classes_to; i++) classes.add(i);
-    syncChips();
-  }
+
   initAiRows();
 }
 
+/* ═══════════════════════════════════════════════════════════
+   WIZARD STEP RENDERING
+═══════════════════════════════════════════════════════════ */
 function renderWStep() {
-  for (let i=1;i<=5;i++) {
-    document.getElementById('ws-'+i).style.display = i===wStep?'block':'none';
-    const t = document.getElementById('wtab-'+i);
-    t.className = 'wiz-tab' + (i<wStep?' done':i===wStep?' active':'');
+  for (let i = 1; i <= 5; i++) {
+    document.getElementById('ws-' + i).style.display = i === wStep ? 'block' : 'none';
+    const tab = document.getElementById('wtab-' + i);
+    tab.className = 'wiz-tab' + (i < wStep ? ' done' : i === wStep ? ' active' : '');
   }
-  // FIX 4: Back button hidden on step 1, step 5, and when loading done screen
+
   const backBtn = document.getElementById('wiz-back');
   backBtn.style.display = (wStep > 1 && wStep < 5) ? 'block' : 'none';
 
   const lbl = document.getElementById('wnxt-lbl');
-  const arr = document.querySelector('.warr');
-  if (wStep===5) {
+  const arr = document.getElementById('wnxt-arr');
+
+  if (wStep === 5) {
     lbl.textContent = 'Go to dashboard';
-    if (arr) arr.style.display = 'none';
-  } else if (wStep===TOTAL) {
+    arr.style.display = 'none';
+  } else if (wStep === TOTAL) {
     lbl.textContent = 'Save & finish';
-    if (arr) arr.style.display = 'block';
+    arr.style.display = 'block';
   } else {
     lbl.textContent = 'Next';
-    if (arr) arr.style.display = 'block';
+    arr.style.display = 'block';
   }
 }
 
+/* ═══════════════════════════════════════════════════════════
+   WIZARD NAVIGATION
+═══════════════════════════════════════════════════════════ */
 async function wNext() {
-  if (wStep===5) { closeWizard(); return; }
+  if (wStep === 5) { closeWizard(); return; }
   if (!validate()) return;
-  if (wStep===TOTAL) { await save(true); return; }
-  const ok = await save(false);
-  // Only advance if save succeeded (save returns true on success)
-  if (ok) { wStep++; renderWStep(); }
+  const isLastDataStep = (wStep === TOTAL);
+  const ok = await saveStep(isLastDataStep);
+  if (ok) {
+    wStep++;
+    renderWStep();
+  }
 }
 
-function wBack() { if(wStep>1){wStep--;renderWStep();} }
+function wBack() {
+  if (wStep > 1) { wStep--; renderWStep(); }
+}
 
+/* ═══════════════════════════════════════════════════════════
+   VALIDATION
+═══════════════════════════════════════════════════════════ */
 function validate() {
   clearErrs();
   let ok = true;
-  if (wStep===1) {
-    if (!gv('w-addr'))  { serr('wf-addr');  ok=false; }
-    if (!gv('w-city'))  { serr('wf-city');  ok=false; }
-    if (!gv('w-state')) { serr('wf-state'); ok=false; }
+
+  if (wStep === 1) {
+    if (!gv('w-sname')) { serr('wf-sname'); ok = false; }
+    if (!gv('w-addr'))  { serr('wf-addr');  ok = false; }
+    if (!gv('w-city'))  { serr('wf-city');  ok = false; }
+    if (!gv('w-state')) { serr('wf-state'); ok = false; }
   }
-  if (wStep===2) {
-    if (!board) { document.getElementById('board-err').style.display='block'; ok=false; }
-    if (!classes.size) { document.getElementById('cls-err').style.display='block'; ok=false; }
-    if (!gv('w-ys')) { serr('wf-ys'); ok=false; }
-    if (!gv('w-ye')) { serr('wf-ye'); ok=false; }
+
+  if (wStep === 2) {
+    if (!board)        { document.getElementById('board-err').style.display = 'block'; ok = false; }
+    if (!classes.size) { document.getElementById('cls-err').style.display   = 'block'; ok = false; }
+    if (!gv('w-ys'))   { serr('wf-ys'); ok = false; }
+    if (!gv('w-ye'))   { serr('wf-ye'); ok = false; }
+    if (ok && gv('w-ys') && gv('w-ye') && gv('w-ys') >= gv('w-ye')) {
+      serr('wf-ye');
+      toast('error', 'Year end must be after year start.');
+      ok = false;
+    }
   }
-  if (wStep===3) {
+
+  if (wStep === 3) {
     const em = gv('w-cem');
-    if (!em||!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(em)) { serr('wf-cem'); ok=false; }
+    if (!em || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(em)) { serr('wf-cem'); ok = false; }
   }
+
   return ok;
 }
-function serr(id) { document.getElementById(id)?.classList.add('err'); }
-function clearErrs() {
-  document.querySelectorAll('.wf.err').forEach(e=>e.classList.remove('err'));
-  document.getElementById('board-err').style.display='none';
-  document.getElementById('cls-err').style.display='none';
+
+function serr(id) {
+  const el = document.getElementById(id);
+  if (el) el.classList.add('err');
 }
 
-async function save(complete) {
+function clearErrs() {
+  document.querySelectorAll('.wf.err').forEach(e => e.classList.remove('err'));
+  const be = document.getElementById('board-err');
+  const ce = document.getElementById('cls-err');
+  if (be) be.style.display = 'none';
+  if (ce) ce.style.display = 'none';
+}
+
+/* ═══════════════════════════════════════════════════════════
+   SAVE STEP
+═══════════════════════════════════════════════════════════ */
+async function saveStep(complete) {
   const btn = document.getElementById('wiz-next');
-  btn.classList.add('loading'); btn.disabled=true;
+  const lbl = document.getElementById('wnxt-lbl');
+  btn.disabled = true;
+  lbl.textContent = complete ? 'Saving…' : 'Saving…';
+
   try {
-    // Only include fields belonging to the current step (and earlier ones).
-    // Sending all fields every time would overwrite previously-saved data from
-    // later steps with empty strings when the user goes back and re-saves an
-    // earlier step.
     const payload = {
       auth_user_id:   S.user.id,
       signup_id:      SIGNUP?.id || null,
-      setup_step:     complete ? TOTAL+1 : wStep+1,
+      setup_step:     complete ? TOTAL + 1 : wStep + 1,
       setup_complete: complete,
       updated_at:     new Date().toISOString(),
     };
 
-    // Step 1: address / location
+    // Step 1 fields: school name + address
     if (wStep >= 1) {
+      payload.school_name = gv('w-sname');
+      payload.address     = gv('w-addr');
+      payload.city        = gv('w-city');
+      payload.state       = gv('w-state');
+      payload.pincode     = gv('w-pin');
+      payload.country     = document.getElementById('w-country').value;
+
+      // Logo upload (optional, skip gracefully on error)
       let logoUrl = CFG?.logo_url || null;
       if (logoFile) {
-        const ext = logoFile.name.split('.').pop();
-        const path = `logos/${S.user.id}_${Date.now()}.${ext}`;
-        const { error:ue } = await _db.storage.from('school-assets').upload(path, logoFile, {upsert:true});
-        if (!ue) {
-          const { data:ud } = _db.storage.from('school-assets').getPublicUrl(path);
-          logoUrl = ud.publicUrl;
+        try {
+          const ext  = logoFile.name.split('.').pop().toLowerCase();
+          const path = `logos/${S.user.id}_${Date.now()}.${ext}`;
+          const { error: ue } = await _db.storage.from('school-assets').upload(path, logoFile, { upsert: true });
+          if (!ue) {
+            const { data: ud } = _db.storage.from('school-assets').getPublicUrl(path);
+            logoUrl = ud.publicUrl;
+          } else {
+            console.warn('Logo upload failed (non-fatal):', ue.message);
+          }
+        } catch (e) {
+          console.warn('Logo upload error (non-fatal):', e);
         }
       }
       payload.logo_url = logoUrl;
-      payload.address  = gv('w-addr');
-      payload.city     = gv('w-city');
-      payload.state    = gv('w-state');
-      payload.pincode  = gv('w-pin');
-      payload.country  = document.getElementById('w-country').value;
     }
 
-    // Step 2: academic config
+    // Step 2 fields: academic config
     if (wStep >= 2) {
-      const carr = [...classes].sort((a,b)=>a-b);
+      const carr = [...classes].sort((a, b) => a - b);
       payload.board               = board;
-      payload.classes_from        = carr[0] || null;
-      payload.classes_to          = carr[carr.length-1] || null;
+      payload.classes_from        = carr.length ? carr[0]               : null;
+      payload.classes_to          = carr.length ? carr[carr.length - 1] : null;
       payload.timezone            = document.getElementById('w-tz').value;
-      payload.academic_year_start = document.getElementById('w-ys').value || null;
-      payload.academic_year_end   = document.getElementById('w-ye').value || null;
+      payload.academic_year_start = gv('w-ys') || null;
+      payload.academic_year_end   = gv('w-ye') || null;
     }
 
-    // Step 3: contact details
+    // Step 3 fields: contact
     if (wStep >= 3) {
       payload.website       = gv('w-web');
       payload.contact_email = gv('w-cem');
       payload.contact_phone = gv('w-cph');
     }
 
-    // Smart save: UPDATE the specific row by id if we have it,
-    // INSERT only if no row exists yet.
+    // Upsert config row
     let err;
     if (CFG?.id) {
-      // Don't include identity/ownership fields in the update —
-      // RLS policies typically reject changes to auth_user_id
+      // Update existing row — exclude ownership columns that RLS may reject changing
       const { auth_user_id: _a, signup_id: _s, ...updatePayload } = payload;
-      ({ error: err } = await _db.from('school_config')
-        .update(updatePayload)
-        .eq('id', CFG.id));
+      ({ error: err } = await _db.from('school_config').update(updatePayload).eq('id', CFG.id));
     } else {
-      const { data: inserted, error: ie } = await _db.from('school_config')
+      const { data: inserted, error: ie } = await _db
+        .from('school_config')
         .insert(payload)
         .select()
         .single();
@@ -1072,241 +1298,281 @@ async function save(complete) {
     if (err) throw err;
 
     // Step 4: process admin invites
-    if (wStep >= 4) {
-      const aiList = document.getElementById('ai-list');
-      const rows = aiList ? aiList.querySelectorAll('.ai-row') : [];
+    if (wStep >= 4 && SIGNUP?.id) {
+      const rows     = document.getElementById('ai-list')?.querySelectorAll('.ai-row') || [];
       const toInvite = [];
       rows.forEach(row => {
         const nm = row.querySelector('.ai-nm')?.value?.trim();
         const em = row.querySelector('.ai-em')?.value?.trim();
-        const rl = row.querySelector('.ai-rl')?.value || 'admin';
-        if (nm && em && SIGNUP) toInvite.push({ full_name:nm, email:em, role:rl });
+        const rl = row.querySelector('.ai-rl')?.value  || 'admin';
+        if (nm && em) toInvite.push({ full_name: nm, email: em, role: rl });
       });
 
-      const inviteResults = [];
-      for (const admin of toInvite) {
-        const r = await inviteAdmin(admin.full_name, admin.email, admin.role);
-        inviteResults.push({ ...admin, ...r });
-      }
-      const failed = inviteResults.filter(r => !r.ok);
+      const results = await Promise.allSettled(toInvite.map(a => inviteAdmin(a.full_name, a.email, a.role)));
+      const failed  = results.filter(r => r.status === 'fulfilled' && !r.value.ok);
       if (failed.length) {
-        toast('error', failed[0].error || 'Some invites failed.');
-      } else if (inviteResults.length) {
-        toast('success', inviteResults.length + ' invite(s) sent.');
+        toast('error', `${failed.length} invite(s) failed. Check console.`);
+      } else if (toInvite.length) {
+        toast('success', `${toInvite.length} invite(s) sent.`);
       }
     }
 
-    // Re-fetch config always; only re-fetch admins when relevant
+    // Also update signup row with school_name if changed
+    if (wStep >= 1 && SIGNUP?.id) {
+      const newName = gv('w-sname');
+      if (newName && newName !== SIGNUP.school_name) {
+        await _db.from('school_signups').update({ school_name: newName }).eq('id', SIGNUP.id);
+        SIGNUP.school_name = newName;
+      }
+    }
+
+    // Refresh state from DB
     await fetchConfig();
     if (complete || wStep >= 4) await fetchAdmins();
 
     if (complete) {
-      renderBadge();
-      renderSetupBanner();
-      renderDashCards();
-      renderProfile();
-      renderAdminsPage();
-      wStep = 5;
-      renderWStep();
-      toast('success','Setup complete! Your campus is ready.');
+      initUI(); // Re-render all UI with fresh data
+      toast('success', '🎉 Setup complete! Your campus is ready.');
     }
+
     return true;
-  } catch(e) {
+  } catch (e) {
     console.error('Save error:', e);
-    const msg = e?.message || e?.details || e?.hint || (typeof e === 'string' ? e : JSON.stringify(e));
-    toast('error', 'Save failed: ' + (msg || 'unknown error — check console'));
+    const msg = e?.message || e?.details || e?.hint || JSON.stringify(e);
+    toast('error', 'Save failed: ' + (msg || 'unknown error'));
     return false;
   } finally {
-    btn.classList.remove('loading'); btn.disabled=false;
+    btn.disabled = false;
+    renderWStep(); // Restore button label
   }
 }
 
-/* ── WIZARD HELPERS ── */
+/* ═══════════════════════════════════════════════════════════
+   WIZARD UI HELPERS
+═══════════════════════════════════════════════════════════ */
 function pickBoard(val, el) {
   board = val;
-  document.querySelectorAll('.board-card').forEach(c=>c.classList.remove('sel'));
+  document.querySelectorAll('.board-card').forEach(c => c.classList.remove('sel'));
   el.classList.add('sel');
-  document.getElementById('board-err').style.display='none';
+  document.getElementById('board-err').style.display = 'none';
 }
 
 function toggleCls(n, el) {
   classes.has(n) ? classes.delete(n) : classes.add(n);
   el.classList.toggle('sel', classes.has(n));
-  updateHint();
-  document.getElementById('cls-err').style.display='none';
+  updateClsHint();
+  document.getElementById('cls-err').style.display = 'none';
 }
 
 function syncChips() {
-  document.querySelectorAll('.class-chip').forEach(c=>{
-    c.classList.toggle('sel', classes.has(parseInt(c.textContent)));
+  document.querySelectorAll('.class-chip').forEach(c => {
+    c.classList.toggle('sel', classes.has(parseInt(c.textContent, 10)));
   });
-  updateHint();
+  updateClsHint();
 }
 
-function updateHint() {
-  const arr = [...classes].sort((a,b)=>a-b);
+function updateClsHint() {
+  const arr = [...classes].sort((a, b) => a - b);
   document.getElementById('cls-hint').textContent = arr.length
-    ? `Selected: Class ${arr[0]} – ${arr[arr.length-1]}`
+    ? `Selected: Class ${arr[0]} – ${arr[arr.length - 1]}`
     : 'None selected';
 }
 
 function logoChange(inp) {
-  const f = inp.files[0]; if(!f) return;
+  const f = inp.files[0];
+  if (!f) return;
+  // Validate: image only, max 5MB
+  if (!f.type.startsWith('image/')) { toast('error', 'Please upload an image file.'); return; }
+  if (f.size > 5 * 1024 * 1024)     { toast('error', 'Image must be under 5 MB.'); return; }
   logoFile = f;
   document.getElementById('logo-img').src = URL.createObjectURL(f);
   document.getElementById('logo-fn').textContent = f.name;
   document.getElementById('logo-prev').classList.add('show');
 }
+
 function removeLogo() {
-  logoFile=null;
-  document.getElementById('logo-input').value='';
+  logoFile = null;
+  document.getElementById('logo-input').value = '';
+  document.getElementById('logo-img').src = '';
   document.getElementById('logo-prev').classList.remove('show');
+  // Clear persisted URL too on next save
+  if (CFG) CFG.logo_url = null;
 }
 
-function initAiRows() { document.getElementById('ai-list').innerHTML=''; addAiRow(); }
+function initAiRows() {
+  const list = document.getElementById('ai-list');
+  list.innerHTML = '';
+  addAiRow();
+}
+
 function addAiRow() {
   const list = document.getElementById('ai-list');
-  const d = document.createElement('div');
-  d.className='ai-row';
-  d.innerHTML=`
-    <input class="ai-nm" type="text" placeholder="Full name">
-    <input class="ai-em" type="email" placeholder="Email" style="flex:1.3">
+  const d    = document.createElement('div');
+  d.className = 'ai-row';
+  d.innerHTML = `
+    <input class="ai-nm" type="text"   placeholder="Full name">
+    <input class="ai-em" type="email"  placeholder="Email" style="flex:1.3">
     <select class="ai-rl ai-role">
       <option value="admin">Admin</option>
       <option value="staff">Staff</option>
     </select>
-    <button class="ai-rm" onclick="this.closest('.ai-row').remove()">
+    <button class="ai-rm" onclick="this.closest('.ai-row').remove()" type="button">
       <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
     </button>`;
   list.appendChild(d);
 }
 
-/* ── NAV ── */
-function nav(name, el) {
-  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
-  document.getElementById('page-'+name).classList.add('active');
-  document.querySelectorAll('.sb-item').forEach(i=>i.classList.remove('active'));
-  el?.classList.add('active');
-  document.getElementById('sidebar').classList.remove('open');
-}
-
-function toggleSidebar() { document.getElementById('sidebar').classList.toggle('open'); }
-
-/* ── AUTH ── */
-async function logout() { await _db.auth.signOut(); location.href='login.html'; }
-
-/* ── TOAST ── */
-let _tt;
-function toast(type, msg) {
-  const t=document.getElementById('toast');
-  const ico=document.getElementById('toast-ico');
-  document.getElementById('toast-txt').textContent=msg;
-  ico.innerHTML = type==='success'
-    ? '<polyline points="20 6 9 17 4 12"/>'
-    : '<circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>';
-  t.className='show '+type;
-  clearTimeout(_tt);
-  _tt=setTimeout(()=>{ t.className=''; },3500);
-}
-
-/* ── INVITE MODAL ── */
+/* ═══════════════════════════════════════════════════════════
+   INVITE ADMIN (standalone modal)
+═══════════════════════════════════════════════════════════ */
 function openInviteModal() {
-  document.getElementById('inv-name').value = '';
-  document.getElementById('inv-email').value = '';
-  // FIX 6: Reset role select to default on every open
-  document.getElementById('inv-role').value = 'admin';
+  ['inv-name','inv-email'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('inv-role').value    = 'admin';
   document.getElementById('inv-err').style.display = 'none';
-  document.getElementById('inv-wf-name').classList.remove('err');
-  document.getElementById('inv-wf-email').classList.remove('err');
+  ['inv-wf-name','inv-wf-email'].forEach(id => document.getElementById(id).classList.remove('err'));
+
   const ov = document.getElementById('invite-overlay');
   ov.style.display = 'flex';
-  // FIX 7: Double rAF so display:flex is painted before opacity transition fires
   requestAnimationFrame(() => requestAnimationFrame(() => { ov.style.opacity = '1'; }));
-  setTimeout(() => document.getElementById('inv-name').focus(), 120);
+  setTimeout(() => document.getElementById('inv-name').focus(), 150);
 }
 
 function closeInviteModal() {
   const ov = document.getElementById('invite-overlay');
   ov.style.opacity = '0';
-  // FIX 8: Wait for opacity transition to finish before hiding element
-  setTimeout(() => { ov.style.display = 'none'; }, 300);
+  setTimeout(() => { ov.style.display = 'none'; }, 320);
 }
 
 async function submitInvite() {
   const nm = document.getElementById('inv-name').value.trim();
   const em = document.getElementById('inv-email').value.trim();
   const rl = document.getElementById('inv-role').value;
-  document.getElementById('inv-wf-name').classList.remove('err');
-  document.getElementById('inv-wf-email').classList.remove('err');
+
+  ['inv-wf-name','inv-wf-email'].forEach(id => document.getElementById(id).classList.remove('err'));
   document.getElementById('inv-err').style.display = 'none';
-  let ok = true;
-  if (!nm) { document.getElementById('inv-wf-name').classList.add('err'); ok=false; }
-  if (!em || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(em)) { document.getElementById('inv-wf-email').classList.add('err'); ok=false; }
-  if (!ok) return;
+
+  let valid = true;
+  if (!nm) { document.getElementById('inv-wf-name').classList.add('err');  valid = false; }
+  if (!em || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(em)) {
+    document.getElementById('inv-wf-email').classList.add('err'); valid = false;
+  }
+  if (!valid) return;
 
   const btn  = document.getElementById('inv-btn');
   const lbl  = document.getElementById('inv-btn-lbl');
   const spin = document.getElementById('inv-spin');
-  btn.disabled=true; lbl.style.display='none'; spin.style.display='block';
+  btn.disabled = true; lbl.style.display = 'none'; spin.style.display = 'block';
 
   const result = await inviteAdmin(nm, em, rl);
 
-  lbl.style.display='block'; spin.style.display='none'; btn.disabled=false;
+  lbl.style.display = 'block'; spin.style.display = 'none'; btn.disabled = false;
 
   if (result.ok) {
     closeInviteModal();
     await fetchAdmins();
     renderAdminsPage();
     renderDashCards();
-    toast('success', 'Invite sent to ' + em);
+    toast('success', `Invite sent to ${em}`);
   } else {
-    document.getElementById('inv-err').textContent = result.error;
-    document.getElementById('inv-err').style.display = 'block';
+    document.getElementById('inv-err').textContent    = result.error;
+    document.getElementById('inv-err').style.display  = 'block';
   }
 }
 
+/* ═══════════════════════════════════════════════════════════
+   INVITE ADMIN (core function)
+   NOTE: In production, move this to a Supabase Edge Function
+   so the service role key is never exposed to the client.
+═══════════════════════════════════════════════════════════ */
 async function inviteAdmin(fullName, email, role) {
   try {
-    const res = await fetch(SB_URL+'/auth/v1/invite', {
-      method: 'POST',
+    const res = await fetch(`${SB_URL}/auth/v1/invite`, {
+      method:  'POST',
       headers: {
-        'Authorization': 'Bearer ' + SB_SERVICE,
-        'apikey': SB_SERVICE,
-        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${SB_SERVICE}`,
+        'apikey':        SB_SERVICE,
+        'Content-Type':  'application/json',
       },
       body: JSON.stringify({
         email,
         data: {
-          full_name: fullName,
+          full_name:   fullName,
           role,
           school_name: schoolName() || '',
         },
-        redirect_to: location.origin + '/dashboard.html',
+        redirect_to: `${location.origin}/dashboard.html`,
       }),
     });
+
     const data = await res.json();
+
     if (!res.ok) {
       const msg = data.error_description || data.msg || data.message || data.error || 'Failed to send invite.';
-      if (/already registered|already exists|already been invited/i.test(msg))
-        return { ok:false, error:'An account with this email already exists.' };
-      return { ok:false, error: msg };
+      if (/already registered|already exists|already been invited/i.test(msg)) {
+        return { ok: false, error: 'An account with this email already exists.' };
+      }
+      return { ok: false, error: msg };
     }
-    // Record in school_admins if we have a signup_id; skip silently if not
+
+    // Record in school_admins
     if (SIGNUP?.id) {
       const { error: aiErr } = await _db.from('school_admins').insert({
         signup_id:  SIGNUP.id,
         full_name:  fullName,
         email,
         role,
+        status:     'pending',
         invited_at: new Date().toISOString(),
       });
-      if (aiErr && aiErr.code !== '23505') console.warn('Admin insert warning:', aiErr.message);
+      if (aiErr && aiErr.code !== '23505') {
+        console.warn('Admin insert warning:', aiErr.message);
+      }
     }
+
     return { ok: true };
-  } catch(e) {
+  } catch (e) {
     console.error('Invite error:', e);
-    return { ok:false, error: 'Network error. Please try again.' };
+    return { ok: false, error: 'Network error. Please try again.' };
   }
+}
+
+/* ═══════════════════════════════════════════════════════════
+   NAVIGATION
+═══════════════════════════════════════════════════════════ */
+function nav(name, el) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById('page-' + name).classList.add('active');
+  document.querySelectorAll('.sb-item').forEach(i => i.classList.remove('active'));
+  el?.classList.add('active');
+  document.getElementById('sidebar').classList.remove('open');
+}
+
+function toggleSidebar() {
+  document.getElementById('sidebar').classList.toggle('open');
+}
+
+/* ═══════════════════════════════════════════════════════════
+   AUTH
+═══════════════════════════════════════════════════════════ */
+async function logout() {
+  await _db.auth.signOut();
+  location.href = 'login.html';
+}
+
+/* ═══════════════════════════════════════════════════════════
+   TOAST
+═══════════════════════════════════════════════════════════ */
+let _toastTimer;
+function toast(type, msg) {
+  const t   = document.getElementById('toast');
+  const ico = document.getElementById('toast-ico');
+  document.getElementById('toast-txt').textContent = msg;
+  ico.innerHTML = type === 'success'
+    ? '<polyline points="20 6 9 17 4 12"/>'
+    : '<circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>';
+  t.className = `show ${type}`;
+  clearTimeout(_toastTimer);
+  _toastTimer = setTimeout(() => { t.className = ''; }, 4000);
 }
 </script>
 </body>
